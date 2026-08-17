@@ -5,6 +5,7 @@ import com.example.faceattendance.entity.Attendance.AttendanceStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -91,6 +92,15 @@ public interface AttendanceRepository
             LocalDate startDate,
             LocalDate endDate
     );
+
+    /**
+     * Permanently removes all attendance history for a student.
+     * Used before deleting the parent Student row because attendance.student_id
+     * is a foreign-key reference to students.id.
+     */
+    @Modifying(flushAutomatically = true)
+    @Query("DELETE FROM Attendance a WHERE a.student.id = :studentId")
+    int deleteByStudentId(@Param("studentId") Long studentId);
 
     /*
      * Batch lookup used to avoid N+1 queries when computing

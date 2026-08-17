@@ -97,6 +97,29 @@ public class FaceRecognitionClient {
     }
 
     @Data
+    public static class DetectRequest {
+        @JsonProperty("image_base64")
+        private String imageBase64;
+
+        public DetectRequest(String imageBase64) {
+            this.imageBase64 = imageBase64;
+        }
+    }
+
+    @Data
+    public static class DetectResponse {
+        private Boolean faceDetected;
+        private Integer x;
+        private Integer y;
+        private Integer width;
+        private Integer height;
+        private Double qualityScore;
+        private Integer imageWidth;
+        private Integer imageHeight;
+        private String message;
+    }
+
+    @Data
     public static class HealthResponse {
         private String status;
         private String service;
@@ -139,6 +162,20 @@ public class FaceRecognitionClient {
         log.debug("Calling face service recognize against {} candidates", candidates.size());
 
         return post(url, request, RecognizeResponse.class);
+    }
+
+    /**
+     * Detects a single face location for the browser auto-capture flow.
+     *
+     * This is detection only; it does not compare embeddings or mark attendance.
+     */
+    public DetectResponse detectFace(String imageBase64) {
+        String url = faceServiceUrl + "/api/face/detect";
+        DetectRequest request = new DetectRequest(imageBase64);
+
+        log.debug("Calling face service detect endpoint");
+
+        return post(url, request, DetectResponse.class);
     }
 
     /**

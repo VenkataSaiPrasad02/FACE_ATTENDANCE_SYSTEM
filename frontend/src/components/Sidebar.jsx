@@ -101,7 +101,7 @@ export default function Sidebar() {
           </span>
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-3">
 
           {/* Dashboard + Students + Attendance etc */}
           {links.filter(({ permission }) => !permission || hasPermission(role, permission)).map(({ to, label, icon: Icon }) => (
@@ -172,7 +172,7 @@ export default function Sidebar() {
             <NavLink
               to="/teachers"
               aria-label="Teachers"
-              className="mt-4 block border-t border-gray-800/60 pt-4"
+              className="mt-6 block border-t border-gray-800/60 pt-6"
             >
 
               {({ isActive }) => (
@@ -232,7 +232,7 @@ export default function Sidebar() {
             <NavLink
               to="/calendar"
               aria-label="Calendar"
-              className="mt-4 block border-t border-gray-800/60 pt-4"
+              className="mt-6 block border-t border-gray-800/60 pt-6"
             >
 
               {({ isActive }) => (
@@ -292,7 +292,7 @@ export default function Sidebar() {
             <NavLink
               to="/academic-periods"
               aria-label="Academic Periods"
-              className="mt-4 block border-t border-gray-800/60 pt-4"
+              className="mt-6 block border-t border-gray-800/60 pt-6"
             >
 
               {({ isActive }) => (
@@ -351,7 +351,7 @@ export default function Sidebar() {
             <NavLink
               to="/admin-management"
               aria-label="Admin Management"
-              className="mt-4 block border-t border-gray-800/60 pt-4"
+              className="mt-6 block border-t border-gray-800/60 pt-6"
             >
               {({ isActive }) => (
                 <motion.div
@@ -375,7 +375,7 @@ export default function Sidebar() {
       <div className="mt-auto border-t border-gray-800 p-4">
         <div className="hidden text-center text-xs text-gray-500 lg:block">
           <div className="font-medium">
-            Powered by InsightFace
+            Powered by TEAM LAZY
           </div>
 
           <div className="mt-1 text-gray-600">

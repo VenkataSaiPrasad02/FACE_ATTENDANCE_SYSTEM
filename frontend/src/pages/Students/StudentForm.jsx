@@ -158,7 +158,7 @@ export default function StudentForm({ onSubmit, initialData, onCancel }) {
         </Field>
       </div>
 
-      <div className="flex flex-col-reverse gap-3 border-t border-gray-100 pt-5 sm:flex-row sm:justify-end">
+      <div className="mt-4 flex flex-col-reverse gap-3 border-t border-gray-100 pt-6 sm:flex-row sm:justify-end">
         {onCancel && (
           <Button
             variant="secondary"

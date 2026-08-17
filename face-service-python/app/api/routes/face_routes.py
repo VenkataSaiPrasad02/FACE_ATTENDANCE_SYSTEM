@@ -13,6 +13,7 @@ from app.middleware.request_timing import record_timing
 from app.schemas.face_request import (
     FaceRegisterRequest,
     FaceRecognizeRequest,
+    FaceDetectRequest,
 )
 from app.schemas.face_response import (
     FaceRegisterResponse,
@@ -275,6 +276,109 @@ async def register_face(
         embedding_dim=len(embedding),
         message="Face registered successfully",
     )
+
+
+# ---------------------------------------------------------------------------
+# Lightweight camera face detection
+# ---------------------------------------------------------------------------
+
+@router.post(
+    "/detect",
+    status_code=status.HTTP_200_OK,
+    summary="Detect a face for camera auto-capture",
+    description=(
+        "Detects a single face and returns its bounding box. "
+        "This endpoint is used only by the camera auto-capture flow; "
+        "it does not perform embedding comparison or mark attendance."
+    ),
+)
+async def detect_face(
+    request_data: FaceDetectRequest,
+    request: Request,
+    detection_svc: FaceDetectionService = Depends(
+        get_detection_service
+    ),
+):
+    """
+    Detect exactly one usable face and return its location.
+
+    The frontend calls this at a low, throttled rate rather than sending
+    every camera frame to the recognition endpoint.
+    """
+
+    image = decode_base64_image(request_data.image_base64)
+
+    if image is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Invalid image data.",
+        )
+
+    image_height, image_width = image.shape[:2]
+
+    faces = detection_svc.detect_faces(image)
+
+    if len(faces) == 0:
+        return {
+            "faceDetected": False,
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "qualityScore": 0.0,
+            "imageWidth": image_width,
+            "imageHeight": image_height,
+            "message": "No face detected.",
+        }
+
+    if len(faces) > 1:
+        return {
+            "faceDetected": False,
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "qualityScore": 0.0,
+            "imageWidth": image_width,
+            "imageHeight": image_height,
+            "message": "Multiple faces detected. Please present one face.",
+        }
+
+    face = faces[0]
+    x1, y1, x2, y2 = face.bbox
+
+    x1 = max(0, min(int(x1), image_width - 1))
+    y1 = max(0, min(int(y1), image_height - 1))
+    x2 = max(x1 + 1, min(int(x2), image_width))
+    y2 = max(y1 + 1, min(int(y2), image_height))
+
+    width = x2 - x1
+    height = y2 - y1
+
+    if not detection_svc.is_quality_sufficient(face):
+        return {
+            "faceDetected": False,
+            "x": x1,
+            "y": y1,
+            "width": width,
+            "height": height,
+            "qualityScore": round(float(face.quality_score), 4),
+            "imageWidth": image_width,
+            "imageHeight": image_height,
+            "message": "Face detected but image quality is too low.",
+        }
+
+    return {
+        "faceDetected": True,
+        "x": x1,
+        "y": y1,
+        "width": width,
+        "height": height,
+        "qualityScore": round(float(face.quality_score), 4),
+        "imageWidth": image_width,
+        "imageHeight": image_height,
+        "message": "Face detected.",
+    }
 
 
 # ---------------------------------------------------------------------------

@@ -36,3 +36,13 @@ class FaceRecognizeRequest(BaseModel):
         description="List of candidate students with their stored embeddings",
         min_items=1,
     )
+
+
+class FaceDetectRequest(BaseModel):
+    """Request body for camera face-location detection."""
+
+    image_base64: str = Field(
+        ...,
+        description="Base64-encoded camera frame",
+        min_length=100,
+    )

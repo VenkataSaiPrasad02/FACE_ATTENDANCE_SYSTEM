@@ -7,6 +7,7 @@ import com.example.faceattendance.entity.Student;
 import com.example.faceattendance.exception.DuplicateStudentException;
 import com.example.faceattendance.exception.ResourceNotFoundException;
 import com.example.faceattendance.mapper.StudentMapper;
+import com.example.faceattendance.repository.AttendanceRepository;
 import com.example.faceattendance.repository.FaceDataRepository;
 import com.example.faceattendance.repository.StudentRepository;
 import com.example.faceattendance.service.AttendanceService;
@@ -32,6 +33,7 @@ public class StudentServiceImpl implements StudentService {
     private final StudentMapper studentMapper;
     private final AttendanceService attendanceService;
     private final FaceDataRepository faceDataRepository;
+    private final AttendanceRepository attendanceRepository;
     private final EmbeddingCacheService embeddingCacheService;
 
     @Override
@@ -77,9 +79,9 @@ public class StudentServiceImpl implements StudentService {
         Page<Student> page =
                 StringUtils.hasText(search)
                         ? studentRepository.searchByNameOrNumber(
-                                search.trim(),
-                                pageable
-                        )
+                        search.trim(),
+                        pageable
+                )
                         : studentRepository.findAll(pageable);
 
         // One grouped calculation for the whole page — never one
@@ -198,6 +200,17 @@ public class StudentServiceImpl implements StudentService {
         // Delete associated face data first
         faceDataRepository.findByStudentId(id)
                 .ifPresent(faceDataRepository::delete);
+
+        // Delete attendance history before deleting the parent student row.
+        // attendance.student_id -> students.id is a foreign-key relationship.
+        int deletedAttendanceCount =
+                attendanceRepository.deleteByStudentId(id);
+
+        log.info(
+                "Deleted attendance records: studentId={}, count={}",
+                id,
+                deletedAttendanceCount
+        );
 
         // Then delete the student
         studentRepository.delete(student);
