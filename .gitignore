@@ -1,0 +1,31 @@
+# Environment / Secrets
+.env
+.env.*
+!.env.example
+
+# Java / Spring Boot / Maven
+backend-java/target/
+backend-java/*.class
+
+# React / Vite
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Python
+**/__pycache__/
+*.pyc
+face-service-python/.venv/
+face-service-python/venv/
+
+# User-uploaded files
+backend-java/uploads/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
