@@ -175,11 +175,15 @@ export default function PolishedCameraCapture({
     startCamera();
 
     return () => {
-      if (state !== CAMERA_STATES.LIVE && streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
-        streamRef.current = null;
-      }
-    };
+  if (streamRef.current) {
+    streamRef.current.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+  }
+
+  if (videoRef.current) {
+    videoRef.current.srcObject = null;
+  }
+};
   }, [state]);
 
   useEffect(() => {

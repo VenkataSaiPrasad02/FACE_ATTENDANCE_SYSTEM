@@ -37,3 +37,4 @@ export default function EmptyState({ icon: Icon = 'default', title, description,
     </motion.div>
   );
 }
+

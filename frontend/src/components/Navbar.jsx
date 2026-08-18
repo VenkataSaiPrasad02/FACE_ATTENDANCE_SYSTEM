@@ -1,18 +1,30 @@
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LogOut, Clock, KeyRound, MoreVertical } from 'lucide-react';
+import {
+  LogOut,
+  Clock,
+  KeyRound,
+  MoreVertical,
+  X,
+} from 'lucide-react';
 import { useState, useEffect } from 'react';
-import ProfileAvatar from './ProfileAvatar'; // NEW
+import ProfileAvatar from './ProfileAvatar';
 
 export default function Navbar() {
-  const { username, role, profilePhotoUrl, logout } = useAuth(); // profilePhotoUrl added
+  const { username, role, profilePhotoUrl, logout } = useAuth();
   const navigate = useNavigate();
+
   const [currentTime, setCurrentTime] = useState(new Date());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    const timer = setInterval(
+      () => setCurrentTime(new Date()),
+      1000
+    );
+
     return () => clearInterval(timer);
   }, []);
 
@@ -21,112 +33,239 @@ export default function Navbar() {
     navigate('/login');
   };
 
-  const formatTime = (date) => {
-    return date.toLocaleTimeString('en-US', {
+  const openLogoutConfirmation = () => {
+    setMobileMenuOpen(false);
+    setLogoutConfirmOpen(true);
+  };
+
+  const cancelLogout = () => {
+    setLogoutConfirmOpen(false);
+  };
+
+  const confirmLogout = () => {
+    setLogoutConfirmOpen(false);
+    handleLogout();
+  };
+
+  const formatTime = (date) =>
+    date.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
-      hour12: true
+      hour12: true,
     });
-  };
 
   return (
-    <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-3 shadow-sm sm:px-6">
-      <div className="flex items-center gap-4">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="hidden items-center gap-2 text-gray-600 sm:flex"
-        >
-          <Clock size={18} className="text-blue-600" />
-          <span className="font-medium tabular-nums">{formatTime(currentTime)}</span>
-        </motion.div>
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="flex items-center gap-2 sm:gap-4"
+    <>
+      {/* ================= NAVBAR ================= */}
+      <header
+        className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-black/[0.06] px-3 sm:px-6"
+        style={{
+          background: 'rgba(255,255,255,0.72)',
+          backdropFilter: 'saturate(180%) blur(14px)',
+          WebkitBackdropFilter: 'saturate(180%) blur(14px)',
+        }}
       >
-        <button
-          type="button"
-          onClick={() => navigate('/profile')}
-          title="View my profile"
-          className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-1.5 text-left transition-colors hover:border-blue-200 hover:bg-blue-50 sm:px-4 sm:py-2"
-        >
-          <ProfileAvatar photoUrl={profilePhotoUrl} name={username} size="sm" shape="lg" />
-          <div className="hidden flex-col sm:flex">
-            <span className="text-sm font-semibold text-gray-900 leading-tight">{username}</span>
-            <span className="text-xs font-medium text-blue-600 leading-tight">{role}</span>
-          </div>
-        </button>
-
-        {/* Desktop actions */}
-        <div className="hidden items-center gap-3 sm:flex">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => navigate('/change-password')}
-            className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600 shadow-sm transition-all duration-200 hover:border-blue-300 hover:bg-blue-100 hover:text-blue-700"
-            title="Change password"
+        {/* Left side */}
+        <div className="flex items-center gap-4">
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="hidden items-center gap-2 rounded-full border border-black/[0.06] bg-white/70 px-3 py-1.5 text-[13px] font-medium text-neutral-600 shadow-[0_1px_2px_rgba(0,0,0,0.03)] sm:flex"
           >
-            <KeyRound size={16} />
-            <span>Change Password</span>
-          </motion.button>
+            <Clock
+              size={15}
+              className="text-neutral-500"
+            />
 
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleLogout}
-            className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-600 shadow-sm transition-all duration-200 hover:border-red-300 hover:bg-red-100 hover:text-red-700 hover:shadow"
-          >
-            <LogOut size={16} />
-            <span>Logout</span>
-          </motion.button>
+            <span className="tabular-nums tracking-tight">
+              {formatTime(currentTime)}
+            </span>
+          </motion.div>
         </div>
 
-        {/* Mobile overflow menu */}
-        <div className="relative sm:hidden">
-          <motion.button
-            whileTap={{ scale: 0.95 }}
+        {/* Right side */}
+        <motion.div
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="flex items-center gap-2 sm:gap-3"
+        >
+          {/* Profile */}
+          <button
             type="button"
-            onClick={() => setMobileMenuOpen((open) => !open)}
-            aria-label="Open account menu"
-            aria-expanded={mobileMenuOpen}
-            className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 shadow-sm transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600"
+            onClick={() => navigate('/profile')}
+            title="View my profile"
+            className="flex items-center gap-3 rounded-full border border-black/[0.06] bg-white/70 py-1 pl-1 pr-1 text-left transition-all hover:border-black/[0.12] hover:bg-white hover:shadow-[0_1px_3px_rgba(0,0,0,0.06)] sm:pr-3"
           >
-            <MoreVertical size={20} />
-          </motion.button>
+            <ProfileAvatar
+              photoUrl={profilePhotoUrl}
+              name={username}
+              size="sm"
+              shape="lg"
+            />
 
-          {mobileMenuOpen && (
-            <div className="absolute right-0 top-12 z-[70] w-48 overflow-hidden rounded-xl border border-gray-200 bg-white p-1.5 shadow-xl">
+            <div className="hidden flex-col pr-1 sm:flex">
+              <span className="text-[13px] font-semibold leading-tight text-neutral-900">
+                {username}
+              </span>
+
+              <span className="text-[11px] font-medium leading-tight text-neutral-500">
+                {role}
+              </span>
+            </div>
+          </button>
+
+          {/* ================= DESKTOP ACTIONS ================= */}
+          <div className="hidden items-center gap-2 sm:flex">
+
+            {/* Change Password */}
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={() => navigate('/change-password')}
+              className="flex items-center gap-2 rounded-full border border-black/[0.08] bg-white px-3.5 py-2 text-[13px] font-medium text-neutral-700 transition-all hover:bg-neutral-50 hover:text-neutral-900"
+              title="Change password"
+            >
+              <KeyRound size={15} />
+              <span>Change Password</span>
+            </motion.button>
+
+            {/* Logout */}
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={openLogoutConfirmation}
+              className="flex items-center gap-2 rounded-full border border-black/[0.08] bg-white/70 px-3.5 py-2 text-[13px] font-medium text-neutral-700 transition-all hover:border-red-200 hover:bg-red-50/70 hover:text-red-600 hover:shadow-[0_1px_3px_rgba(0,0,0,0.06)]"
+              title="Logout"
+            >
+              <LogOut size={15} />
+              <span>Logout</span>
+            </motion.button>
+          </div>
+
+          {/* ================= MOBILE MENU ================= */}
+          <div className="relative sm:hidden">
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              type="button"
+              onClick={() =>
+                setMobileMenuOpen((open) => !open)
+              }
+              aria-label="Open account menu"
+              aria-expanded={mobileMenuOpen}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-black/[0.08] bg-white text-neutral-600 transition-colors hover:bg-neutral-50"
+            >
+              <MoreVertical size={19} />
+            </motion.button>
+
+            {mobileMenuOpen && (
+              <div className="absolute right-0 top-12 z-[70] w-48 overflow-hidden rounded-xl border border-black/[0.06] bg-white/95 p-1.5 shadow-lg backdrop-blur">
+
+                {/* Mobile Change Password */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigate('/change-password');
+                  }}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+                >
+                  <KeyRound size={16} />
+                  Change Password
+                </button>
+
+                {/* Mobile Logout */}
+                <button
+                  type="button"
+                  onClick={openLogoutConfirmation}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
+                >
+                  <LogOut size={16} />
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      </header>
+
+      {/* ================= LOGOUT CONFIRMATION ================= */}
+      {logoutConfirmOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/15 p-5 backdrop-blur-md">
+
+          <motion.div
+            initial={{
+              opacity: 0,
+              scale: 0.94,
+              y: 12,
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              y: 0,
+            }}
+            transition={{ duration: 0.2 }}
+            className="w-full max-w-lg rounded-3xl border border-white/70 bg-white/80 p-8 shadow-[0_25px_80px_rgba(0,0,0,0.14)] backdrop-blur-2xl sm:p-10"
+          >
+
+            {/* Icon + Close */}
+            <div className="flex items-start justify-between">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-red-100/80 bg-red-50/70">
+                <LogOut
+                  size={27}
+                  className="text-red-500"
+                />
+              </div>
+
               <button
                 type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  navigate('/change-password');
-                }}
-                className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-700"
+                onClick={cancelLogout}
+                aria-label="Close logout confirmation"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-black/[0.06] bg-white/60 text-neutral-500 transition-all hover:bg-white hover:text-neutral-800"
               >
-                <KeyRound size={17} />
-                Change Password
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  handleLogout();
-                }}
-                className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
-              >
-                <LogOut size={17} />
-                Logout
+                <X size={19} />
               </button>
             </div>
-          )}
+
+            {/* Content */}
+            <div className="mt-8">
+              <h3 className="text-2xl font-semibold tracking-tight text-neutral-900">
+                Confirm logout
+              </h3>
+
+              <p className="mt-4 text-base leading-7 text-neutral-500">
+                Are you sure you want to log out of your account?
+              </p>
+
+              <p className="mt-2 text-sm leading-6 text-neutral-400">
+                You will need to sign in again to access your dashboard.
+              </p>
+            </div>
+
+            {/* Large gap before buttons */}
+            <div className="mt-10 flex items-center justify-end gap-4 border-t border-black/6 pt-6">
+
+              {/* Cancel */}
+              <button
+                type="button"
+                onClick={cancelLogout}
+                className="rounded-xl border border-black/8 bg-white/70 px-6 py-3 text-sm font-medium text-neutral-700 transition-all hover:border-black/[0.1] hover:bg-white hover:shadow-sm"
+              >
+                Cancel
+              </button>
+
+              {/* Logout */}
+              <button
+                type="button"
+                onClick={confirmLogout}
+                className="rounded-xl border border-red-500/10 bg-red-500/90 px-6 py-3 text-sm font-medium text-white shadow-sm transition-all hover:bg-red-600 hover:shadow-md"
+              >
+                Logout
+              </button>
+
+            </div>
+
+          </motion.div>
         </div>
-      </motion.div>
-    </header>
+      )}
+    </>
   );
 }
