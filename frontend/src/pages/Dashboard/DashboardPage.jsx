@@ -60,7 +60,7 @@ export default function DashboardPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
+        className="mb-7"
       >
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -95,7 +95,7 @@ export default function DashboardPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-6"
         >
           <ErrorState
             title="Failed to load statistics"
@@ -109,7 +109,7 @@ export default function DashboardPage() {
         <>
           {/* Attendance KPIs */}
           <motion.div 
-            className="mb-8 grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-4"
+            className="mb-7 grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-4"
             initial="hidden"
             animate="visible"
             variants={{
@@ -174,7 +174,7 @@ export default function DashboardPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="grid grid-cols-1 gap-8 lg:grid-cols-2"
+            className="grid grid-cols-1 gap-6 lg:grid-cols-2"
           >
             <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
               <div className="mb-5 flex items-start justify-between gap-4">

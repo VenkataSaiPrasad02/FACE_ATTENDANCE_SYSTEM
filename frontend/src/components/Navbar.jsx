@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -8,11 +9,10 @@ import {
   MoreVertical,
   X,
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
 import ProfileAvatar from './ProfileAvatar';
 
 export default function Navbar() {
-  const { username, role, profilePhotoUrl, logout } = useAuth();
+  const { username, role, logout, profilePhotoUrl } = useAuth();
   const navigate = useNavigate();
 
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -117,7 +117,6 @@ export default function Navbar() {
 
           {/* ================= DESKTOP ACTIONS ================= */}
           <div className="hidden items-center gap-2 sm:flex">
-
             {/* Change Password */}
             <motion.button
               whileTap={{ scale: 0.97 }}
@@ -158,7 +157,6 @@ export default function Navbar() {
 
             {mobileMenuOpen && (
               <div className="absolute right-0 top-12 z-[70] w-48 overflow-hidden rounded-xl border border-black/[0.06] bg-white/95 p-1.5 shadow-lg backdrop-blur">
-
                 {/* Mobile Change Password */}
                 <button
                   type="button"
@@ -190,7 +188,6 @@ export default function Navbar() {
       {/* ================= LOGOUT CONFIRMATION ================= */}
       {logoutConfirmOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/15 p-5 backdrop-blur-md">
-
           <motion.div
             initial={{
               opacity: 0,
@@ -205,7 +202,6 @@ export default function Navbar() {
             transition={{ duration: 0.2 }}
             className="w-full max-w-lg rounded-3xl border border-white/70 bg-white/80 p-8 shadow-[0_25px_80px_rgba(0,0,0,0.14)] backdrop-blur-2xl sm:p-10"
           >
-
             {/* Icon + Close */}
             <div className="flex items-start justify-between">
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-red-100/80 bg-red-50/70">
@@ -240,9 +236,8 @@ export default function Navbar() {
               </p>
             </div>
 
-            {/* Large gap before buttons */}
+            {/* Buttons */}
             <div className="mt-10 flex items-center justify-end gap-4 border-t border-black/6 pt-6">
-
               {/* Cancel */}
               <button
                 type="button"
@@ -260,9 +255,7 @@ export default function Navbar() {
               >
                 Logout
               </button>
-
             </div>
-
           </motion.div>
         </div>
       )}

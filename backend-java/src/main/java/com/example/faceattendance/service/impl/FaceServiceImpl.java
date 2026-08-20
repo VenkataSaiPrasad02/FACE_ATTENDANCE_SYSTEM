@@ -3,8 +3,6 @@ package com.example.faceattendance.service.impl;
 import com.example.faceattendance.client.FaceRecognitionClient;
 import com.example.faceattendance.dto.face.FaceRegisterRequest;
 import com.example.faceattendance.dto.face.FaceRegisterResponse;
-import com.example.faceattendance.dto.face.FaceDetectRequest;
-import com.example.faceattendance.dto.face.FaceDetectResponse;
 import com.example.faceattendance.entity.FaceData;
 import com.example.faceattendance.entity.Student;
 import com.example.faceattendance.exception.ResourceNotFoundException;
@@ -131,26 +129,5 @@ public class FaceServiceImpl implements FaceService {
 
         log.info("Face embedding cache refreshed after deletion. Cached candidates={}",
                 embeddingCacheService.size());
-    }
-
-    @Override
-    public FaceDetectResponse detect(FaceDetectRequest request) {
-
-        FaceRecognitionClient.DetectResponse response =
-                faceRecognitionClient.detectFace(
-                        request.getImageBase64()
-                );
-
-        return FaceDetectResponse.builder()
-                .faceDetected(Boolean.TRUE.equals(response.getFaceDetected()))
-                .x(response.getX() == null ? 0 : response.getX())
-                .y(response.getY() == null ? 0 : response.getY())
-                .width(response.getWidth() == null ? 0 : response.getWidth())
-                .height(response.getHeight() == null ? 0 : response.getHeight())
-                .qualityScore(response.getQualityScore() == null ? 0.0 : response.getQualityScore())
-                .imageWidth(response.getImageWidth() == null ? 0 : response.getImageWidth())
-                .imageHeight(response.getImageHeight() == null ? 0 : response.getImageHeight())
-                .message(response.getMessage())
-                .build();
     }
 }

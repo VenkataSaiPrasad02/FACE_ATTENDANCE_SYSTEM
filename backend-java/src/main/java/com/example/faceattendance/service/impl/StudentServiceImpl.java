@@ -32,8 +32,8 @@ public class StudentServiceImpl implements StudentService {
     private final StudentRepository studentRepository;
     private final StudentMapper studentMapper;
     private final AttendanceService attendanceService;
-    private final FaceDataRepository faceDataRepository;
     private final AttendanceRepository attendanceRepository;
+    private final FaceDataRepository faceDataRepository;
     private final EmbeddingCacheService embeddingCacheService;
 
     @Override
@@ -84,8 +84,10 @@ public class StudentServiceImpl implements StudentService {
                 )
                         : studentRepository.findAll(pageable);
 
-        // One grouped calculation for the whole page — never one
-        // attendance lookup per student row.
+        /*
+         * One grouped calculation for the whole page.
+         * Avoids one attendance query per student.
+         */
         Map<Long, Double> percentageByStudentId =
                 attendanceService.getAttendancePercentages(
                         page.getContent()
@@ -110,7 +112,8 @@ public class StudentServiceImpl implements StudentService {
 
         Student student = findOrThrow(id);
 
-        StudentResponse response = studentMapper.toDto(student);
+        StudentResponse response =
+                studentMapper.toDto(student);
 
         response.setAttendancePercentage(
                 attendanceService
@@ -154,7 +157,9 @@ public class StudentServiceImpl implements StudentService {
         }
 
         if (StringUtils.hasText(request.getSemester())) {
-            student.setSemester(formatSemester(request.getSemester()));
+            student.setSemester(
+                    formatSemester(request.getSemester())
+            );
         }
 
         Student saved = studentRepository.save(student);
@@ -166,6 +171,7 @@ public class StudentServiceImpl implements StudentService {
 
         return studentMapper.toDto(saved);
     }
+
     private String formatSemester(String semester) {
 
         if (semester == null || semester.isBlank()) {
@@ -191,34 +197,137 @@ public class StudentServiceImpl implements StudentService {
             default -> value;
         };
     }
+
     @Override
     @Transactional
     public void delete(Long id) {
 
+        long totalStart = System.nanoTime();
+
+        log.info(
+                "[DELETE] Starting student deletion: studentId={}",
+                id
+        );
+
+        // ---------------------------------------------------------
+        // 1. Verify student exists
+        // ---------------------------------------------------------
+
+        long stepStart = System.nanoTime();
+
         Student student = findOrThrow(id);
 
-        // Delete associated face data first
-        faceDataRepository.findByStudentId(id)
-                .ifPresent(faceDataRepository::delete);
+        log.info(
+                "[DELETE] Student lookup: {} ms",
+                elapsedMs(stepStart)
+        );
 
-        // Delete attendance history before deleting the parent student row.
-        // attendance.student_id -> students.id is a foreign-key relationship.
-        int deletedAttendanceCount =
+        // ---------------------------------------------------------
+        // 2. Delete attendance records FIRST
+        // ---------------------------------------------------------
+        /*
+         * Attendance contains:
+         *
+         * attendance.student_id
+         *        ↓
+         * students.id
+         *
+         * Therefore, attendance MUST be deleted before Student.
+         */
+
+        stepStart = System.nanoTime();
+
+        int attendanceDeleted =
                 attendanceRepository.deleteByStudentId(id);
 
         log.info(
-                "Deleted attendance records: studentId={}, count={}",
-                id,
-                deletedAttendanceCount
+                "[DELETE] Attendance records deleted: count={} | {} ms",
+                attendanceDeleted,
+                elapsedMs(stepStart)
         );
 
-        // Then delete the student
+        /*
+         * Force the DELETE statement to reach MySQL now.
+         *
+         * This guarantees the foreign-key dependent rows are gone
+         * before we attempt to delete the Student.
+         */
+        stepStart = System.nanoTime();
+
+        attendanceRepository.flush();
+
+        log.info(
+                "[DELETE] Attendance DB flush: {} ms",
+                elapsedMs(stepStart)
+        );
+
+        // ---------------------------------------------------------
+        // 3. Delete FaceData
+        // ---------------------------------------------------------
+
+        stepStart = System.nanoTime();
+
+        boolean faceDataExists =
+                faceDataRepository.existsByStudentId(id);
+
+        if (faceDataExists) {
+            faceDataRepository.deleteByStudentId(id);
+            faceDataRepository.flush();
+        }
+
+        log.info(
+                "[DELETE] FaceData deleted: exists={} | {} ms",
+                faceDataExists,
+                elapsedMs(stepStart)
+        );
+
+        // ---------------------------------------------------------
+        // 4. Delete Student
+        // ---------------------------------------------------------
+
+        stepStart = System.nanoTime();
+
         studentRepository.delete(student);
 
-        // Refresh in-memory face embedding cache
+        /*
+         * Force the student DELETE to execute immediately.
+         *
+         * At this point:
+         *   Attendance -> deleted
+         *   FaceData   -> deleted
+         *
+         * Therefore, the Student foreign-key constraints are safe.
+         */
+        studentRepository.flush();
+
+        log.info(
+                "[DELETE] Student DB delete + flush: {} ms",
+                elapsedMs(stepStart)
+        );
+
+        // ---------------------------------------------------------
+        // 5. Refresh Java embedding cache
+        // ---------------------------------------------------------
+
+        stepStart = System.nanoTime();
+
         embeddingCacheService.refresh();
 
-        log.info("Student deleted: id={}", id);
+        log.info(
+                "[DELETE] Embedding cache refresh + Python sync: {} ms | cachedCandidates={}",
+                elapsedMs(stepStart),
+                embeddingCacheService.size()
+        );
+
+        // ---------------------------------------------------------
+        // 6. Total
+        // ---------------------------------------------------------
+
+        log.info(
+                "[DELETE] COMPLETE: studentId={} | total={} ms",
+                id,
+                elapsedMs(totalStart)
+        );
     }
 
     private Student findOrThrow(Long id) {
@@ -230,5 +339,9 @@ public class StudentServiceImpl implements StudentService {
                                 "Student not found with id: " + id
                         )
                 );
+    }
+
+    private long elapsedMs(long startNanos) {
+        return (System.nanoTime() - startNanos) / 1_000_000;
     }
 }

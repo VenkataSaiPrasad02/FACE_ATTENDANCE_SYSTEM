@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -86,6 +87,7 @@ public interface AttendanceRepository
             @Param("studentId") Long studentId,
             @Param("status") AttendanceStatus status
     );
+
     long countByStudentIdAndStatusAndAttendanceDateBetween(
             Long studentId,
             Attendance.AttendanceStatus status,
@@ -93,20 +95,10 @@ public interface AttendanceRepository
             LocalDate endDate
     );
 
-    /**
-     * Permanently removes all attendance history for a student.
-     * Used before deleting the parent Student row because attendance.student_id
-     * is a foreign-key reference to students.id.
-     */
-    @Modifying(flushAutomatically = true)
-    @Query("DELETE FROM Attendance a WHERE a.student.id = :studentId")
-    int deleteByStudentId(@Param("studentId") Long studentId);
-
     /*
      * Batch lookup used to avoid N+1 queries when computing
      * attendance percentage for a group of students that share
-     * the same academic period (course + batch + semester).
-     * Returns [studentId, presentCount] pairs.
+     * the same academic period.
      */
     @Query("""
             SELECT a.student.id, COUNT(a)
@@ -121,5 +113,21 @@ public interface AttendanceRepository
             @Param("status") AttendanceStatus status,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
+    );
+
+    /*
+     * Delete all attendance records belonging to a student.
+     *
+     * This MUST happen before deleting the Student entity because
+     * attendance.student_id has a foreign-key reference to students.id.
+     */
+    @Modifying
+    @Transactional
+    @Query("""
+            DELETE FROM Attendance a
+            WHERE a.student.id = :studentId
+            """)
+    int deleteByStudentId(
+            @Param("studentId") Long studentId
     );
 }

@@ -21,6 +21,7 @@ public class EmbeddingCacheService {
 
     private final FaceDataRepository faceDataRepository;
     private final ObjectMapper objectMapper;
+    private final FaceRecognitionClient faceRecognitionClient;
 
     /*
      * Holds all registered face embeddings in memory.
@@ -89,6 +90,11 @@ public class EmbeddingCacheService {
          * has been successfully created.
          */
         cache.set(newCache);
+        try {
+            faceRecognitionClient.syncEmbeddings(newCache);
+        } catch (Exception e) {
+            log.warn("Failed to sync embeddings to Python service: {}", e.getMessage());
+        }
 
         long elapsed =
                 (System.nanoTime() - start) / 1_000_000;

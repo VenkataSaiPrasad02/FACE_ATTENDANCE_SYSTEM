@@ -119,9 +119,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         FaceRecognitionClient.RecognizeResponse pythonResponse =
                 faceRecognitionClient.recognizeFace(
-                        request.getImageBase64(),
-                        candidates
-                );
+                        request.getImageBase64());
 
         perf.stop(
                 "Recognize - Python service call (network + CV pipeline, "

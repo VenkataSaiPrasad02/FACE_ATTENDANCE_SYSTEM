@@ -1,107 +1,195 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ScanFace } from 'lucide-react';
-import PolishedCameraCapture, { CAMERA_STATES } from '../../components/PolishedCameraCapture';
+import PolishedCameraCapture, {
+  CAMERA_STATES,
+} from '../../components/PolishedCameraCapture';
 import RecognitionResult from './RecognitionResult';
 import attendanceService from '../../services/attendanceService';
-
-const RESULT_DISPLAY_MS = 3000;
-const ERROR_RETRY_MS = 1800;
+import Button from '../../components/ui/Button';
 
 export default function AttendancePage() {
-  const [cameraState, setCameraState] = useState(CAMERA_STATES.LIVE);
+  const [cameraState, setCameraState] = useState(CAMERA_STATES.IDLE);
   const [capturedImage, setCapturedImage] = useState(null);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const resumeTimerRef = useRef(null);
-
-  const clearResumeTimer = () => {
-    if (resumeTimerRef.current) {
-      window.clearTimeout(resumeTimerRef.current);
-      resumeTimerRef.current = null;
-    }
+  const handleStartCamera = () => {
+    setError('');
+    setResult(null);
+    setCameraState(CAMERA_STATES.LIVE);
   };
 
-  const resumeCamera = useCallback((delay = 0) => {
-    clearResumeTimer();
-
-    resumeTimerRef.current = window.setTimeout(() => {
-      setCapturedImage(null);
-      setResult(null);
-      setError('');
-      setCameraState(CAMERA_STATES.LIVE);
-      resumeTimerRef.current = null;
-    }, delay);
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      clearResumeTimer();
-    };
-  }, []);
-
-  const handleStopCamera = useCallback(() => {
-    clearResumeTimer();
+  const handleStopCamera = () => {
     setCameraState(CAMERA_STATES.IDLE);
     setCapturedImage(null);
     setResult(null);
     setError('');
-    setLoading(false);
-  }, []);
+  };
 
-  const handleAutoCapture = useCallback(
-    async (imageDataUrl) => {
-      if (
-        loading ||
-        cameraState !== CAMERA_STATES.LIVE
-      ) {
-        return;
-      }
+  const handleCapture = () => {
+    const captureStart = performance.now();
 
-      setCapturedImage(imageDataUrl);
-      setCameraState(CAMERA_STATES.PROCESSING);
-      setError('');
-      setLoading(true);
+    const video = document.querySelector('video');
 
-      try {
-        const data = await attendanceService.recognize(
-          imageDataUrl.split(',')[1]
+    if (!video?.videoWidth) {
+      setError(
+        'Video is not ready yet. Please wait for the camera to initialize.'
+      );
+      return;
+    }
+
+    const canvas = document.createElement('canvas');
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const context = canvas.getContext('2d');
+
+    if (!context) {
+      setError('Unable to capture camera frame.');
+      return;
+    }
+
+    context.drawImage(video, 0, 0);
+
+    const captured = canvas.toDataURL('image/jpeg', 0.9);
+
+    setCapturedImage(captured);
+    setCameraState(CAMERA_STATES.CAPTURED);
+
+    const captureEnd = performance.now();
+
+    console.log(
+      `[PERF] Frontend - capture + JPEG/Base64: ${(
+        captureEnd - captureStart
+      ).toFixed(2)} ms`
+    );
+
+    console.log(
+      `[PERF] Frontend - image dimensions: ${video.videoWidth}x${video.videoHeight}`
+    );
+
+    console.log(
+      `[PERF] Frontend - Base64 payload: ${(
+        captured.length / 1024
+      ).toFixed(2)} KB`
+    );
+  };
+
+  const handleReCapture = () => {
+    setCapturedImage(null);
+    setError('');
+    setResult(null);
+    setCameraState(CAMERA_STATES.LIVE);
+  };
+
+  const handleSubmit = async () => {
+    if (!capturedImage) {
+      return;
+    }
+
+    const totalStart = performance.now();
+
+    setCameraState(CAMERA_STATES.PROCESSING);
+    setError('');
+    setLoading(true);
+
+    try {
+      const base64Start = performance.now();
+
+      const imageBase64 = capturedImage.split(',')[1];
+
+      const base64End = performance.now();
+
+      console.log(
+        `[PERF] Frontend - extract Base64: ${(
+          base64End - base64Start
+        ).toFixed(2)} ms`
+      );
+
+      console.log(
+        `[PERF] Frontend - request payload Base64 size: ${(
+          imageBase64.length / 1024
+        ).toFixed(2)} KB`
+      );
+
+      console.log(
+        '[PERF] Recognition request START'
+      );
+
+      const requestStart = performance.now();
+
+      const data = await attendanceService.recognize(imageBase64);
+
+      const requestEnd = performance.now();
+
+      const requestTime = requestEnd - requestStart;
+      const totalTime = requestEnd - totalStart;
+
+      console.log(
+        `[PERF] Frontend - attendance API request/response: ${requestTime.toFixed(
+          2
+        )} ms`
+      );
+
+      console.log(
+        `[PERF] Frontend - recognition TOTAL: ${totalTime.toFixed(2)} ms`
+      );
+
+      console.log(
+        '[PERF] Recognition request END',
+        data
+      );
+
+      setResult(data);
+      setCameraState(CAMERA_STATES.SUCCESS);
+    } catch (err) {
+      const requestEnd = performance.now();
+
+      const totalTime = requestEnd - totalStart;
+
+      console.error(
+        `[PERF] Frontend - recognition FAILED after ${totalTime.toFixed(
+          2
+        )} ms`
+      );
+
+      console.error(
+        '[PERF] Recognition error:',
+        err
+      );
+
+      if (err.response) {
+        console.error(
+          `[PERF] Backend HTTP status: ${err.response.status}`
         );
 
-        setResult(data);
-        setCameraState(CAMERA_STATES.SUCCESS);
-        resumeCamera(RESULT_DISPLAY_MS);
-      } catch (err) {
-        const status = err.response?.status;
-        const message =
-          err.response?.data?.message ||
+        console.error(
+          '[PERF] Backend response:',
+          err.response.data
+        );
+      }
+
+      setError(
+        err.response?.data?.message ||
           err.response?.data?.detail ||
-          'Face recognition failed.';
+          'Face recognition failed.'
+      );
 
-        setError(message);
-        setCameraState(CAMERA_STATES.ERROR);
+      setCameraState(CAMERA_STATES.ERROR);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        // The duplicate-attendance response is still a valid recognition
-        // result. Show it briefly and then return to automatic scanning.
-        resumeCamera(
-          status === 409 ? RESULT_DISPLAY_MS : ERROR_RETRY_MS
-        );
-      } finally {
-        setLoading(false);
-      }
-    },
-    [cameraState, loading, resumeCamera]
-  );
-
-  const handleDone = useCallback(() => {
-    resumeCamera(0);
-  }, [resumeCamera]);
-
-  const handleReCapture = useCallback(() => {
-    resumeCamera(0);
-  }, [resumeCamera]);
+  const handleDone = () => {
+    setCameraState(CAMERA_STATES.IDLE);
+    setCapturedImage(null);
+    setResult(null);
+    setError('');
+  };
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -114,7 +202,11 @@ export default function AttendancePage() {
           <motion.div
             initial={{ scale: 0.85, rotate: -8 }}
             animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: 'spring', stiffness: 260, damping: 18 }}
+            transition={{
+              type: 'spring',
+              stiffness: 260,
+              damping: 18,
+            }}
             className="w-fit rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-3 shadow-lg shadow-emerald-500/20"
           >
             <ScanFace size={28} className="text-white" />
@@ -124,9 +216,9 @@ export default function AttendancePage() {
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               Take attendance
             </h1>
+
             <p className="mt-1 text-base text-gray-500">
-              Stand in front of the camera. Face detection, zoom, capture,
-              recognition, and attendance marking happen automatically.
+              Use facial recognition to mark attendance in real time.
             </p>
           </div>
         </div>
@@ -138,7 +230,7 @@ export default function AttendancePage() {
           className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700"
         >
           <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.14)]" />
-          Automatic face recognition ready
+          AI-powered facial recognition ready
         </motion.div>
       </motion.header>
 
@@ -146,21 +238,21 @@ export default function AttendancePage() {
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="mb-8 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-8"
+        className="mb-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-8"
       >
         <div className="mb-6 flex flex-col gap-2 border-b border-gray-100 pb-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-xl font-semibold text-gray-900">
               Recognition terminal
             </h2>
+
             <p className="mt-1 text-sm text-gray-500">
-              The camera automatically finds one face, digitally zooms to it,
-              selects a stable frame, and sends only that frame for recognition.
+              Start the camera, capture a clear face, then confirm the result.
             </p>
           </div>
 
           <span className="w-fit rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700">
-            Auto capture
+            Secure session
           </span>
         </div>
 
@@ -170,12 +262,34 @@ export default function AttendancePage() {
             capturedImage={capturedImage}
             error={error}
             studentName={result?.studentName}
+            onStart={handleStartCamera}
             onStop={handleStopCamera}
-            onDone={handleDone}
+            onCapture={handleCapture}
             onReCapture={handleReCapture}
-            autoCapture
-            onAutoCapture={handleAutoCapture}
+            onDone={handleDone}
           />
+
+          <AnimatePresence>
+            {cameraState === CAMERA_STATES.CAPTURED && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="mt-5 flex justify-center"
+              >
+                <Button
+                  variant="success"
+                  size="lg"
+                  icon={ScanFace}
+                  onClick={handleSubmit}
+                  loading={loading}
+                  className="min-w-64 rounded-xl px-8 shadow-lg shadow-emerald-500/30"
+                >
+                  Recognize & mark attendance
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </motion.section>
 
@@ -187,16 +301,6 @@ export default function AttendancePage() {
             exit={{ opacity: 0, y: -18 }}
           >
             <RecognitionResult result={result} />
-          </motion.div>
-        )}
-
-        {cameraState === CAMERA_STATES.ERROR && error && (
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -18 }}
-          >
-            <RecognitionResult error={error} />
           </motion.div>
         )}
       </AnimatePresence>

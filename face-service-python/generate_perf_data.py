@@ -12,7 +12,7 @@ DB_CONFIG = {
 }
 
 # Total synthetic students we want
-NUMBER_OF_TEST_STUDENTS = 200
+NUMBER_OF_TEST_STUDENTS = 10000
 
 PREFIX = "PERF_TEST_"
 

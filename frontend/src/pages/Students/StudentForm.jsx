@@ -197,8 +197,7 @@ export default function StudentForm({ onSubmit, initialData, onCancel }) {
               Cancel
             </Button>
           )}
-
-          <Button
+   <Button
             variant="primary"
             type="submit"
             className="w-full rounded-xl px-5 shadow-lg shadow-blue-500/20 sm:w-auto"

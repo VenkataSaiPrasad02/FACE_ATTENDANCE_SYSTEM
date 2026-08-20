@@ -79,11 +79,8 @@ public class FaceRecognitionClient {
         @JsonProperty("image_base64")
         private String imageBase64;
 
-        private List<CandidateEmbedding> candidates;
-
-        public RecognizeRequest(String imageBase64, List<CandidateEmbedding> candidates) {
+        public RecognizeRequest(String imageBase64) {
             this.imageBase64 = imageBase64;
-            this.candidates = candidates;
         }
     }
 
@@ -94,29 +91,6 @@ public class FaceRecognitionClient {
 
         @JsonProperty("student_id")
         private Long studentId;
-    }
-
-    @Data
-    public static class DetectRequest {
-        @JsonProperty("image_base64")
-        private String imageBase64;
-
-        public DetectRequest(String imageBase64) {
-            this.imageBase64 = imageBase64;
-        }
-    }
-
-    @Data
-    public static class DetectResponse {
-        private Boolean faceDetected;
-        private Integer x;
-        private Integer y;
-        private Integer width;
-        private Integer height;
-        private Double qualityScore;
-        private Integer imageWidth;
-        private Integer imageHeight;
-        private String message;
     }
 
     @Data
@@ -132,8 +106,10 @@ public class FaceRecognitionClient {
 
     /**
      * Registers a face by sending the image to the Python service.
+     * Python detects the face, generates the embedding, and returns it —
+     * Java is responsible for persisting it (see FaceServiceImpl).
      *
-     * @param studentId   ID of the student
+     * @param studentId   the student this face belongs to
      * @param imageBase64 Base64-encoded image
      * @return RegisterResponse containing the generated embedding
      * @throws FaceServiceException if the service is unreachable or returns an error
@@ -141,41 +117,44 @@ public class FaceRecognitionClient {
     public RegisterResponse registerFace(Long studentId, String imageBase64) {
         String url = faceServiceUrl + "/api/face/register";
         RegisterRequest request = new RegisterRequest(studentId, imageBase64);
-
-        log.debug("Calling face service register for studentId={}", studentId);
-
         return post(url, request, RegisterResponse.class);
     }
 
     /**
-     * Recognizes a face by comparing the probe image against candidate embeddings.
+     * Recognizes a face against whatever candidates the Python service
+     * already holds in memory (populated via {@link #syncEmbeddings}).
+     * The candidate list is deliberately NOT sent on every request —
+     * that's the whole point of the optimized architecture.
      *
      * @param imageBase64 Base64-encoded probe image
-     * @param candidates  List of candidates (studentId + stored embedding)
      * @return RecognizeResponse with matched status, confidence, and matched studentId
      * @throws FaceServiceException if the service is unreachable or returns an error
      */
-    public RecognizeResponse recognizeFace(String imageBase64, List<CandidateEmbedding> candidates) {
+    public RecognizeResponse recognizeFace(String imageBase64) {
         String url = faceServiceUrl + "/api/face/recognize";
-        RecognizeRequest request = new RecognizeRequest(imageBase64, candidates);
-
-        log.debug("Calling face service recognize against {} candidates", candidates.size());
-
+        RecognizeRequest request = new RecognizeRequest(imageBase64);
         return post(url, request, RecognizeResponse.class);
     }
 
     /**
-     * Detects a single face location for the browser auto-capture flow.
+     * Pushes the complete embedding snapshot to Python's in-memory store.
+     * Called by EmbeddingCacheService.refresh() — startup, register, update, delete.
      *
-     * This is detection only; it does not compare embeddings or mark attendance.
+     * @param candidates full list of studentId + embedding pairs
+     * @throws FaceServiceException if the service is unreachable or returns an error
      */
-    public DetectResponse detectFace(String imageBase64) {
-        String url = faceServiceUrl + "/api/face/detect";
-        DetectRequest request = new DetectRequest(imageBase64);
-
-        log.debug("Calling face service detect endpoint");
-
-        return post(url, request, DetectResponse.class);
+    public void syncEmbeddings(List<CandidateEmbedding> candidates) {
+        String url = faceServiceUrl + "/api/face/sync";
+        var body = new java.util.HashMap<String, Object>();
+        body.put("candidates", candidates);
+        log.info(
+                "Syncing {} candidates. First candidate: studentId={}, embeddingSize={}",
+                candidates.size(),
+                candidates.isEmpty() ? null : candidates.get(0).getStudentId(),
+                candidates.isEmpty() || candidates.get(0).getEmbedding() == null
+                        ? null
+                        : candidates.get(0).getEmbedding().size()
+        );        post(url, body, Object.class);
     }
 
     /**

@@ -2,8 +2,6 @@ package com.example.faceattendance.controller;
 
 import com.example.faceattendance.dto.face.FaceRegisterRequest;
 import com.example.faceattendance.dto.face.FaceRegisterResponse;
-import com.example.faceattendance.dto.face.FaceDetectRequest;
-import com.example.faceattendance.dto.face.FaceDetectResponse;
 import com.example.faceattendance.service.FaceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -29,31 +27,15 @@ public class FaceController {
 
     @Operation(summary = "Register face", description = "Requires ADMIN role. Captures embedding and stores it for the student.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Face registered successfully"),
-            @ApiResponse(responseCode = "404", description = "Student not found"),
-            @ApiResponse(responseCode = "422", description = "Face detection failed — no face, multiple faces, or low quality"),
-            @ApiResponse(responseCode = "503", description = "Python face service unavailable")
+        @ApiResponse(responseCode = "200", description = "Face registered successfully"),
+        @ApiResponse(responseCode = "404", description = "Student not found"),
+        @ApiResponse(responseCode = "422", description = "Face detection failed — no face, multiple faces, or low quality"),
+        @ApiResponse(responseCode = "503", description = "Python face service unavailable")
     })
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/register")
     public ResponseEntity<FaceRegisterResponse> register(@Valid @RequestBody FaceRegisterRequest request) {
         return ResponseEntity.ok(faceService.register(request));
-    }
-
-    @Operation(
-            summary = "Detect face for auto-capture",
-            description = "Detects one usable face and returns its bounding box. Does not mark attendance."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Face detection result"),
-            @ApiResponse(responseCode = "422", description = "Invalid image")
-    })
-    @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/detect")
-    public ResponseEntity<FaceDetectResponse> detect(
-            @Valid @RequestBody FaceDetectRequest request
-    ) {
-        return ResponseEntity.ok(faceService.detect(request));
     }
 
     @Operation(summary = "Health check", description = "Public endpoint. Returns ok when service is running.")
