@@ -33,7 +33,7 @@ public class AttendanceEmailScheduler {
     private final EmailService emailService;
 
     /**
-     * Runs every day at 7:44 PM IST.
+     * Runs every day at 6:00 PM IST.
      */
     @Scheduled(
             cron = "0 0 18 * * *",
