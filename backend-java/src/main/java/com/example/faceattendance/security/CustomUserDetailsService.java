@@ -17,11 +17,27 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username)
+    public UserDetails loadUserByUsername(String username)
+            throws UsernameNotFoundException {
+
+        long start = System.currentTimeMillis();
+
+        var user = userRepository.findByUsername(username);
+
+        long end = System.currentTimeMillis();
+
+        System.out.println(
+                "🔥 findByUsername took: " +
+                        (end - start) +
+                        " ms"
+        );
+
+        return user
                 .map(CustomUserDetails::new)
                 .orElseThrow(() ->
-                        new UsernameNotFoundException("User not found with username: " + username)
+                        new UsernameNotFoundException(
+                                "User not found with username: " + username
+                        )
                 );
     }
 }

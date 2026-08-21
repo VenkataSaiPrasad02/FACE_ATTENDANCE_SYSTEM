@@ -1,173 +1,35 @@
-import json
-import random
-import mysql.connector
-from datetime import datetime
+import requests
 
-DB_CONFIG = {
-    "host": "localhost",
-    "port": 3306,
-    "database": "face_attendance",
-    "user": "root",
-    "password": "Prasad@123"
+BASE_URL = "https://faceattendancejava-production.up.railway.app"
+TOKEN = "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJQcmFzYWQiLCJpYXQiOjE3ODcyNDA2MjcsImV4cCI6MTc4NzMyNzAyN30.QpPf8p7h-YikMdleD_iFS_yycoN_Z7bueyjRaAIUjPrxF9O6yR4K9MXplgP7aAAl"
+
+headers = {
+    "Authorization": f"Bearer {TOKEN}"
 }
 
-# Total synthetic students we want
-NUMBER_OF_TEST_STUDENTS = 10000
+# First get students
+response = requests.get(
+    f"{BASE_URL}/api/students?page=0&size=200",
+    headers=headers
+)
 
-PREFIX = "PERF_TEST_"
+response.raise_for_status()
 
-connection = mysql.connector.connect(**DB_CONFIG)
-cursor = connection.cursor()
+students = response.json()["content"]
 
-try:
-    # Check existing synthetic students
-    cursor.execute("""
-        SELECT COUNT(*)
-        FROM students
-        WHERE student_number LIKE 'PERF_TEST_%'
-    """)
+for student in students:
+    number = student["studentNumber"]
 
-    existing_count = cursor.fetchone()[0]
+    if number.startswith("PERF_TEST_"):
+        student_id = student["id"]
 
-    print()
-    print("=" * 60)
-    print("PERFORMANCE TEST DATA GENERATOR")
-    print("=" * 60)
-    print(f"Existing synthetic students : {existing_count}")
-    print(f"Target synthetic students   : {NUMBER_OF_TEST_STUDENTS}")
-    print("=" * 60)
-
-    # Already reached target
-    if existing_count >= NUMBER_OF_TEST_STUDENTS:
+        delete_response = requests.delete(
+            f"{BASE_URL}/api/students/{student_id}",
+            headers=headers
+        )
 
         print(
-            f"Already have {existing_count} PERF_TEST students."
+            number,
+            student_id,
+            delete_response.status_code
         )
-        print(
-            f"Target is {NUMBER_OF_TEST_STUDENTS}."
-        )
-        print("Nothing to add.")
-
-    else:
-
-        now = datetime.now()
-
-        # Add only missing students
-        for i in range(
-            existing_count + 1,
-            NUMBER_OF_TEST_STUDENTS + 1
-        ):
-
-            student_number = f"{PREFIX}{i:04d}"
-            full_name = f"Performance Test Student {i}"
-            email = f"perf_test_{i:04d}@example.com"
-            phone = f"900000{i:04d}"
-
-            # 512-dimensional synthetic embedding
-            embedding = [
-                random.uniform(-1.0, 1.0)
-                for _ in range(512)
-            ]
-
-            embedding_json = json.dumps(
-                embedding,
-                separators=(",", ":")
-            )
-
-            # Insert student
-            cursor.execute("""
-                INSERT INTO students (
-                    face_registered,
-                    created_at,
-                    updated_at,
-                    batch,
-                    phone,
-                    academic_year,
-                    semester,
-                    student_number,
-                    course,
-                    full_name,
-                    email
-                )
-                VALUES (
-                    1,
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s
-                )
-            """, (
-                now,
-                now,
-                "PERF-TEST",
-                phone,
-                "2025-2027",
-                "2nd Semester",
-                student_number,
-                "MCA",
-                full_name,
-                email
-            ))
-
-            student_id = cursor.lastrowid
-
-            # Insert face embedding
-            cursor.execute("""
-                INSERT INTO face_data (
-                    created_at,
-                    updated_at,
-                    student_id,
-                    model_version,
-                    embedding
-                )
-                VALUES (
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s
-                )
-            """, (
-                now,
-                now,
-                student_id,
-                "insightface-v1",
-                embedding_json
-            ))
-
-        connection.commit()
-
-        added_count = (
-            NUMBER_OF_TEST_STUDENTS - existing_count
-        )
-
-        print()
-        print("=" * 60)
-        print("PERFORMANCE TEST DATA CREATED")
-        print("=" * 60)
-        print(f"Existing synthetic students : {existing_count}")
-        print(f"New synthetic students      : {added_count}")
-        print(f"Total synthetic students    : {NUMBER_OF_TEST_STUDENTS}")
-        print(f"Real students               : 2")
-        print(
-            f"Total students              : "
-            f"{2 + NUMBER_OF_TEST_STUDENTS}"
-        )
-        print("=" * 60)
-
-except Exception as e:
-
-    connection.rollback()
-    print()
-    print("ERROR:", e)
-
-finally:
-
-    cursor.close()
-    connection.close()
