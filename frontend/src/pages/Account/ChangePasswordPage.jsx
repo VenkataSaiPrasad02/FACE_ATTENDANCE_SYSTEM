@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import { AlertCircle, ArrowLeft, CheckCircle2, Eye, EyeOff, KeyRound, Lock } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import authService from '../../services/authService';
+import Button from '../../components/ui/Button';
+import Card from '../../components/ui/Card';
 
 export default function ChangePasswordPage() {
   const navigate = useNavigate();
@@ -50,68 +51,152 @@ export default function ChangePasswordPage() {
       setConfirmPassword('');
       setTimeout(() => navigate('/'), 900);
     } catch (err) {
-      setError(err?.response?.data?.message || err?.response?.data?.error || 'Unable to change your password.');
+      setError(
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        'Unable to change your password.'
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-2xl animate-fade-in">
+      {/* Page Header */}
       <div className="mb-6">
-        <Link to="/" className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-slate-800">
-          <ArrowLeft size={16} /> Back to dashboard
+        <Link
+          to="/"
+          className="mb-3 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 transition-colors hover:text-slate-900"
+        >
+          <ArrowLeft size={14} /> Back to dashboard
         </Link>
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50">
-            <KeyRound size={24} className="text-blue-600" />
+
+        <div className="flex items-center gap-3.5">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-indigo-100 bg-indigo-50 text-indigo-600 shadow-xs">
+            <KeyRound size={22} strokeWidth={2} />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Change password</h1>
-            <p className="mt-1 text-sm text-slate-500">Update your account password securely.</p>
+            <h1 className="text-xl font-bold tracking-tight text-slate-900">
+              Change password
+            </h1>
+            <p className="mt-0.5 text-xs text-slate-500">
+              Update your account password securely.
+            </p>
           </div>
         </div>
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+      {/* Main Card */}
+      <Card glass className="p-6 sm:p-8">
         {error && <AlertBox message={error} />}
         {success && <SuccessBox message={success} />}
 
-        <form onSubmit={submit} className="space-y-5">
-          <PasswordField label="Current password" value={currentPassword} onChange={setCurrentPassword} show={showCurrent} setShow={setShowCurrent} autoComplete="current-password" />
-          <PasswordField label="New password" value={newPassword} onChange={setNewPassword} show={showNew} setShow={setShowNew} autoComplete="new-password" />
-          <PasswordField label="Confirm new password" value={confirmPassword} onChange={setConfirmPassword} show={showConfirm} setShow={setShowConfirm} autoComplete="new-password" />
+        <form onSubmit={submit} className="space-y-4">
+          <PasswordField
+            id="current-password"
+            label="Current password"
+            value={currentPassword}
+            onChange={setCurrentPassword}
+            show={showCurrent}
+            setShow={setShowCurrent}
+            autoComplete="current-password"
+            placeholder="Enter current password"
+          />
 
-          <div className="rounded-2xl bg-slate-50 px-4 py-3 text-xs leading-5 text-slate-500">
-            Use at least 8 characters. Never share your password or OTP with anyone.
+          <PasswordField
+            id="new-password"
+            label="New password"
+            value={newPassword}
+            onChange={setNewPassword}
+            show={showNew}
+            setShow={setShowNew}
+            autoComplete="new-password"
+            placeholder="At least 8 characters"
+          />
+
+          <PasswordField
+            id="confirm-password"
+            label="Confirm new password"
+            value={confirmPassword}
+            onChange={setConfirmPassword}
+            show={showConfirm}
+            setShow={setShowConfirm}
+            autoComplete="new-password"
+            placeholder="Re-enter new password"
+          />
+
+          <div className="rounded-xl border border-slate-200/70 bg-slate-50/70 px-4 py-3 text-xs leading-relaxed text-slate-500">
+            Passwords must contain at least 8 characters. Never share your password or recovery OTP codes with anyone.
           </div>
 
-          <motion.button disabled={loading} whileTap={!loading ? { scale: 0.99 } : undefined} className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition hover:from-blue-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-60">
-            {loading ? <><span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" /> Changing password...</> : <><CheckCircle2 size={18} /> Change Password</>}
-          </motion.button>
+          <div className="pt-2">
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              loading={loading}
+              iconRight={CheckCircle2}
+              className="w-full"
+            >
+              {loading ? 'Changing password...' : 'Update Password'}
+            </Button>
+          </div>
         </form>
-      </motion.div>
+      </Card>
     </div>
   );
 }
 
-function PasswordField({ label, value, onChange, show, setShow, ...props }) {
+function PasswordField({ id, label, value, onChange, show, setShow, placeholder, ...props }) {
   return (
     <div>
-      <label className="mb-2 block text-sm font-semibold text-slate-700">{label}</label>
-      <div className="group flex h-14 w-full items-stretch overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 transition-all hover:border-slate-300 hover:bg-white focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-100">
-        <div className="flex w-12 shrink-0 items-center justify-center border-r border-slate-200 text-slate-400 group-focus-within:text-blue-600"><Lock size={20} /></div>
-        <input type={show ? 'text' : 'password'} value={value} onChange={(e) => onChange(e.target.value)} required className="h-full w-full bg-transparent pl-4 pr-2 text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400" placeholder="Enter password" {...props} />
-        <button type="button" onClick={() => setShow((value) => !value)} className="flex w-12 shrink-0 items-center justify-center text-slate-400 hover:text-slate-700" aria-label={show ? 'Hide password' : 'Show password'}>{show ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+      <label htmlFor={id} className="mb-1.5 block text-xs font-semibold text-slate-700 tracking-tight">
+        {label}
+      </label>
+      <div className="group relative flex h-11 w-full items-center rounded-xl border border-slate-200 bg-white transition-all duration-150 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
+        <div className="flex pl-3.5 pr-2 items-center justify-center text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+          <Lock size={17} />
+        </div>
+
+        <input
+          id={id}
+          type={show ? 'text' : 'password'}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          required
+          className="h-full w-full bg-transparent pr-2 text-xs font-medium text-slate-900 outline-none placeholder:text-slate-400"
+          {...props}
+        />
+
+        <button
+          type="button"
+          onClick={() => setShow((v) => !v)}
+          className="flex h-full w-10 shrink-0 items-center justify-center text-slate-400 transition-colors hover:text-slate-700"
+          aria-label={show ? 'Hide password' : 'Show password'}
+        >
+          {show ? <EyeOff size={16} /> : <Eye size={16} />}
+        </button>
       </div>
     </div>
   );
 }
 
 function AlertBox({ message }) {
-  return <div className="mb-5 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3.5"><AlertCircle size={18} className="mt-0.5 shrink-0 text-red-600" /><p className="text-xs leading-5 text-red-700">{message}</p></div>;
+  return (
+    <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-red-200/90 bg-red-50/80 p-3 text-red-700 animate-fade-in shadow-xs">
+      <AlertCircle size={16} className="mt-0.5 shrink-0 text-red-600" />
+      <p className="text-xs leading-relaxed font-medium">{message}</p>
+    </div>
+  );
 }
 
 function SuccessBox({ message }) {
-  return <div className="mb-5 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3.5"><CheckCircle2 size={18} className="mt-0.5 shrink-0 text-emerald-600" /><p className="text-xs leading-5 text-emerald-700">{message}</p></div>;
+  return (
+    <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-emerald-200/90 bg-emerald-50/80 p-3 text-emerald-700 animate-fade-in shadow-xs">
+      <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-emerald-600" />
+      <p className="text-xs leading-relaxed font-medium">{message}</p>
+    </div>
+  );
 }

@@ -1,35 +1,63 @@
 import React from 'react';
+import { Camera, StopCircle, Play, AlertCircle } from 'lucide-react';
+import Button from '../../components/ui/Button';
 
-export default function CameraCapture({ onCapture, videoRef, startCamera, stopCamera, stream, cameraError }) {
+export default function CameraCapture({
+  onCapture,
+  videoRef,
+  startCamera,
+  stopCamera,
+  stream,
+  cameraError,
+}) {
   return (
-    <div style={{ textAlign: 'center' }}>
-      {cameraError && <p style={{ color: '#e74c3c', marginBottom: 8 }}>{cameraError}</p>}
-      <video
-        ref={videoRef}
-        autoPlay
-        playsInline
-        muted
-        style={{
-          width: '100%', maxWidth: 480, height: 320, background: '#000',
-          borderRadius: 8, objectFit: 'cover', display: 'block', margin: '0 auto 12px'
-        }}
-      />
-      <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+    <div className="flex flex-col items-center justify-center text-center animate-fade-in">
+      {cameraError && (
+        <div className="mb-4 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-600">
+          <AlertCircle size={16} className="shrink-0" />
+          <span>{cameraError}</span>
+        </div>
+      )}
+
+      <div className="relative aspect-video w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 shadow-md">
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          className="h-full w-full object-cover"
+        />
+      </div>
+
+      <div className="mt-4 flex flex-wrap justify-center gap-3">
         {!stream ? (
-          <button onClick={startCamera} style={{
-            padding: '8px 18px', background: '#3498db', color: '#fff',
-            border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600
-          }}>▶ Start Camera</button>
+          <Button
+            onClick={startCamera}
+            variant="primary"
+            size="md"
+            icon={Play}
+          >
+            Start Camera
+          </Button>
         ) : (
           <>
-            <button onClick={onCapture} style={{
-              padding: '8px 18px', background: '#2ecc71', color: '#fff',
-              border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600
-            }}>📸 Capture</button>
-            <button onClick={stopCamera} style={{
-              padding: '8px 18px', background: '#e74c3c', color: '#fff',
-              border: 'none', borderRadius: 6, cursor: 'pointer'
-            }}>■ Stop</button>
+            <Button
+              onClick={onCapture}
+              variant="success"
+              size="md"
+              icon={Camera}
+            >
+              Capture Frame
+            </Button>
+
+            <Button
+              onClick={stopCamera}
+              variant="secondary"
+              size="md"
+              icon={StopCircle}
+            >
+              Stop
+            </Button>
           </>
         )}
       </div>

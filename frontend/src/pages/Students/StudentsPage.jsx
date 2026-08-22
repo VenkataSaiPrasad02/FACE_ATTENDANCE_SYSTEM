@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Plus } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Plus, Users } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 import studentService from '../../services/studentService';
+import AnimatedGradientBackground from '../../components/ui/AnimatedGradientBackground';
 
 import StudentTable from './StudentTable';
 import StudentSearch from './StudentSearch';
@@ -11,15 +11,16 @@ import StudentForm from './StudentForm';
 import StudentsSkeleton from './StudentsSkeleton';
 
 import Button from '../../components/ui/Button';
+import Card from '../../components/ui/Card';
 import EmptyState from '../../components/ui/EmptyState';
 import ErrorState from '../../components/ui/ErrorState';
 import ConfirmationModal from '../../components/ConfirmationModal';
+import Modal from '../../components/ui/Modal';
 
 import { useAuth } from '../../hooks/useAuth';
 import { canManageStudents } from '../../auth/roles';
 
 export default function StudentsPage() {
-
   const [page, setPage] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -30,493 +31,223 @@ export default function StudentsPage() {
   const [modal, setModal] = useState(null);
 
   // UI-only state for the delete confirmation flow
-  const [deleteTarget, setDeleteTarget] = useState(null); // the student object pending deletion
-  const [deleting, setDeleting] = useState(false); // true while the existing DELETE API call is in-flight
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const { role } = useAuth();
-
   const canManageStudentsForUser = canManageStudents(role);
 
-
-  // ==========================================================
-  // LOAD STUDENTS
-  // ==========================================================
-
-  const load = (
-    pageNumber = 0,
-    searchQuery = search
-  ) => {
-
+  // Load students
+  const load = (pageNumber = 0, searchQuery = search) => {
     setLoading(true);
     setError('');
 
     studentService
-      .getAll(
-        pageNumber,
-        10,
-        searchQuery
-      )
+      .getAll(pageNumber, 10, searchQuery)
       .then((data) => {
-
         setPage(data);
-
       })
       .catch((e) => {
-
-        setError(
-          e?.response?.data?.message ||
-          'Failed to load students'
-        );
-
+        setError(e?.response?.data?.message || 'Failed to load students');
       })
       .finally(() => {
-
         setLoading(false);
-
       });
   };
 
-
-  // ==========================================================
-  // INITIAL LOAD / PAGE CHANGE
-  // ==========================================================
-
+  // Initial load / page change
   useEffect(() => {
-
     load(currentPage);
-
   }, [currentPage]);
 
-
-  // ==========================================================
-  // SEARCH
-  // ==========================================================
-
+  // Search
   const handleSearch = (query) => {
-
     setSearch(query);
     setCurrentPage(0);
-
     load(0, query);
-
   };
 
-
-  // ==========================================================
-  // DELETE
-  // ADMIN + TEACHER
-  // ==========================================================
-
-  // Step 1: user clicks delete -> just open the confirmation modal.
-  // Receives the full student object (from StudentTable) so we can
-  // show their name in the modal.
+  // Delete handlers
   const handleDeleteClick = (student) => {
     setDeleteTarget(student);
   };
 
-  // Step 2: user confirms in the modal -> run the existing DELETE API.
   const handleConfirmDelete = async () => {
-
     if (!deleteTarget) return;
 
     setDeleting(true);
 
     try {
-
       await studentService.remove(deleteTarget.id);
-
       setDeleteTarget(null);
       load(currentPage);
-
-      toast.success('Student deleted successfully');
-
+      toast.success('Student record removed successfully');
     } catch (e) {
-
-      const message =
-        e?.response?.data?.message ||
-        'Delete failed';
-
+      const message = e?.response?.data?.message || 'Delete failed';
       toast.error(message);
-
     } finally {
-
       setDeleting(false);
-
     }
   };
 
   const handleCancelDelete = () => {
-    if (deleting) return; // prevent closing mid-request
+    if (deleting) return;
     setDeleteTarget(null);
   };
 
-
-  // ==========================================================
-  // CREATE / UPDATE
-  // ADMIN + TEACHER
-  // ==========================================================
-
+  // Create / Update
   const handleSubmit = async (data) => {
+    const isCreate = modal === 'create';
 
-    try {
-
-      const isCreate = modal === 'create';
-
-      if (isCreate) {
-
-        await studentService.create(data);
-
-      } else {
-
-        await studentService.update(
-          modal.id,
-          data
-        );
-
-      }
-
-      setModal(null);
-
-      load(currentPage);
-
-      toast.success(
-        isCreate
-          ? 'Student created successfully'
-          : 'Student updated successfully'
-      );
-
-    } catch (e) {
-
-      const message =
-        e?.response?.data?.message ||
-        'Save failed';
-
-      toast.error(message);
-
+    if (isCreate) {
+      await studentService.create(data);
+    } else {
+      await studentService.update(modal.id, data);
     }
+
+    setModal(null);
+    load(currentPage);
+
+    toast.success(
+      isCreate
+        ? 'Student enrolled successfully'
+        : 'Student record updated successfully'
+    );
   };
 
-
-  // ==========================================================
-  // UI
-  // ==========================================================
-
   return (
-    <motion.div
-      initial={{
-        opacity: 0,
-        y: 20
-      }}
-      animate={{
-        opacity: 1,
-        y: 0
-      }}
-      className="mx-auto max-w-7xl"
-    >
-
-      {/* ====================================================
-          HEADER
-         ==================================================== */}
-
+    <AnimatedGradientBackground
+  type="students"
+  className="min-h-full rounded-2xl"
+>
+    <div className="w-full animate-fade-in pb-8">
+      {/* Header */}
       <div className="mb-7">
-
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xs">
+              <Users size={24} strokeWidth={2} />
+            </div>
 
-          <div>
+            <div>
+              <div className="mb-1 inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-blue-50/80 px-2.5 py-0.5 text-[11px] font-semibold text-blue-700">
+                <span className="h-1.5 w-1.5 rounded-full bg-blue-600 animate-pulse" />
+                Roster Governance
+              </div>
 
-            <h1 className="mb-1 text-3xl font-bold text-gray-900">
-              Students
-            </h1>
+              <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+                Student Directory
+              </h1>
 
-            <p className="text-base text-gray-500">
-              Manage and register student biometric data
-            </p>
-
+              <p className="mt-0.5 text-xs sm:text-sm text-slate-500">
+                Manage student profiles, academic courses, batch cohorts, and facial biometrics status.
+              </p>
+            </div>
           </div>
 
-
-          {/* ADD STUDENT */}
-
+          {/* Add Student Button */}
           {canManageStudentsForUser && (
-
-            <motion.div
-              initial={{
-                opacity: 0,
-                scale: 0.9
-              }}
-              animate={{
-                opacity: 1,
-                scale: 1
-              }}
-              transition={{
-                delay: 0.2
-              }}
+            <Button
+              variant="primary"
+              icon={Plus}
+              onClick={() => setModal('create')}
+              size="lg"
+              className="w-full sm:w-auto shadow-sm font-bold"
             >
-
-              <Button
-                variant="primary"
-                icon={Plus}
-                onClick={() =>
-                  setModal('create')
-                }
-                className="w-full shadow-lg shadow-blue-500/30 sm:w-auto"
-              >
-                Add Student
-              </Button>
-
-            </motion.div>
-
+              Add Student
+            </Button>
           )}
-
         </div>
 
-
-        {/* ==================================================
-            SEARCH
-           ================================================== */}
-
-        <motion.div
-          initial={{
-            opacity: 0,
-            y: 10
-          }}
-          animate={{
-            opacity: 1,
-            y: 0
-          }}
-          transition={{
-            delay: 0.1
-          }}
-          className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5"
-        >
-
-          <StudentSearch
-            onSearch={handleSearch}
-          />
-
-        </motion.div>
-
+        {/* Search Panel */}
+        <Card glass className="p-4 sm:p-5">
+          <StudentSearch onSearch={handleSearch} />
+        </Card>
       </div>
 
-
-      {/* ====================================================
-          ERROR
-         ==================================================== */}
-
+      {/* Error Callout */}
       {error && (
-
-        <motion.div
-          initial={{
-            opacity: 0,
-            y: 20
-          }}
-          animate={{
-            opacity: 1,
-            y: 0
-          }}
-          className="mb-6"
-        >
-
+        <div className="mb-6">
           <ErrorState
-            title="Error"
+            title="Failed to load student roster"
             message={error}
-            onRetry={() =>
-              load(currentPage)
-            }
+            onRetry={() => load(currentPage)}
           />
-
-        </motion.div>
-
+        </div>
       )}
 
-
-      {/* ====================================================
-          CONTENT
-         ==================================================== */}
-
+      {/* Content */}
       {loading ? (
-
         <StudentsSkeleton />
-
-      ) : !page?.content ||
-        page.content.length === 0 ? (
-
+      ) : !page?.content || page.content.length === 0 ? (
         search ? (
-
-          <motion.div
-            initial={{
-              opacity: 0,
-              y: 20
-            }}
-            animate={{
-              opacity: 1,
-              y: 0
-            }}
-            className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm"
-          >
-
+          <Card glass className="p-8">
             <EmptyState
-              title="No results found"
-              description={
-                `No students match "${search}"`
-              }
+              title="No matching students found"
+              description={`No student records match your query "${search}".`}
               action={{
                 variant: 'secondary',
-                children: 'Clear Search',
-                onClick: () =>
-                  handleSearch('')
+                children: 'Clear Search Filter',
+                onClick: () => handleSearch(''),
               }}
             />
-
-          </motion.div>
-
+          </Card>
         ) : (
-
-          <motion.div
-            initial={{
-              opacity: 0,
-              y: 20
-            }}
-            animate={{
-              opacity: 1,
-              y: 0
-            }}
-            className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm"
-          >
-
+          <Card glass className="p-8">
             <EmptyState
-              title="No students yet"
-              description="Add your first student to get started with face registration and attendance tracking."
+              title="No students enrolled yet"
+              description="Add your first student to begin taking automated facial attendance."
               action={{
                 variant: 'primary',
                 icon: Plus,
                 children: 'Add Student',
-                onClick: () =>
-                  setModal('create')
+                onClick: () => setModal('create'),
               }}
             />
-
-          </motion.div>
-
+          </Card>
         )
-
       ) : (
-
         <StudentTable
           students={page.content}
-          onEdit={(student) =>
-            setModal(student)
-          }
+          onEdit={(student) => setModal(student)}
           onDelete={handleDeleteClick}
           pagination={page}
           onPageChange={(newPage) => {
             setCurrentPage(newPage);
           }}
         />
-
       )}
 
+      {/* Add / Edit Student Modal */}
+      <Modal
+        open={Boolean(modal)}
+        onClose={() => setModal(null)}
+        title={modal === 'create' ? 'Add New Student' : 'Edit Student Profile'}
+        size="lg"
+      >
+        <StudentForm
+          initialData={modal === 'create' ? null : modal}
+          onSubmit={handleSubmit}
+          onCancel={() => setModal(null)}
+        />
+      </Modal>
 
-      {/* ====================================================
-          STUDENT MODAL
-         ==================================================== */}
-
-      <AnimatePresence>
-
-        {modal && (
-
-          <motion.div
-            initial={{
-              opacity: 0
-            }}
-            animate={{
-              opacity: 1
-            }}
-            exit={{
-              opacity: 0
-            }}
-            className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
-            onClick={() =>
-              setModal(null)
-            }
-          >
-
-            <motion.div
-              initial={{
-                opacity: 0,
-                scale: 0.95,
-                y: 20
-              }}
-              animate={{
-                opacity: 1,
-                scale: 1,
-                y: 0
-              }}
-              exit={{
-                opacity: 0,
-                scale: 0.95,
-                y: 20
-              }}
-              transition={{
-                type: 'spring',
-                damping: 25,
-                stiffness: 300
-              }}
-              className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl sm:p-8"
-              onClick={(e) =>
-                e.stopPropagation()
-              }
-            >
-
-              <h3 className="mb-6 text-2xl font-bold text-gray-900">
-
-                {modal === 'create'
-                  ? '✨ Add New Student'
-                  : '✏️ Edit Student'}
-
-              </h3>
-
-
-              <StudentForm
-                initialData={
-                  modal === 'create'
-                    ? null
-                    : modal
-                }
-                onSubmit={handleSubmit}
-                onCancel={() =>
-                  setModal(null)
-                }
-              />
-
-            </motion.div>
-
-          </motion.div>
-
-        )}
-
-      </AnimatePresence>
-
-
-      {/* ====================================================
-          DELETE CONFIRMATION MODAL
-         ==================================================== */}
-
+      {/* Delete Confirmation Modal */}
       <ConfirmationModal
-        open={!!deleteTarget}
-        title="Confirm Deletion"
+        open={Boolean(deleteTarget)}
+        title="Delete Student Record"
         message={
           deleteTarget
-            ? `Are you sure you want to delete "${deleteTarget.fullName}"? This action cannot be undone.`
+            ? `Are you sure you want to delete student "${deleteTarget.fullName}" (${deleteTarget.studentNumber})? This will permanently remove their records and facial biometrics.`
             : ''
         }
-        confirmText="Delete"
+        confirmText="Delete Student"
         cancelText="Cancel"
         loading={deleting}
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
       />
-
-    </motion.div>
+    </div>
+    </AnimatedGradientBackground>
   );
 }

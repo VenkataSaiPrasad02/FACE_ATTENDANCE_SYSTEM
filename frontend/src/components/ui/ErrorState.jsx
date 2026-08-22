@@ -1,5 +1,5 @@
-import { motion } from 'framer-motion';
-import { AlertCircle, WifiOff, ServerCrash, AlertTriangle } from 'lucide-react';
+import React from 'react';
+import { AlertCircle, WifiOff, ServerCrash, AlertTriangle, RefreshCw } from 'lucide-react';
 import Button from './Button';
 
 const iconMap = {
@@ -10,42 +10,50 @@ const iconMap = {
   default: AlertCircle,
 };
 
-export default function ErrorState({ 
-  title, 
-  message, 
-  onRetry, 
+export default function ErrorState({
+  title = 'Something went wrong',
+  message = 'An unexpected error occurred. Please try again.',
+  onRetry,
   icon: Icon = 'default',
-  className = '' 
+  className = '',
 }) {
-  const IconComponent = typeof Icon === 'string' ? iconMap[Icon] || iconMap.default : Icon;
-  
+  const IconComponent = typeof Icon === 'string' ? (iconMap[Icon] || iconMap.default) : Icon;
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.3, type: 'spring' }}
-      className={`flex flex-col items-center justify-center py-16 px-4 text-center glass-medium rounded-2xl ${className}`}
+    <div
+      className={`
+        flex flex-col items-center justify-center rounded-2xl border border-rose-200/70
+        bg-rose-50/40 px-6 py-14 text-center backdrop-blur-md shadow-xs
+        ${className}
+      `}
     >
-      <div className="relative">
-        <div className="w-20 h-20 bg-gradient-to-br from-red-50 to-red-100 rounded-full flex items-center justify-center mb-5 shadow-error">
-          <IconComponent size={40} className="text-red-500" />
-        </div>
-        <div className="absolute inset-0 w-20 h-20 rounded-full bg-red-400/20 animate-pulse" />
+      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-rose-200 bg-gradient-to-br from-rose-50 to-red-100 text-rose-600 shadow-xs">
+        <IconComponent size={24} strokeWidth={1.75} />
       </div>
-      <h3 className="text-xl font-semibold text-gray-900 mb-2">{title}</h3>
+
+      <h3 className="text-base font-bold text-slate-900 tracking-tight">
+        {title}
+      </h3>
+
       {message && (
-        <p className="text-sm text-gray-500 mb-6 max-w-sm leading-relaxed">{message}</p>
+        <p className="mt-1.5 max-w-md text-xs leading-relaxed text-slate-500">
+          {message}
+        </p>
       )}
+
       {onRetry && (
-        <Button 
-          variant="secondary" 
-          size="md"
-          icon={AlertCircle}
-          onClick={onRetry}
-        >
-          Try Again
-        </Button>
+        <div className="mt-5">
+          <Button
+            variant="secondary"
+            size="sm"
+            icon={RefreshCw}
+            onClick={onRetry}
+            className="font-semibold"
+          >
+            Try Again
+          </Button>
+        </div>
       )}
-    </motion.div>
+    </div>
   );
 }

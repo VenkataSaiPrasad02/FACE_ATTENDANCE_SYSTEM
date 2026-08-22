@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
 import {
   AlertCircle,
   ArrowLeft,
@@ -9,12 +8,16 @@ import {
   Camera,
   X,
   Trash2,
+  Shield,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import userService from '../../services/userService';
 import { useAuth } from '../../hooks/useAuth';
 import ProfileAvatar from '../../components/ProfileAvatar';
+import Button from '../../components/ui/Button';
+import Card from '../../components/ui/Card';
+import Badge from '../../components/ui/Badge';
 
 export default function ProfilePage() {
   const { setProfilePhotoUrl } = useAuth();
@@ -40,7 +43,6 @@ export default function ProfilePage() {
   const fileInputRef = useRef(null);
 
   // ---------------- Load profile ----------------
-
   useEffect(() => {
     let cancelled = false;
 
@@ -50,7 +52,6 @@ export default function ProfilePage() {
 
       try {
         const data = await userService.getMyProfile();
-
         if (cancelled) return;
 
         setUsername(data?.username || '');
@@ -62,7 +63,7 @@ export default function ProfilePage() {
         if (!cancelled) {
           setError(
             err?.response?.data?.message ||
-              'Unable to load your profile.'
+            'Unable to load your profile details.'
           );
         }
       } finally {
@@ -80,7 +81,6 @@ export default function ProfilePage() {
   }, []);
 
   // ---------------- Preview cleanup ----------------
-
   useEffect(() => {
     return () => {
       if (previewUrl) {
@@ -89,11 +89,9 @@ export default function ProfilePage() {
     };
   }, [previewUrl]);
 
-  // ---------------- Update profile ----------------
-
+  // ---------------- Update profile details ----------------
   const submit = async (event) => {
     event.preventDefault();
-
     setError('');
     setSuccess('');
 
@@ -117,12 +115,12 @@ export default function ProfilePage() {
 
       setFullName(data?.fullName || fullName);
       setEmail(data?.email || email);
-
-      setSuccess('Profile updated successfully.');
+      setSuccess('Profile details updated successfully.');
     } catch (err) {
       setError(
         err?.response?.data?.message ||
-          'Unable to update your profile.'
+        err?.response?.data?.error ||
+        'Unable to update your profile.'
       );
     } finally {
       setSaving(false);
@@ -130,120 +128,62 @@ export default function ProfilePage() {
   };
 
   // ---------------- Select photo ----------------
-
   const handleFileSelect = (event) => {
     const file = event.target.files?.[0];
-
-    if (!file) {
-      return;
-    }
+    if (!file) return;
 
     setPhotoError('');
     setPhotoSuccess('');
 
-    const allowedTypes = [
-      'image/jpeg',
-      'image/png',
-      'image/webp',
-    ];
-
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
-      setPhotoError(
-        'Only JPEG, PNG, or WebP images are allowed.'
-      );
-
-      // Allow selecting the same invalid file again.
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-
+      setPhotoError('Only JPEG, PNG, or WebP images are allowed.');
+      if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
 
-    // Maximum 10 MB.
     if (file.size > 10 * 1024 * 1024) {
-      setPhotoError(
-        'Photo must be smaller than 10MB.'
-      );
-
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-
+      setPhotoError('Photo must be smaller than 10MB.');
+      if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
 
-    // Release previous preview before creating a new one.
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
-
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
     setSelectedFile(file);
     setPreviewUrl(URL.createObjectURL(file));
   };
 
-  // ---------------- Cancel selected photo ----------------
-
+  // ---------------- Cancel photo selection ----------------
   const cancelSelection = () => {
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
-
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
     setSelectedFile(null);
     setPreviewUrl(null);
     setPhotoError('');
     setPhotoSuccess('');
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   // ---------------- Upload photo ----------------
-
   const uploadPhoto = async () => {
-    if (!selectedFile || photoSaving) {
-      return;
-    }
+    if (!selectedFile || photoSaving) return;
 
     setPhotoSaving(true);
     setPhotoError('');
     setPhotoSuccess('');
 
     try {
-      const data =
-        await userService.uploadMyProfilePhoto(
-          selectedFile
-        );
+      const data = await userService.uploadMyProfilePhoto(selectedFile);
+      const newUrl = data?.profilePhotoUrl || null;
 
-      const newUrl =
-        data?.profilePhotoUrl || null;
-
-      // Update Profile page immediately.
       setPhotoUrl(newUrl);
-
-      // Update Navbar/global avatar immediately.
-      setProfilePhotoUrl(newUrl);
-
-      // Clear selected file and preview.
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-
-      setSelectedFile(null);
-      setPreviewUrl(null);
-
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-
-      setPhotoSuccess(
-        'Profile photo updated.'
-      );
+      setProfilePhotoUrl(newUrl); // updates navbar and global avatar instantly
+      cancelSelection();
+      setPhotoSuccess('Profile photo uploaded and saved successfully.');
     } catch (err) {
       setPhotoError(
         err?.response?.data?.message ||
-          'Unable to upload your photo.'
+        err?.response?.data?.error ||
+        'Unable to upload your profile photo.'
       );
     } finally {
       setPhotoSaving(false);
@@ -251,11 +191,8 @@ export default function ProfilePage() {
   };
 
   // ---------------- Remove photo ----------------
-
   const removePhoto = async () => {
-    if (photoSaving) {
-      return;
-    }
+    if (photoSaving) return;
 
     setPhotoSaving(true);
     setPhotoError('');
@@ -263,94 +200,65 @@ export default function ProfilePage() {
 
     try {
       await userService.removeMyProfilePhoto();
-
-      // Remove from Profile page.
       setPhotoUrl(null);
-
-      // Remove from Navbar/global state.
       setProfilePhotoUrl(null);
-
-      setPhotoSuccess(
-        'Profile photo removed.'
-      );
+      setPhotoSuccess('Profile photo removed.');
     } catch (err) {
       setPhotoError(
         err?.response?.data?.message ||
-          'Unable to remove your photo.'
+        err?.response?.data?.error ||
+        'Unable to remove your photo.'
       );
     } finally {
       setPhotoSaving(false);
     }
   };
 
-  // ---------------- Render ----------------
-
   return (
-    <div className="mx-auto max-w-2xl">
-
-      {/* Header */}
+    <div className="mx-auto max-w-2xl animate-fade-in">
+      {/* Page Header */}
       <div className="mb-6">
-
         <Link
           to="/"
-          className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-slate-800"
+          className="mb-3 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 transition-colors hover:text-slate-900"
         >
-          <ArrowLeft size={16} />
-          Back to dashboard
+          <ArrowLeft size={14} /> Back to dashboard
         </Link>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3.5">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-indigo-100 bg-indigo-50 text-indigo-600 shadow-xs">
+              <UserIcon size={22} strokeWidth={2} />
+            </div>
 
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50">
-            <UserIcon
-              size={24}
-              className="text-blue-600"
-            />
+            <div>
+              <h1 className="text-xl font-bold tracking-tight text-slate-900">
+                My Profile
+              </h1>
+              <p className="mt-0.5 text-xs text-slate-500">
+                Manage your personal information and profile picture.
+              </p>
+            </div>
           </div>
 
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-              My profile
-            </h1>
-
-            <p className="mt-1 text-sm text-slate-500">
-              View and edit your account details.
-            </p>
-          </div>
-
+          {role && <Badge variant={role} />}
         </div>
       </div>
 
       {/* ================= PHOTO SECTION ================= */}
+      <Card glass className="mb-6 p-6 sm:p-7">
+        {photoError && <AlertBox message={photoError} />}
+        {photoSuccess && <SuccessBox message={photoSuccess} />}
 
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
-      >
-
-        {photoError && (
-          <AlertBox message={photoError} />
-        )}
-
-        {photoSuccess && (
-          <SuccessBox message={photoSuccess} />
-        )}
-
-        <div className="flex flex-col items-center gap-4 sm:flex-row">
-
-          {/* Avatar */}
-
+        <div className="flex flex-col items-center gap-5 sm:flex-row">
           <ProfileAvatar
             photoUrl={previewUrl || photoUrl}
             name={fullName || username}
             size="xl"
+            className="ring-4 ring-slate-100"
           />
 
-          <div className="flex flex-1 flex-col gap-2">
-
-            {/* Hidden file input */}
-
+          <div className="flex flex-1 flex-col items-center sm:items-start gap-2">
             <input
               ref={fileInputRef}
               type="file"
@@ -359,287 +267,190 @@ export default function ProfilePage() {
               className="hidden"
             />
 
-            {/* No file selected */}
-
             {!selectedFile ? (
-              <div className="flex flex-wrap gap-2">
-
-                {/* Change Photo */}
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    fileInputRef.current?.click()
-                  }
-                  className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50"
+              <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  icon={Camera}
+                  onClick={() => fileInputRef.current?.click()}
                 >
-                  <Camera size={16} />
                   Change Photo
-                </button>
-
-                {/* Remove Photo */}
+                </Button>
 
                 {photoUrl && (
-                  <button
-                    type="button"
+                  <Button
+                    variant="dangerGhost"
+                    size="sm"
+                    icon={Trash2}
                     onClick={removePhoto}
-                    disabled={photoSaving}
-                    className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                    loading={photoSaving}
                   >
-                    <Trash2 size={16} />
-                    Remove Photo
-                  </button>
+                    Remove
+                  </Button>
                 )}
-
               </div>
             ) : (
-
-              /* File selected */
-
               <div className="flex flex-wrap items-center gap-2">
-
-                {/* Save Photo */}
-
-                <button
-                  type="button"
+                <Button
+                  variant="primary"
+                  size="sm"
+                  icon={CheckCircle2}
                   onClick={uploadPhoto}
-                  disabled={photoSaving}
-                  className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2.5 text-sm font-bold text-white shadow-md transition hover:from-blue-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  loading={photoSaving}
                 >
+                  {photoSaving ? 'Uploading...' : 'Save Photo'}
+                </Button>
 
-                  {photoSaving ? (
-                    <>
-                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                      Uploading...
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle2 size={16} />
-                      Save Photo
-                    </>
-                  )}
-
-                </button>
-
-                {/* Cancel */}
-
-                <button
-                  type="button"
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  icon={X}
                   onClick={cancelSelection}
                   disabled={photoSaving}
-                  className="flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  <X size={16} />
                   Cancel
-                </button>
-
+                </Button>
               </div>
             )}
 
-            <p className="text-xs text-slate-400">
-              JPEG, PNG, or WebP. Max 10MB.
+            <p className="text-[11px] text-slate-400">
+              Supported formats: JPEG, PNG, or WebP. Maximum file size: 10MB.
             </p>
-
           </div>
         </div>
+      </Card>
 
-      </motion.div>
-
-      {/* ================= PROFILE DETAILS ================= */}
-
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
-      >
-
-        {error && (
-          <AlertBox message={error} />
-        )}
-
-        {success && (
-          <SuccessBox message={success} />
-        )}
+      {/* ================= PROFILE DETAILS FORM ================= */}
+      <Card glass className="p-6 sm:p-8">
+        {error && <AlertBox message={error} />}
+        {success && <SuccessBox message={success} />}
 
         {loading ? (
-          <div className="flex h-40 items-center justify-center">
-            <span className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-blue-600" />
+          <div className="flex h-40 flex-col items-center justify-center gap-3">
+            <span className="h-7 w-7 animate-spin rounded-full border-2 border-slate-200 border-t-indigo-600" />
+            <p className="text-xs text-slate-400">Loading profile details...</p>
           </div>
         ) : (
-
-          <form
-            onSubmit={submit}
-            className="space-y-5"
-          >
-
-            {/* Username */}
-
+          <form onSubmit={submit} className="space-y-4">
+            {/* Username (Read only) */}
             <div>
-
-              <label className="mb-2 block text-sm font-semibold text-slate-700">
+              <label className="mb-1.5 block text-xs font-semibold text-slate-700 tracking-tight">
                 Username
               </label>
 
-              <div className="flex h-14 w-full items-center rounded-2xl border border-slate-200 bg-slate-100 px-4 text-sm font-medium text-slate-500">
-                {username}
+              <div className="flex h-11 w-full items-center rounded-xl border border-slate-200 bg-slate-100/80 px-3.5 text-xs font-medium text-slate-600">
+                <UserIcon size={16} className="mr-2 text-slate-400" />
+                <span>{username}</span>
               </div>
 
-              <p className="mt-1.5 text-xs text-slate-400">
-                Username cannot be changed.
+              <p className="mt-1 text-[11px] text-slate-400">
+                Username is assigned by institutional administrators and cannot be altered.
               </p>
-
             </div>
 
-            {/* Role */}
-
+            {/* Role (Read only) */}
             <div>
-
-              <label className="mb-2 block text-sm font-semibold text-slate-700">
-                Role
+              <label className="mb-1.5 block text-xs font-semibold text-slate-700 tracking-tight">
+                Role & Authorization
               </label>
 
-              <div className="flex h-14 w-full items-center rounded-2xl border border-slate-200 bg-slate-100 px-4 text-sm font-medium text-slate-500">
-                {role}
+              <div className="flex h-11 w-full items-center rounded-xl border border-slate-200 bg-slate-100/80 px-3.5 text-xs font-medium text-slate-600">
+                <Shield size={16} className="mr-2 text-slate-400" />
+                <span>{role}</span>
               </div>
-
             </div>
 
-            {/* Full name */}
-
+            {/* Full Name */}
             <div>
-
-              <label className="mb-2 block text-sm font-semibold text-slate-700">
-                Full name
+              <label
+                htmlFor="profile-fullname"
+                className="mb-1.5 block text-xs font-semibold text-slate-700 tracking-tight"
+              >
+                Full Name
               </label>
 
-              <div className="group flex h-14 w-full items-stretch overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 transition-all hover:border-slate-300 hover:bg-white focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-100">
-
-                <div className="flex w-12 shrink-0 items-center justify-center border-r border-slate-200 text-slate-400 group-focus-within:text-blue-600">
-                  <UserIcon size={20} />
+              <div className="group relative flex h-11 w-full items-center rounded-xl border border-slate-200 bg-white transition-all duration-150 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
+                <div className="flex pl-3.5 pr-2 items-center justify-center text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+                  <UserIcon size={17} />
                 </div>
 
                 <input
+                  id="profile-fullname"
                   type="text"
                   value={fullName}
-                  onChange={(e) =>
-                    setFullName(e.target.value)
-                  }
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Enter full name"
                   required
-                  className="h-full w-full bg-transparent pl-4 pr-2 text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
-                  placeholder="Enter your full name"
+                  className="h-full w-full bg-transparent pr-3.5 text-xs font-medium text-slate-900 outline-none placeholder:text-slate-400"
                 />
-
               </div>
-
             </div>
 
             {/* Email */}
-
             <div>
-
-              <label className="mb-2 block text-sm font-semibold text-slate-700">
-                Email
+              <label
+                htmlFor="profile-email"
+                className="mb-1.5 block text-xs font-semibold text-slate-700 tracking-tight"
+              >
+                Email Address
               </label>
 
-              <div className="group flex h-14 w-full items-stretch overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 transition-all hover:border-slate-300 hover:bg-white focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-100">
-
-                <div className="flex w-12 shrink-0 items-center justify-center border-r border-slate-200 text-slate-400 group-focus-within:text-blue-600">
-                  <Mail size={20} />
+              <div className="group relative flex h-11 w-full items-center rounded-xl border border-slate-200 bg-white transition-all duration-150 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
+                <div className="flex pl-3.5 pr-2 items-center justify-center text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+                  <Mail size={17} />
                 </div>
 
                 <input
+                  id="profile-email"
                   type="email"
                   value={email}
-                  onChange={(e) =>
-                    setEmail(e.target.value)
-                  }
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter institutional email"
                   required
-                  className="h-full w-full bg-transparent pl-4 pr-2 text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
-                  placeholder="Enter your email"
+                  className="h-full w-full bg-transparent pr-3.5 text-xs font-medium text-slate-900 outline-none placeholder:text-slate-400"
                 />
-
               </div>
 
-              <p className="mt-1.5 text-xs text-slate-400">
-                Forgot-password OTPs are sent to this address.
+              <p className="mt-1 text-[11px] text-slate-400">
+                Two-factor authentication and password recovery OTPs will be delivered to this email.
               </p>
-
             </div>
 
-            {/* Save profile */}
-
-            <motion.button
-              type="submit"
-              disabled={saving}
-              whileTap={
-                !saving
-                  ? { scale: 0.99 }
-                  : undefined
-              }
-              className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-sm font-bold text-white shadow-lg shadow-blue-600/20 transition hover:from-blue-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-
-              {saving ? (
-                <>
-                  <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 size={18} />
-                  Save changes
-                </>
-              )}
-
-            </motion.button>
-
+            {/* Save Button */}
+            <div className="pt-2">
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                loading={saving}
+                iconRight={CheckCircle2}
+                className="w-full"
+              >
+                {saving ? 'Saving changes...' : 'Save Profile Details'}
+              </Button>
+            </div>
           </form>
         )}
-
-      </motion.div>
-
+      </Card>
     </div>
   );
 }
-
-// ======================================================
-// Alert Box
-// ======================================================
 
 function AlertBox({ message }) {
   return (
-    <div className="mb-5 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3.5">
-
-      <AlertCircle
-        size={18}
-        className="mt-0.5 shrink-0 text-red-600"
-      />
-
-      <p className="text-xs leading-5 text-red-700">
-        {message}
-      </p>
-
+    <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-red-200/90 bg-red-50/80 p-3 text-red-700 animate-fade-in shadow-xs">
+      <AlertCircle size={16} className="mt-0.5 shrink-0 text-red-600" />
+      <p className="text-xs leading-relaxed font-medium">{message}</p>
     </div>
   );
 }
 
-// ======================================================
-// Success Box
-// ======================================================
-
 function SuccessBox({ message }) {
   return (
-    <div className="mb-5 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3.5">
-
-      <CheckCircle2
-        size={18}
-        className="mt-0.5 shrink-0 text-emerald-600"
-      />
-
-      <p className="text-xs leading-5 text-emerald-700">
-        {message}
-      </p>
-
+    <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-emerald-200/90 bg-emerald-50/80 p-3 text-emerald-700 animate-fade-in shadow-xs">
+      <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-emerald-600" />
+      <p className="text-xs leading-relaxed font-medium">{message}</p>
     </div>
   );
 }

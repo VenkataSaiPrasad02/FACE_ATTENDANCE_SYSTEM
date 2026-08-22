@@ -1,26 +1,39 @@
-import { motion } from 'framer-motion';
+import React from 'react';
 import { AlertCircle, RotateCcw } from 'lucide-react';
 import Button from './ui/Button';
 
-export default function ErrorAnimation({ error, onReCapture }) {
+export default function ErrorAnimation({
+  error = 'Face verification was unsuccessful.',
+  title = 'Registration Failed',
+  onReCapture,
+}) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="text-center p-8 w-full"
-    >
-      <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <AlertCircle size={40} className="text-red-500" />
+    <div className="flex flex-col items-center justify-center p-6 text-center animate-scale-in max-w-sm mx-auto">
+      {/* Error Badge Icon */}
+      <div className="relative mb-4 flex h-16 w-16 items-center justify-center rounded-3xl border border-red-200/90 bg-red-50 text-red-600 shadow-sm">
+        <AlertCircle size={32} strokeWidth={2} />
       </div>
 
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">
-        Face Registration Failed
+      <h3 className="text-lg font-bold text-slate-900 tracking-tight">
+        {title}
       </h3>
-      <p className="text-gray-600 mb-6 max-w-sm mx-auto text-sm">{error}</p>
 
-      <Button variant="secondary" icon={RotateCcw} onClick={onReCapture} size="sm">
-        Try Again
-      </Button>
-    </motion.div>
+      <p className="mt-1 text-xs leading-relaxed text-slate-500 max-w-xs">
+        {error}
+      </p>
+
+      {onReCapture && (
+        <div className="mt-6">
+          <Button
+            variant="secondary"
+            size="sm"
+            icon={RotateCcw}
+            onClick={onReCapture}
+          >
+            Try Again
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }

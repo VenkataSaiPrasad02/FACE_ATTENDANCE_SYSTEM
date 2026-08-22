@@ -1,46 +1,59 @@
-import Skeleton from '../../components/ui/Skeleton';
+import React from 'react';
 import Card from '../../components/ui/Card';
 
 export default function AttendanceSkeleton() {
   return (
-    <div>
-      <div className="h-8 w-40 bg-gray-200 rounded mb-6 animate-shimmer" />
+    <div className="space-y-6 animate-fade-in">
+      {/* KPI Cards Skeleton */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {[1, 2, 3].map((i) => (
+          <Card key={i} glass className="p-4 space-y-3">
+            <div className="flex justify-between items-center">
+              <div className="space-y-1">
+                <div className="h-3 w-20 rounded bg-slate-200 animate-shimmer" />
+                <div className="h-7 w-16 rounded bg-slate-200 animate-shimmer" />
+              </div>
+              <div className="h-10 w-10 rounded-xl bg-slate-200 animate-shimmer" />
+            </div>
+          </Card>
+        ))}
+      </div>
 
-      <Card className="mb-6 p-4">
-        <div className="flex gap-4 flex-wrap">
-          <Skeleton className="w-48 h-10" />
-          <Skeleton className="w-36 h-10" />
-          <Skeleton className="w-36 h-10" />
-          <Skeleton className="w-36 h-10" />
-          <Skeleton className="w-32 h-10" />
-        </div>
-      </Card>
-
-      <Card className="p-0 overflow-hidden">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-gray-50">
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Student</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Student No.</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Date</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Time</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Status</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Confidence</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[1, 2, 3, 4, 5].map((i) => (
-              <tr key={i} className="border-b border-gray-50">
-                <td className="px-4 py-3"><Skeleton className="w-32 h-4" /></td>
-                <td className="px-4 py-3"><Skeleton className="w-20 h-4" /></td>
-                <td className="px-4 py-3"><Skeleton className="w-24 h-4" /></td>
-                <td className="px-4 py-3"><Skeleton className="w-16 h-4" /></td>
-                <td className="px-4 py-3"><Skeleton className="w-20 h-6" /></td>
-                <td className="px-4 py-3"><Skeleton className="w-14 h-4" /></td>
+      {/* Table Skeleton */}
+      <Card glass className="overflow-hidden p-0">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[1000px]">
+            <thead>
+              <tr className="border-b border-slate-100 bg-slate-50/60">
+                {['Student', 'Roll Number', 'Batch', 'Semester', 'Date', 'Time', 'Status', 'Confidence', 'Attendance %'].map((col, idx) => (
+                  <th key={idx} className="px-5 py-3.5 text-left text-xs font-semibold text-slate-400">
+                    <div className="h-3 w-16 rounded bg-slate-200/70 animate-shimmer" />
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <tr key={i}>
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-full bg-slate-200 animate-shimmer" />
+                      <div className="h-4 w-28 rounded bg-slate-200 animate-shimmer" />
+                    </div>
+                  </td>
+                  <td className="px-5 py-4"><div className="h-6 w-20 rounded bg-slate-200/60 animate-shimmer" /></td>
+                  <td className="px-5 py-4"><div className="h-4 w-16 rounded bg-slate-200 animate-shimmer" /></td>
+                  <td className="px-5 py-4"><div className="h-4 w-12 rounded bg-slate-200 animate-shimmer" /></td>
+                  <td className="px-5 py-4"><div className="h-4 w-20 rounded bg-slate-200 animate-shimmer" /></td>
+                  <td className="px-5 py-4"><div className="h-4 w-16 rounded bg-slate-200 animate-shimmer" /></td>
+                  <td className="px-5 py-4"><div className="h-6 w-20 rounded-full bg-slate-200 animate-shimmer" /></td>
+                  <td className="px-5 py-4"><div className="h-3 w-28 rounded-full bg-slate-200 animate-shimmer" /></td>
+                  <td className="px-5 py-4"><div className="h-6 w-14 rounded-lg bg-slate-200 animate-shimmer" /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </Card>
     </div>
   );

@@ -1,74 +1,102 @@
-import { forwardRef } from 'react';
-import { motion } from 'framer-motion';
+import React, { forwardRef } from 'react';
 import { Loader2 } from 'lucide-react';
 
 const variants = {
   primary: `
-    bg-gradient-to-r from-blue-600 to-blue-700
-    hover:from-blue-700 hover:to-blue-800
-    active:from-blue-800 active:to-blue-900
-    text-white shadow-md hover:shadow-lg shadow-blue-500/20
+    bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:from-blue-800 active:to-indigo-800
+    text-white shadow-xs hover:shadow-md hover:-translate-y-0.5
+    border border-transparent
+    focus-visible:ring-indigo-500/20
   `,
   secondary: `
-    bg-white hover:bg-gray-50 active:bg-gray-100
-    text-gray-700 border border-gray-200 hover:border-gray-300
-  `,
-  danger: `
-    bg-gradient-to-r from-red-600 to-red-700
-    hover:from-red-700 hover:to-red-800
-    active:from-red-800 active:to-red-900
-    text-white shadow-md hover:shadow-lg shadow-red-500/20
+    bg-white/90 hover:bg-white active:bg-slate-50
+    text-slate-700 hover:text-slate-900
+    border border-slate-200/90 hover:border-slate-300
+    shadow-xs hover:shadow-sm hover:-translate-y-0.5
+    backdrop-blur-sm
   `,
   ghost: `
-    bg-transparent hover:bg-gray-100 active:bg-gray-200
-    text-gray-600
+    bg-transparent hover:bg-slate-100/80 active:bg-slate-200/70
+    text-slate-600 hover:text-slate-900
+    border border-transparent
+  `,
+  danger: `
+    bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 active:from-rose-800 active:to-red-800
+    text-white shadow-xs hover:shadow-md hover:-translate-y-0.5
+    border border-transparent
+    focus-visible:ring-rose-500/20
+  `,
+  dangerGhost: `
+    bg-transparent hover:bg-rose-50 active:bg-rose-100/80
+    text-rose-600 hover:text-rose-700
+    border border-transparent
   `,
   success: `
-    bg-gradient-to-r from-emerald-600 to-emerald-700
-    hover:from-emerald-700 hover:to-emerald-800
-    active:from-emerald-800 active:to-emerald-900
-    text-white shadow-md hover:shadow-lg shadow-emerald-500/20
+    bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:from-emerald-800 active:to-teal-800
+    text-white shadow-xs hover:shadow-md hover:-translate-y-0.5
+    border border-transparent
+    focus-visible:ring-emerald-500/20
+  `,
+  glass: `
+    bg-white/70 hover:bg-white/90 active:bg-white
+    text-slate-700 hover:text-slate-900
+    border border-slate-200/80 hover:border-slate-300
+    shadow-xs hover:shadow-sm
+    backdrop-blur-md
   `,
 };
 
 const sizes = {
-  sm: 'px-3 py-1.5 text-xs font-medium',
-  md: 'px-4 py-2 text-sm font-medium',
-  lg: 'px-6 py-3 text-base font-semibold',
+  xs: 'px-2.5 py-1 text-xs font-medium rounded-lg gap-1.5',
+  sm: 'px-3 py-1.5 text-xs font-semibold rounded-lg gap-1.5',
+  md: 'px-4 py-2 text-sm font-semibold rounded-xl gap-2',
+  lg: 'px-5 py-2.5 text-sm font-bold rounded-xl gap-2.5',
+  xl: 'px-6 py-3 text-base font-bold rounded-2xl gap-3',
 };
 
 const Button = forwardRef(({
   children,
+  type = 'button',
   variant = 'primary',
   size = 'md',
   loading = false,
   icon: Icon,
+  iconRight: IconRight,
   className = '',
   disabled,
   ...props
 }, ref) => {
+  const isDisabled = disabled || loading;
+
   return (
-    <motion.button
+    <button
       ref={ref}
-      whileHover={!disabled && !loading ? { y: -1, scale: 1.02 } : undefined}
-      whileTap={!disabled && !loading ? { y: 0, scale: 0.98 } : undefined}
-      transition={{ type: 'spring', stiffness: 420, damping: 20 }}
+      type={type}
+      disabled={isDisabled}
       className={`
-        inline-flex items-center justify-center gap-2
-        rounded-lg font-medium transition-all duration-200 hover:brightness-[1.02]
-        disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
-        ${variants[variant]} ${sizes[size]} ${className}
+        inline-flex items-center justify-center
+        transition-all duration-150 ease-out select-none
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1
+        disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:transform-none
+        active:scale-[0.99]
+        ${variants[variant] || variants.primary}
+        ${sizes[size] || sizes.md}
+        ${className}
       `}
-      disabled={loading || disabled}
       {...props}
     >
       {loading ? (
-        <Loader2 size={16} className="animate-spin" />
+        <Loader2 size={size === 'xs' || size === 'sm' ? 14 : 16} className="animate-spin shrink-0" />
       ) : Icon ? (
-        <Icon size={16} />
+        <Icon size={size === 'xs' || size === 'sm' ? 14 : 16} className="shrink-0" />
       ) : null}
-      {children}
-    </motion.button>
+
+      {children && <span>{children}</span>}
+
+      {!loading && IconRight && (
+        <IconRight size={size === 'xs' || size === 'sm' ? 14 : 16} className="shrink-0" />
+      )}
+    </button>
   );
 });
 

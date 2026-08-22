@@ -1,5 +1,5 @@
+import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import {
   LayoutDashboard,
   Users,
@@ -49,42 +49,73 @@ const mainLinks = [
   },
 ];
 
-function Item({ to, label, Icon, end }) {
+function NavItem({ to, label, Icon, end }) {
   return (
-    <NavLink to={to} end={end} aria-label={label} className="block">
+    <NavLink
+      to={to}
+      end={end}
+      aria-label={label}
+      className={({ isActive }) => `
+        group relative flex items-center gap-3 rounded-xl
+        px-3 py-2.5
+        text-xs font-semibold
+        transition-all duration-200 ease-out
+        select-none
+        ${
+          isActive
+            ? `
+              border border-white/80
+              bg-gradient-to-r
+              from-blue-500
+              to-indigo-600
+              text-white
+              shadow-md shadow-indigo-500/20
+            `
+            : `
+              border border-transparent
+              text-slate-600
+              hover:border-white/80
+              hover:bg-white/70
+              hover:text-slate-900
+              hover:shadow-sm
+            `
+        }
+      `}
+    >
       {({ isActive }) => (
-        <motion.div
-          whileHover={{ x: 2 }}
-          whileTap={{ scale: 0.99 }}
-          className={`
-            group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-medium
-            transition-colors duration-200
-            ${
-              isActive
-                ? 'bg-neutral-900/[0.06] text-neutral-900'
-                : 'text-neutral-600 hover:bg-neutral-900/[0.04] hover:text-neutral-900'
-            }
-          `}
-        >
+        <>
+          {/* Active indicator */}
           {isActive && (
-            <motion.span
-              layoutId="activeIndicator"
-              className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-neutral-900"
+            <span
+              className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-white"
+              aria-hidden="true"
             />
           )}
 
-          <Icon
-            size={18}
-            strokeWidth={isActive ? 2.25 : 1.9}
-            className={
-              isActive
-                ? 'text-neutral-900'
-                : 'text-neutral-500 group-hover:text-neutral-800'
-            }
-          />
+          {/* Icon */}
+          <span
+            className={`
+              flex h-8 w-8 shrink-0 items-center justify-center
+              rounded-lg
+              transition-all duration-200
+              ${
+                isActive
+                  ? 'bg-white/20 text-white'
+                  : 'bg-white/70 text-slate-400 group-hover:bg-white group-hover:text-indigo-600'
+              }
+            `}
+          >
+            <Icon
+              size={17}
+              strokeWidth={isActive ? 2.3 : 1.9}
+            />
+          </span>
 
-          <span className="hidden truncate lg:inline">{label}</span>
-        </motion.div>
+          {/* Label */}
+          <span className="hidden truncate tracking-tight lg:inline">
+            {label}
+          </span>
+        </>
       )}
     </NavLink>
   );
@@ -115,75 +146,115 @@ export default function Sidebar() {
 
   return (
     <nav
-      className="sticky top-16 flex h-[calc(100vh-4rem)] w-20 shrink-0 flex-col overflow-y-auto border-r border-black/[0.06] lg:w-64"
-      style={{
-        background: 'rgba(255,255,255,0.62)',
-        backdropFilter: 'saturate(180%) blur(14px)',
-        WebkitBackdropFilter: 'saturate(180%) blur(14px)',
-      }}
+      aria-label="Main Navigation"
+      className="
+        sticky top-16
+        flex h-[calc(100vh-4rem)]
+        w-18 shrink-0 flex-col
+        overflow-y-auto
+
+        border-r border-indigo-100/70
+
+        bg-gradient-to-b
+        from-blue-50
+        via-indigo-50/80
+        to-violet-50
+
+        p-3
+        backdrop-blur-md
+
+        shadow-sm
+
+        lg:w-64
+        lg:p-4
+      "
     >
-      {/* Brand */}
-      <div className="border-b border-black/[0.06] px-3 py-4 lg:px-4">
+      {/* =====================================================
+          BRAND
+      ====================================================== */}
+      <div className="mb-5 border-b border-indigo-100/70 pb-5">
         <div className="flex items-center justify-center gap-3 lg:justify-start">
-          <motion.div
-            whileHover={{ rotate: 3, scale: 1.04 }}
-            transition={{ type: 'spring', stiffness: 300 }}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-black/[0.08] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+          
+          <div
+            className="
+              flex h-10 w-10 shrink-0
+              items-center justify-center
+              rounded-2xl
+              bg-gradient-to-br
+              from-blue-500
+              to-indigo-600
+              text-white
+              shadow-md shadow-indigo-500/20
+            "
           >
-            <GraduationCap size={18} className="text-neutral-800" />
-          </motion.div>
+            <GraduationCap
+              size={20}
+              strokeWidth={2.2}
+            />
+          </div>
 
           <div className="hidden lg:block">
-            <div className="text-[13.5px] font-semibold leading-tight tracking-tight text-neutral-900">
+            <div className="text-xs font-bold leading-tight tracking-tight text-slate-900">
               Face Attendance
             </div>
-            <div className="text-[11px] font-medium text-neutral-500">
-              System
+
+            <div className="mt-0.5 text-[10px] font-medium text-slate-500">
+              Admin & Faculty Portal
             </div>
           </div>
         </div>
       </div>
 
-      {/* Nav */}
-      <div className="flex-1 px-3 py-4 lg:px-3 lg:py-5">
-        <div className="mb-2 hidden px-2 lg:block">
-          <span className="text-[10.5px] font-semibold uppercase tracking-[0.12em] text-neutral-400">
-            Workspace
-          </span>
-        </div>
+      {/* =====================================================
+          NAVIGATION
+      ====================================================== */}
+      <div className="flex-1">
 
-        <div className="space-y-1">
-          {mainLinks
-            .filter(
-              ({ permission }) =>
-                !permission || hasPermission(role, permission)
-            )
-            .map(({ to, label, icon }) => (
-              <Item
-                key={to}
-                to={to}
-                label={label}
-                Icon={icon}
-                end={to === '/'}
-              />
-            ))}
-        </div>
+        {/* ===================================================
+            WORKSPACE
+        ==================================================== */}
+        <section className="mb-7">
+          <div className="mb-2.5 hidden px-2 lg:block">
+            <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-indigo-400">
+              Workspace
+            </span>
+          </div>
 
+          <div className="space-y-1.5">
+            {mainLinks
+              .filter(
+                ({ permission }) =>
+                  !permission || hasPermission(role, permission)
+              )
+              .map(({ to, label, icon }) => (
+                <NavItem
+                  key={to}
+                  to={to}
+                  label={label}
+                  Icon={icon}
+                  end={to === '/'}
+                />
+              ))}
+          </div>
+        </section>
+
+        {/* ===================================================
+            ADMINISTRATION
+        ==================================================== */}
         {(canManageTeachers ||
           canManageCalendar ||
           canManageAcademicPeriods) && (
-          <>
-            <div className="my-4 hidden border-t border-black/[0.06] lg:block" />
+          <section className="mb-7">
 
-            <div className="mb-2 hidden px-2 lg:block">
-              <span className="text-[10.5px] font-semibold uppercase tracking-[0.12em] text-neutral-400">
+            <div className="mb-2.5 hidden px-2 lg:block">
+              <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-indigo-400">
                 Administration
               </span>
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               {canManageTeachers && (
-                <Item
+                <NavItem
                   to="/teachers"
                   label="Faculty"
                   Icon={UserRound}
@@ -191,7 +262,7 @@ export default function Sidebar() {
               )}
 
               {canManageCalendar && (
-                <Item
+                <NavItem
                   to="/calendar"
                   label="Calendar"
                   Icon={CalendarDays}
@@ -199,44 +270,51 @@ export default function Sidebar() {
               )}
 
               {canManageAcademicPeriods && (
-                <Item
+                <NavItem
                   to="/academic-periods"
                   label="Academic Periods"
                   Icon={CalendarRange}
                 />
               )}
             </div>
-          </>
+          </section>
         )}
 
+        {/* ===================================================
+            SYSTEM
+        ==================================================== */}
         {canCreateAdmin && (
-          <>
-            <div className="my-4 hidden border-t border-black/[0.06] lg:block" />
+          <section>
 
-            <div className="mb-2 hidden px-2 lg:block">
-              <span className="text-[10.5px] font-semibold uppercase tracking-[0.12em] text-neutral-400">
+            <div className="mb-2.5 hidden px-2 lg:block">
+              <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-indigo-400">
                 System
               </span>
             </div>
 
-            <div className="space-y-1">
-              <Item
+            <div className="space-y-1.5">
+              <NavItem
                 to="/admin-management"
                 label="Admin Management"
                 Icon={ShieldCheck}
               />
             </div>
-          </>
+          </section>
         )}
       </div>
 
-      {/* Footer */}
-      <div className="mt-auto border-t border-black/[0.06] px-4 py-3">
-        <div className="hidden text-center text-[11px] text-neutral-400 lg:block">
-          <div className="font-medium text-neutral-500">
+      {/* =====================================================
+          FOOTER
+      ====================================================== */}
+      <div className="mt-6 border-t border-indigo-100/70 pt-4 text-center">
+        <div className="hidden lg:block">
+          <p className="text-[11px] font-semibold text-slate-500">
             Powered by TEAM LAZY
-          </div>
-          <div className="mt-0.5">v1.0.0</div>
+          </p>
+
+          <p className="mt-0.5 text-[10px] text-slate-400">
+            v1.0.0
+          </p>
         </div>
       </div>
     </nav>

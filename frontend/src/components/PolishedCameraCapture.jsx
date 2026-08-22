@@ -1,6 +1,5 @@
-import { useRef, useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, RotateCcw, StopCircle, Play } from 'lucide-react';
+import React, { useRef, useEffect, useState } from 'react';
+import { Camera, RotateCcw, StopCircle, Play, AlertCircle } from 'lucide-react';
 import Button from './ui/Button';
 import FaceGuideOverlay from './FaceGuideOverlay';
 import ProcessingAnimation from './ProcessingAnimation';
@@ -33,7 +32,7 @@ export default function PolishedCameraCapture({
   const [cameraError, setCameraError] = useState('');
 
   // Start camera when entering LIVE state
-   useEffect(() => {
+  useEffect(() => {
     const startCamera = async () => {
       if (state === CAMERA_STATES.LIVE && !streamRef.current) {
         try {
@@ -42,8 +41,8 @@ export default function PolishedCameraCapture({
             video: {
               facingMode: 'user',
               width: { ideal: 1280 },
-              height: { ideal: 720 }
-            }
+              height: { ideal: 720 },
+            },
           });
 
           streamRef.current = stream;
@@ -55,7 +54,7 @@ export default function PolishedCameraCapture({
         } catch (err) {
           console.error('Camera access error:', err);
           setCameraError(
-            'Unable to access camera. Please check permissions.'
+            'Unable to access camera. Please check your browser permissions and ensure no other application is using it.'
           );
         }
       }
@@ -63,7 +62,7 @@ export default function PolishedCameraCapture({
 
     startCamera();
 
-    // Cleanup: stop camera when leaving LIVE state or component unmounts
+    // Cleanup: stop tracks when unmounting or leaving LIVE state
     return () => {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((track) => track.stop());
@@ -79,27 +78,27 @@ export default function PolishedCameraCapture({
   // Handle cleanup when stopping camera
   const handleStop = () => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
     }
-    onStop();
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    onStop?.();
   };
 
   return (
-    <div className="relative mx-auto flex w-full max-w-xl flex-col items-center justify-center">
+    <div className="relative mx-auto flex w-full max-w-xl flex-col items-center justify-center animate-fade-in">
       {/* Camera Error Message */}
       {cameraError && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm"
-        >
-          {cameraError}
-        </motion.div>
+        <div className="mb-4 flex w-full items-start gap-2.5 rounded-xl border border-red-200 bg-red-50/90 p-3.5 text-xs text-red-700 shadow-xs animate-fade-in">
+          <AlertCircle size={16} className="mt-0.5 shrink-0 text-red-600" />
+          <p className="leading-relaxed font-medium">{cameraError}</p>
+        </div>
       )}
 
-      {/* Camera Preview Container */}
-      <div className="relative aspect-video w-full bg-gray-900 rounded-2xl overflow-hidden shadow-xl ring-4 ring-emerald-500/10">
+      {/* Viewfinder Container */}
+      <div className="relative aspect-video w-full overflow-hidden rounded-3xl border border-slate-200/90 bg-slate-950 shadow-xl ring-4 ring-indigo-500/5">
         {/* Face Guide Overlay - only in LIVE state */}
         {state === CAMERA_STATES.LIVE && <FaceGuideOverlay />}
 
@@ -110,86 +109,94 @@ export default function PolishedCameraCapture({
             autoPlay
             playsInline
             muted
-            className="w-full h-full object-cover"
+            className="h-full w-full object-cover"
           />
         )}
 
-        {/* Captured Frame - frozen during CAPTURED, PROCESSING, SUCCESS, ERROR states */}
+        {/* Captured Frame (Frozen Image) */}
         {(state === CAMERA_STATES.CAPTURED ||
           state === CAMERA_STATES.PROCESSING ||
           state === CAMERA_STATES.SUCCESS ||
-          state === CAMERA_STATES.ERROR) && (
-          <img
-            src={capturedImage}
-            alt="Captured face"
-            className="w-full h-full object-cover"
-          />
-        )}
+          state === CAMERA_STATES.ERROR) &&
+          capturedImage && (
+            <img
+              src={capturedImage}
+              alt="Captured face biometric"
+              className="h-full w-full object-cover animate-fade-in"
+            />
+          )}
 
-        {/* Idle State - Camera not started */}
+        {/* Idle State Surface */}
         {state === CAMERA_STATES.IDLE && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-white/70">
-            <Camera size={48} className="mb-3 opacity-50" />
-            <p className="text-sm font-medium">Camera not started</p>
-            <p className="text-xs mt-1 opacity-60">Click "Start Camera" to begin</p>
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center text-slate-400 bg-slate-900/90">
+            <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-3xl border border-white/10 bg-white/5 text-slate-300 shadow-inner">
+              <Camera size={32} strokeWidth={1.75} />
+            </div>
+            <p className="text-sm font-bold text-slate-200 tracking-tight">
+              Camera is currently offline
+            </p>
+            <p className="mt-1 text-xs text-slate-400 max-w-xs">
+              Click &quot;Start Camera&quot; to initialize video feed and begin facial recognition.
+            </p>
           </div>
         )}
 
-        {/* Processing Overlay */}
-        <AnimatePresence>
-          {state === CAMERA_STATES.PROCESSING && (
-            <ProcessingAnimation message="Analyzing face..." />
-          )}
-        </AnimatePresence>
+        {/* Processing State Overlay */}
+        {state === CAMERA_STATES.PROCESSING && (
+          <ProcessingAnimation message="Analyzing facial landmarks..." />
+        )}
 
-        {/* Success/Error Results - positioned inside camera container */}
-        <AnimatePresence mode="wait">
-          {state === CAMERA_STATES.SUCCESS && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center"
-            >
-              <SuccessAnimation
-                studentName={studentName}
-                onDone={onDone}
-                onReCapture={onReCapture}
-              />
-            </motion.div>
-          )}
+        {/* Success State Overlay */}
+        {state === CAMERA_STATES.SUCCESS && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white/95 backdrop-blur-md">
+            <SuccessAnimation
+              studentName={studentName}
+              onDone={onDone}
+              onReCapture={onReCapture}
+            />
+          </div>
+        )}
 
-          {state === CAMERA_STATES.ERROR && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center"
-            >
-              <ErrorAnimation error={error} onReCapture={onReCapture} />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Error State Overlay */}
+        {state === CAMERA_STATES.ERROR && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white/95 backdrop-blur-md">
+            <ErrorAnimation error={error} onReCapture={onReCapture} />
+          </div>
+        )}
       </div>
 
-      {/* Controls Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mt-5 flex flex-wrap justify-center gap-3 rounded-2xl border border-gray-100 bg-gray-50/80 p-3"
-      >
+      {/* Bottom Controls Bar */}
+      <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5 rounded-2xl border border-slate-200/80 bg-white/80 p-2.5 backdrop-blur-md shadow-sm">
         {state === CAMERA_STATES.IDLE && (
-          <Button onClick={onStart} icon={Play} size="lg" className="min-w-44 rounded-xl shadow-lg shadow-blue-500/20">
+          <Button
+            onClick={onStart}
+            icon={Play}
+            size="lg"
+            variant="primary"
+            className="min-w-44 shadow-sm"
+          >
             Start Camera
           </Button>
         )}
 
         {state === CAMERA_STATES.LIVE && (
           <>
-            <Button onClick={onCapture} variant="success" icon={Camera} size="lg" className="rounded-xl px-6 shadow-lg shadow-emerald-500/20">
-              Capture photo
+            <Button
+              onClick={onCapture}
+              variant="success"
+              icon={Camera}
+              size="lg"
+              className="px-6 shadow-sm"
+            >
+              Capture Frame
             </Button>
-            <Button onClick={handleStop} variant="secondary" icon={StopCircle} size="lg" className="rounded-xl">
+
+            <Button
+              onClick={handleStop}
+              variant="secondary"
+              icon={StopCircle}
+              size="lg"
+            >
               Stop
             </Button>
           </>
@@ -202,24 +209,27 @@ export default function PolishedCameraCapture({
               variant="secondary"
               icon={RotateCcw}
               size="lg"
-              className="rounded-xl"
             >
-              Re-capture
+              Re-take Photo
             </Button>
-            <Button onClick={handleStop} variant="secondary" icon={StopCircle} size="lg" className="rounded-xl">
-              Stop
+
+            <Button
+              onClick={handleStop}
+              variant="ghost"
+              icon={StopCircle}
+              size="lg"
+            >
+              Cancel
             </Button>
           </>
         )}
 
         {state === CAMERA_STATES.PROCESSING && (
-          <Button disabled loading size="lg" className="rounded-xl">
-            Processing...
+          <Button disabled loading size="lg" variant="primary">
+            Processing Biometrics...
           </Button>
         )}
-
-        {/* No controls needed for SUCCESS/ERROR states - they have their own buttons */}
-      </motion.div>
+      </div>
     </div>
   );
 }

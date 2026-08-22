@@ -3,7 +3,7 @@ import {
   BrowserRouter,
   Navigate,
   Route,
-  Routes
+  Routes,
 } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -25,6 +25,14 @@ import AttendancePage from './pages/Attendance/AttendancePage';
 import AttendanceHistoryPage from './pages/AttendanceHistory/AttendanceHistoryPage';
 import CalendarPage from './pages/Calendar/CalendarPage';
 import AcademicPeriodsPage from './pages/AcademicPeriods/AcademicPeriodsPage';
+import {
+  NotFoundPage,
+  UnauthorizedPage,
+  ForbiddenPage,
+  ServerErrorPage,
+  BadGatewayPage,
+  ServiceUnavailablePage,
+} from './pages/Errors';
 import { PERMISSIONS } from './auth/roles';
 
 export default function App() {
@@ -41,25 +49,25 @@ export default function App() {
       />
       <BrowserRouter>
         <Routes>
+          {/* =========================
+              PUBLIC AUTH ROUTES
+              ========================= */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
           {/* =========================
-              PUBLIC ROUTES
+              EXPLICIT ERROR PAGES
               ========================= */}
-
-          <Route
-            path="/login"
-            element={<LoginPage />}
-          />
-
-          <Route
-            path="/forgot-password"
-            element={<ForgotPasswordPage />}
-          />
+          <Route path="/401" element={<UnauthorizedPage />} />
+          <Route path="/403" element={<ForbiddenPage />} />
+          <Route path="/404" element={<NotFoundPage />} />
+          <Route path="/500" element={<ServerErrorPage />} />
+          <Route path="/502" element={<BadGatewayPage />} />
+          <Route path="/503" element={<ServiceUnavailablePage />} />
 
           {/* =========================
               PROTECTED APPLICATION
               ========================= */}
-
           <Route
             path="/"
             element={
@@ -68,53 +76,64 @@ export default function App() {
               </PrivateRoute>
             }
           >
-
             {/* Dashboard */}
             <Route
               index
-              element={<PrivateRoute permission={PERMISSIONS.VIEW_DASHBOARD}>
+              element={
+                <PrivateRoute permission={PERMISSIONS.VIEW_DASHBOARD}>
                   <DashboardPage />
-                </PrivateRoute>}
+                </PrivateRoute>
+              }
             />
 
             {/* Students */}
             <Route
               path="students"
-              element={<PrivateRoute permission={PERMISSIONS.MANAGE_STUDENTS}>
+              element={
+                <PrivateRoute permission={PERMISSIONS.MANAGE_STUDENTS}>
                   <StudentsPage />
-                </PrivateRoute>}
+                </PrivateRoute>
+              }
             />
 
             {/* Teachers */}
             <Route
               path="teachers"
-              element={<PrivateRoute permission={PERMISSIONS.MANAGE_TEACHERS}>
+              element={
+                <PrivateRoute permission={PERMISSIONS.MANAGE_TEACHERS}>
                   <TeachersPage />
-                </PrivateRoute>}
+                </PrivateRoute>
+              }
             />
 
             {/* Face Registration */}
             <Route
               path="face-registration"
-              element={<PrivateRoute permission={PERMISSIONS.MANAGE_FACE_REGISTRATION}>
+              element={
+                <PrivateRoute permission={PERMISSIONS.MANAGE_FACE_REGISTRATION}>
                   <FaceRegistrationPage />
-                </PrivateRoute>}
+                </PrivateRoute>
+              }
             />
 
             {/* Attendance */}
             <Route
               path="attendance"
-              element={<PrivateRoute permission={PERMISSIONS.MANAGE_ATTENDANCE}>
+              element={
+                <PrivateRoute permission={PERMISSIONS.MANAGE_ATTENDANCE}>
                   <AttendancePage />
-                </PrivateRoute>}
+                </PrivateRoute>
+              }
             />
 
             {/* Attendance History */}
             <Route
               path="history"
-              element={<PrivateRoute permission={PERMISSIONS.VIEW_ATTENDANCE_HISTORY}>
+              element={
+                <PrivateRoute permission={PERMISSIONS.VIEW_ATTENDANCE_HISTORY}>
                   <AttendanceHistoryPage />
-                </PrivateRoute>}
+                </PrivateRoute>
+              }
             />
 
             {/* Calendar - ADMIN ONLY */}
@@ -127,10 +146,7 @@ export default function App() {
               }
             />
 
-            {/* ==========================================
-                ACADEMIC PERIODS - ADMIN ONLY
-                ========================================== */}
-
+            {/* Academic Periods - ADMIN ONLY */}
             <Route
               path="academic-periods"
               element={
@@ -141,16 +157,10 @@ export default function App() {
             />
 
             {/* Account: own profile */}
-            <Route
-              path="profile"
-              element={<ProfilePage />}
-            />
+            <Route path="profile" element={<ProfilePage />} />
 
             {/* Account security */}
-            <Route
-              path="change-password"
-              element={<ChangePasswordPage />}
-            />
+            <Route path="change-password" element={<ChangePasswordPage />} />
 
             {/* Super Admin only */}
             <Route
@@ -162,19 +172,12 @@ export default function App() {
               }
             />
 
-            {/* Unknown protected route */}
-            <Route
-              path="*"
-              element={
-                <Navigate
-                  to="/"
-                  replace
-                />
-              }
-            />
-
+            {/* 404 inside application shell */}
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
 
+          {/* Fallback global 404 */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

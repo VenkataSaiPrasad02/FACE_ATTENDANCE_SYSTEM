@@ -1,39 +1,33 @@
-import { motion } from 'framer-motion';
+import React from 'react';
 
 export default function FaceGuideOverlay() {
   return (
-    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
       {/* Face guide frame */}
-      <motion.div
-        animate={{ opacity: [0.3, 0.6, 0.3] }}
-        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-        className="w-48 h-64 border-2 border-white/40 rounded-3xl relative"
-      >
-        {/* Corner accents */}
-        <div className="absolute -top-1 -left-1 w-8 h-8 border-t-4 border-l-4 border-blue-400 rounded-tl-lg" />
-        <div className="absolute -top-1 -right-1 w-8 h-8 border-t-4 border-r-4 border-blue-400 rounded-tr-lg" />
-        <div className="absolute -bottom-1 -left-1 w-8 h-8 border-b-4 border-l-4 border-blue-400 rounded-bl-lg" />
-        <div className="absolute -bottom-1 -right-1 w-8 h-8 border-b-4 border-r-4 border-blue-400 rounded-br-lg" />
-      </motion.div>
+      <div className="relative w-52 h-68 sm:w-60 sm:h-76 border-2 border-white/50 rounded-[42px] backdrop-blur-[0.5px] transition-all duration-300">
+        {/* Corner accent markers */}
+        <div className="absolute -top-1.5 -left-1.5 w-7 h-7 border-t-3 border-l-3 border-indigo-400 rounded-tl-2xl shadow-sm" />
+        <div className="absolute -top-1.5 -right-1.5 w-7 h-7 border-t-3 border-r-3 border-indigo-400 rounded-tr-2xl shadow-sm" />
+        <div className="absolute -bottom-1.5 -left-1.5 w-7 h-7 border-b-3 border-l-3 border-indigo-400 rounded-bl-2xl shadow-sm" />
+        <div className="absolute -bottom-1.5 -right-1.5 w-7 h-7 border-b-3 border-r-3 border-indigo-400 rounded-br-2xl shadow-sm" />
 
-      {/* Scanning line */}
-      <motion.div
-        animate={{ opacity: [0, 1, 0], top: ['20%', '80%', '20%'] }}
-        transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute w-44 h-0.5 bg-blue-400/60"
-      />
+        {/* Center alignment crosshair hints */}
+        <div className="absolute top-1/2 -left-3 w-2 h-0.5 bg-white/40 -translate-y-1/2" />
+        <div className="absolute top-1/2 -right-3 w-2 h-0.5 bg-white/40 -translate-y-1/2" />
+        <div className="absolute -top-3 left-1/2 w-0.5 h-2 bg-white/40 -translate-x-1/2" />
+        <div className="absolute -bottom-3 left-1/2 w-0.5 h-2 bg-white/40 -translate-x-1/2" />
+      </div>
 
-      {/* Position hint text */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="absolute bottom-4 left-0 right-0 text-center"
-      >
-        <span className="text-white/80 text-sm font-medium bg-black/30 px-3 py-1 rounded-full">
-          Position your face within the frame
+      {/* Subtle laser scan line */}
+      <div className="scan-line" />
+
+      {/* Guidance Hint */}
+      <div className="absolute bottom-5 left-0 right-0 flex justify-center">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-slate-950/60 px-3.5 py-1 text-xs font-medium text-white/90 backdrop-blur-md shadow-sm">
+          <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-ping" />
+          Center face within guide frame
         </span>
-      </motion.div>
+      </div>
     </div>
   );
 }

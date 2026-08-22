@@ -1,144 +1,95 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   UserRound,
   Lock,
   Mail,
   Phone,
   Building2,
+  KeyRound,
+  Shield,
 } from 'lucide-react';
+import Button from '../../components/ui/Button';
 
 export default function TeacherForm({
   initialData = null,
   onSubmit,
-  onCancel
+  onCancel,
 }) {
-
   const isEdit = Boolean(initialData);
 
   const [formData, setFormData] = useState({
     username: '',
     fullName: '',
     password: '',
-      email: '',
+    email: '',
     phone: '',
-    department: ''
+    department: '',
   });
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
-
     if (initialData) {
-
       setFormData({
         username: initialData.username || '',
         fullName: '',
         password: '',
         email: initialData.email || '',
         phone: initialData.phone || '',
-        department: initialData.department || ''
+        department: initialData.department || '',
       });
-
     } else {
-
       setFormData({
         username: '',
         fullName: '',
         password: '',
-              email: '',
+        email: '',
         phone: '',
-        department: ''
+        department: '',
       });
-
     }
-
   }, [initialData]);
 
   const handleChange = (e) => {
-
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
-
   };
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
-
     setError('');
 
     try {
-
       setSaving(true);
 
       if (isEdit) {
-
-        /*
-         * UPDATE:
-         * Send only fields that the admin actually entered.
-         *
-         * Password is optional.
-         * fullName is optional.
-         */
-
         const data = {};
-
-        if (formData.email.trim()) {
-          data.email = formData.email.trim();
-        }
-
-        if (formData.phone.trim()) {
-          data.phone = formData.phone.trim();
-        }
-
-        if (formData.department.trim()) {
-          data.department = formData.department.trim();
-        }
-
-        if (formData.fullName.trim()) {
-          data.fullName = formData.fullName.trim();
-        }
-
-        if (formData.password.trim()) {
-          data.password = formData.password.trim();
-        }
+        if (formData.email.trim()) data.email = formData.email.trim();
+        if (formData.phone.trim()) data.phone = formData.phone.trim();
+        if (formData.department.trim()) data.department = formData.department.trim();
+        if (formData.fullName.trim()) data.fullName = formData.fullName.trim();
+        if (formData.password.trim()) data.password = formData.password.trim();
 
         await onSubmit(data);
-
       } else {
-
-        /*
-         * CREATE:
-         * Required by backend:
-         * username
-         * fullName
-         * password
-         */
-
         if (!formData.username.trim()) {
           setError('Username is required.');
           return;
         }
-
         if (!formData.fullName.trim()) {
           setError('Full name is required.');
           return;
         }
-
         if (!formData.password.trim()) {
           setError('Password is required.');
           return;
         }
-
         if (formData.password.length < 8) {
-          setError(
-            'Password must be at least 8 characters.'
-          );
+          setError('Password must be at least 8 characters.');
           return;
         }
 
@@ -148,285 +99,241 @@ export default function TeacherForm({
           password: formData.password,
           email: formData.email.trim() || null,
           phone: formData.phone.trim() || null,
-          department: formData.department.trim() || null
+          department: formData.department.trim() || null,
         };
 
         await onSubmit(data);
       }
-
     } catch (e) {
-
       setError(
         e?.response?.data?.message ||
         e?.message ||
-        'Failed to save teacher.'
+        'Failed to save faculty record.'
       );
-
     } finally {
-
       setSaving(false);
-
     }
-
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-5"
-    >
-
+    <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
       {error && (
-        <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3.5 text-sm text-red-700">
+        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-semibold text-rose-700">
           {error}
         </div>
       )}
 
-      {/* Username */}
-
-      {!isEdit && (
-        <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-700">
-            Username
-            <span className="text-red-500"> *</span>
-          </label>
-
-          <div className="group flex h-14 w-full items-stretch overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 transition-all duration-200 hover:border-slate-300 hover:bg-white focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-100">
-            <div className="flex w-12 shrink-0 items-center justify-center border-r border-slate-200 text-slate-400 transition-colors group-focus-within:border-blue-100 group-focus-within:text-blue-600">
-              <UserRound size={20} />
+      {/* SECTION 1: Identity & Credentials */}
+      <div className="rounded-2xl border border-slate-200/80 bg-white/70 p-4 sm:p-5 shadow-xs backdrop-blur-sm">
+        <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+              <UserRound size={15} />
             </div>
-
-            <input
-              type="text"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              maxLength={50}
-              placeholder="jsmith"
-              className="h-full w-full bg-transparent pl-4 pr-4 text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
-            />
+            <div>
+              <h4 className="text-xs sm:text-sm font-bold text-slate-900">
+                Faculty Account & Identity
+              </h4>
+              <p className="text-[11px] text-slate-400">
+                Staff member login credentials and identity
+              </p>
+            </div>
           </div>
-
-          <p className="mt-1.5 text-xs text-slate-500">
-            Used to log in. Cannot be changed later.
-          </p>
-        </div>
-      )}
-
-      {isEdit && initialData?.username && (
-        <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-700">
-            Username
-          </label>
-          <div className="flex h-14 w-full items-center rounded-2xl border border-slate-200 bg-slate-100 px-4 text-sm font-medium text-slate-500">
-            {initialData.username}
-          </div>
-          <p className="mt-1.5 text-xs text-slate-400">Username cannot be changed.</p>
-        </div>
-      )}
-
-      {/* Full name */}
-
-      <div>
-        <label className="mb-2 block text-sm font-semibold text-slate-700">
-          Full name
-          {!isEdit && <span className="text-red-500"> *</span>}
-        </label>
-
-        <div className="group flex h-14 w-full items-stretch overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 transition-all duration-200 hover:border-slate-300 hover:bg-white focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-100">
-          <div className="flex w-12 shrink-0 items-center justify-center border-r border-slate-200 text-slate-400 transition-colors group-focus-within:border-blue-100 group-focus-within:text-blue-600">
-            <UserRound size={20} />
-          </div>
-
-          <input
-            type="text"
-            name="fullName"
-            value={formData.fullName}
-            onChange={handleChange}
-            maxLength={50}
-            placeholder={
-              isEdit
-                ? 'Leave blank to keep current name'
-                : 'John Smith'
-            }
-            className="h-full w-full bg-transparent pl-4 pr-4 text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
-          />
+          <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10.5px] font-semibold text-slate-600">
+            Step 1
+          </span>
         </div>
 
-        {isEdit && (
-          <p className="mt-1.5 text-xs text-slate-500">
-            Leave blank if you don't want to change it.
-          </p>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {/* Username */}
+          {!isEdit ? (
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+                System Username <span className="text-rose-500">*</span>
+              </label>
+              <div className="group flex h-10 w-full items-center overflow-hidden rounded-xl border border-slate-200 bg-white transition-all duration-150 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
+                <div className="flex h-full w-10 shrink-0 items-center justify-center border-r border-slate-100 bg-slate-50/50 text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+                  <UserRound size={16} />
+                </div>
+                <input
+                  type="text"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  maxLength={50}
+                  placeholder="e.g. jsmith"
+                  required
+                  className="h-full w-full bg-transparent px-3 text-xs sm:text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+                />
+              </div>
+            </div>
+          ) : (
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+                System Username
+              </label>
+              <div className="flex h-10 w-full items-center rounded-xl border border-slate-200 bg-slate-100/70 px-3 text-xs font-semibold text-slate-500">
+                @{initialData.username}
+              </div>
+            </div>
+          )}
+
+          {/* Full Name */}
+          <div className={isEdit ? '' : ''}>
+            <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+              Full Faculty Name {!isEdit && <span className="text-rose-500">*</span>}
+            </label>
+            <div className="group flex h-10 w-full items-center overflow-hidden rounded-xl border border-slate-200 bg-white transition-all duration-150 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
+              <div className="flex h-full w-10 shrink-0 items-center justify-center border-r border-slate-100 bg-slate-50/50 text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+                <UserRound size={16} />
+              </div>
+              <input
+                type="text"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                maxLength={50}
+                placeholder={isEdit ? 'Leave blank to keep unchanged' : 'e.g. Dr. John Smith'}
+                required={!isEdit}
+                className="h-full w-full bg-transparent px-3 text-xs sm:text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+              />
+            </div>
+          </div>
+
+          {/* Password */}
+          <div className="sm:col-span-2">
+            <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+              {isEdit ? 'Update Password (Optional)' : 'Access Password'} {!isEdit && <span className="text-rose-500">*</span>}
+            </label>
+            <div className="group flex h-10 w-full items-center overflow-hidden rounded-xl border border-slate-200 bg-white transition-all duration-150 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
+              <div className="flex h-full w-10 shrink-0 items-center justify-center border-r border-slate-100 bg-slate-50/50 text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+                <Lock size={16} />
+              </div>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                minLength={8}
+                placeholder={isEdit ? 'Leave empty to retain existing password' : 'Minimum 8 characters'}
+                required={!isEdit}
+                className="h-full w-full bg-transparent px-3 text-xs sm:text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* SECTION 2: Department & Contact Info */}
+      <div className="rounded-2xl border border-slate-200/80 bg-white/70 p-4 sm:p-5 shadow-xs backdrop-blur-sm">
+        <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+              <Building2 size={15} />
+            </div>
+            <div>
+              <h4 className="text-xs sm:text-sm font-bold text-slate-900">
+                Department & Communication
+              </h4>
+              <p className="text-[11px] text-slate-400">
+                Academic department and contact details
+              </p>
+            </div>
+          </div>
+          <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10.5px] font-semibold text-slate-600">
+            Step 2
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {/* Department */}
+          <div className="sm:col-span-2">
+            <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+              Department / Faculty Unit
+            </label>
+            <div className="group flex h-10 w-full items-center overflow-hidden rounded-xl border border-slate-200 bg-white transition-all duration-150 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
+              <div className="flex h-full w-10 shrink-0 items-center justify-center border-r border-slate-100 bg-slate-50/50 text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+                <Building2 size={16} />
+              </div>
+              <input
+                type="text"
+                name="department"
+                value={formData.department}
+                onChange={handleChange}
+                maxLength={100}
+                placeholder="e.g. Computer Science & Engineering"
+                className="h-full w-full bg-transparent px-3 text-xs sm:text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+              />
+            </div>
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+              Institutional Email
+            </label>
+            <div className="group flex h-10 w-full items-center overflow-hidden rounded-xl border border-slate-200 bg-white transition-all duration-150 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
+              <div className="flex h-full w-10 shrink-0 items-center justify-center border-r border-slate-100 bg-slate-50/50 text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+                <Mail size={16} />
+              </div>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                maxLength={100}
+                placeholder="faculty@institution.edu"
+                className="h-full w-full bg-transparent px-3 text-xs sm:text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+              />
+            </div>
+          </div>
+
+          {/* Phone */}
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+              Office / Mobile Phone
+            </label>
+            <div className="group flex h-10 w-full items-center overflow-hidden rounded-xl border border-slate-200 bg-white transition-all duration-150 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
+              <div className="flex h-full w-10 shrink-0 items-center justify-center border-r border-slate-100 bg-slate-50/50 text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+                <Phone size={16} />
+              </div>
+              <input
+                type="text"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                maxLength={20}
+                placeholder="+91 9876543210"
+                className="h-full w-full bg-transparent px-3 text-xs sm:text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Action Footer */}
+      <div className="flex flex-col-reverse gap-2.5 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
+        {onCancel && (
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onCancel}
+            disabled={saving}
+            className="w-full sm:w-auto font-semibold"
+          >
+            Cancel
+          </Button>
         )}
+
+        <Button
+          type="submit"
+          variant="primary"
+          loading={saving}
+          className="w-full sm:w-auto shadow-sm font-bold"
+        >
+          {isEdit ? 'Update Faculty Member' : 'Register Faculty Member'}
+        </Button>
       </div>
-
-      {/* Password */}
-
-      <div>
-        <label className="mb-2 block text-sm font-semibold text-slate-700">
-          Password
-          {!isEdit && <span className="text-red-500"> *</span>}
-        </label>
-
-        <div className="group flex h-14 w-full items-stretch overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 transition-all duration-200 hover:border-slate-300 hover:bg-white focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-100">
-          <div className="flex w-12 shrink-0 items-center justify-center border-r border-slate-200 text-slate-400 transition-colors group-focus-within:border-blue-100 group-focus-within:text-blue-600">
-            <Lock size={20} />
-          </div>
-
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            minLength={8}
-            placeholder={
-              isEdit
-                ? 'Leave blank to keep current password'
-                : 'Minimum 8 characters'
-            }
-            className="h-full w-full bg-transparent pl-4 pr-4 text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
-          />
-        </div>
-
-        {isEdit && (
-          <p className="mt-1.5 text-xs text-slate-500">
-            Leave blank if you don't want to change the password.
-          </p>
-        )}
-      </div>
-
-      {/* Email */}
-
-      <div>
-        <label className="mb-2 block text-sm font-semibold text-slate-700">
-          Email
-        </label>
-
-        <div className="group flex h-14 w-full items-stretch overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 transition-all duration-200 hover:border-slate-300 hover:bg-white focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-100">
-          <div className="flex w-12 shrink-0 items-center justify-center border-r border-slate-200 text-slate-400 transition-colors group-focus-within:border-blue-100 group-focus-within:text-blue-600">
-            <Mail size={20} />
-          </div>
-
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            maxLength={100}
-            placeholder="john@college.edu"
-            className="h-full w-full bg-transparent pl-4 pr-4 text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
-          />
-        </div>
-      </div>
-
-      {/* Phone */}
-
-      <div>
-        <label className="mb-2 block text-sm font-semibold text-slate-700">
-          Phone
-        </label>
-
-        <div className="group flex h-14 w-full items-stretch overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 transition-all duration-200 hover:border-slate-300 hover:bg-white focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-100">
-          <div className="flex w-12 shrink-0 items-center justify-center border-r border-slate-200 text-slate-400 transition-colors group-focus-within:border-blue-100 group-focus-within:text-blue-600">
-            <Phone size={20} />
-          </div>
-
-          <input
-            type="text"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            maxLength={20}
-            placeholder="9876543210"
-            className="h-full w-full bg-transparent pl-4 pr-4 text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
-          />
-        </div>
-      </div>
-
-      {/* Department */}
-
-      <div>
-        <label className="mb-2 block text-sm font-semibold text-slate-700">
-          Department
-        </label>
-
-        <div className="group flex h-14 w-full items-stretch overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 transition-all duration-200 hover:border-slate-300 hover:bg-white focus-within:border-blue-500 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-100">
-          <div className="flex w-12 shrink-0 items-center justify-center border-r border-slate-200 text-slate-400 transition-colors group-focus-within:border-blue-100 group-focus-within:text-blue-600">
-            <Building2 size={20} />
-          </div>
-
-          <input
-            type="text"
-            name="department"
-            value={formData.department}
-            onChange={handleChange}
-            maxLength={100}
-            placeholder="Computer Science"
-            className="h-full w-full bg-transparent pl-4 pr-4 text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
-          />
-        </div>
-      </div>
-
-      {/* Buttons */}
-      {/* Buttons */}
-<div className="grid w-full grid-cols-4 gap-4 pt-5">
-
-  {/* Cancel */}
-  <button
-    type="button"
-    onClick={onCancel}
-    disabled={saving}
-    className="
-      col-span-1
-      h-11
-      rounded-xl
-      bg-gradient-to-r from-red-500 to-rose-600
-      px-4
-      text-sm font-semibold text-white
-      shadow-md shadow-red-500/15
-      transition-all duration-200
-      hover:from-red-600 hover:to-rose-700
-      hover:shadow-lg hover:shadow-red-500/20
-      disabled:cursor-not-allowed
-      disabled:opacity-60
-    "
-  >
-    Cancel
-  </button>
-
-  {/* Create / Update */}
-  <button
-    type="submit"
-    disabled={saving}
-    className="
-      col-span-3
-      h-11
-      rounded-xl
-      bg-gradient-to-r from-blue-600 to-indigo-600
-      px-4
-      text-sm font-semibold text-white
-      shadow-md shadow-blue-500/15
-      transition-all duration-200
-      hover:from-blue-700 hover:to-indigo-700
-      hover:shadow-lg hover:shadow-blue-500/20
-      disabled:cursor-not-allowed
-      disabled:opacity-60
-    "
-  >
-    {saving && (
-      <span className="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white align-[-3px]" />
-    )}
-
-    {saving
-      ? 'Saving...'
-      : isEdit
-        ? 'Update Teacher'
-        : 'Create Teacher'}
-  </button>
-
-</div>
-
-
     </form>
   );
 }

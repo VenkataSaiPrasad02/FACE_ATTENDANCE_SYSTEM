@@ -1,20 +1,34 @@
-import { motion } from 'framer-motion';
+import React from 'react';
 
-export default function Card({ children, className = '', hover = false, glass = false }) {
+export default function Card({
+  children,
+  className = '',
+  hover = false,
+  glass = true,
+  padding = 'p-6',
+  ...props
+}) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={hover ? { y: -4, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)' } : undefined}
-      transition={{ duration: 0.2 }}
+    <div
       className={`
-        bg-white rounded-xl shadow-sm border border-gray-100 p-6
-        ${glass ? 'glass-card' : ''}
+        rounded-2xl
+        transition-all duration-200 ease-out
+        ${
+          glass
+            ? 'bg-white/80 backdrop-blur-md border border-slate-200/80 shadow-sm'
+            : 'bg-white border border-slate-200/90 shadow-sm'
+        }
+        ${
+          hover
+            ? 'hover:bg-white hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5'
+            : ''
+        }
+        ${padding}
         ${className}
       `}
+      {...props}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
-

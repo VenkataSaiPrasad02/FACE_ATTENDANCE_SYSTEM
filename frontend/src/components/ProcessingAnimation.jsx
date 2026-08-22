@@ -1,70 +1,41 @@
-import { motion } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
+import React from 'react';
+import { Loader2, ScanLine, Sparkles } from 'lucide-react';
 
-export default function ProcessingAnimation({ message = 'Analyzing face...' }) {
+export default function ProcessingAnimation({ message = 'Analyzing face biometrics...' }) {
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="absolute inset-0 bg-gradient-to-br from-blue-900/95 to-purple-900/95 backdrop-blur-sm flex flex-col items-center justify-center"
-    >
-      <div className="text-center text-white">
-        {/* Spinning Loader */}
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          className="w-16 h-16 mb-6 mx-auto"
-        >
-          <Loader2 size={64} className="text-blue-300" />
-        </motion.div>
-
-        {/* Processing Message */}
-        <motion.div
-          animate={{ opacity: [0.7, 1, 0.7] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="text-xl font-semibold mb-3"
-        >
-          {message}
-        </motion.div>
-
-        {/* Processing Steps */}
-        <div className="space-y-2 text-sm text-blue-200">
-          <ProcessingStep delay={0} text="Detecting facial features..." />
-          <ProcessingStep delay={0.5} text="Analyzing biometric data..." />
-          <ProcessingStep delay={1} text="Matching with database..." />
-        </div>
-
-        {/* Bouncing Dots */}
-        <div className="flex justify-center gap-2 mt-6">
-          {[0, 1, 2].map((i) => (
-            <motion.div
-              key={i}
-              animate={{ y: [0, -12, 0] }}
-              transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15 }}
-              className="w-2.5 h-2.5 bg-blue-300 rounded-full shadow-lg"
-            />
-          ))}
+    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-950/75 p-6 backdrop-blur-md animate-fade-in text-white text-center">
+      {/* Outer Pulse Ring */}
+      <div className="relative mb-5 flex h-20 w-20 items-center justify-center">
+        <div className="absolute inset-0 rounded-3xl bg-indigo-500/20 animate-ping" />
+        <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-indigo-400/40 bg-indigo-600/30 backdrop-blur-xl shadow-lg shadow-indigo-500/30">
+          <Loader2 size={32} className="animate-spin text-indigo-300" />
         </div>
       </div>
-    </motion.div>
-  );
-}
 
-function ProcessingStep({ delay, text }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: -10 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay, duration: 0.3 }}
-      className="flex items-center justify-center gap-2"
-    >
-      <motion.div
-        animate={{ scale: [1, 1.2, 1] }}
-        transition={{ duration: 1, repeat: Infinity, delay }}
-        className="w-1.5 h-1.5 bg-blue-400 rounded-full"
-      />
-      <span>{text}</span>
-    </motion.div>
+      {/* Main Message */}
+      <h4 className="text-base font-bold tracking-tight text-white sm:text-lg">
+        {message}
+      </h4>
+
+      <p className="mt-1 text-xs text-indigo-200/80">
+        Comparing facial landmarks with institutional database
+      </p>
+
+      {/* Progress Steps */}
+      <div className="mt-6 flex flex-col gap-2 rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-xs text-slate-300 backdrop-blur-sm">
+        <div className="flex items-center gap-2.5">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+          <span>Detecting facial contour & alignment</span>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-pulse" />
+          <span>Extracting 128-d embedding vector</span>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
+          <span>Verifying student authorization</span>
+        </div>
+      </div>
+    </div>
   );
 }

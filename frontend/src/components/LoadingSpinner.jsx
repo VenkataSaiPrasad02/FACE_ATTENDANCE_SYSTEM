@@ -1,20 +1,29 @@
-import { motion } from 'framer-motion';
+import React from 'react';
 
-export default function LoadingSpinner({ text = 'Loading...' }) {
+export default function LoadingSpinner({
+  text = 'Loading...',
+  size = 'md',
+  className = '',
+}) {
+  const sizeClasses = {
+    sm: 'h-6 w-6 border-2',
+    md: 'h-9 w-9 border-2.5',
+    lg: 'h-12 w-12 border-3',
+  }[size] || 'h-9 w-9 border-2.5';
+
   return (
-    <div className="flex flex-col items-center justify-center py-12 text-neutral-500">
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 0.9, repeat: Infinity, ease: 'linear' }}
+    <div className={`flex flex-col items-center justify-center py-12 text-slate-500 ${className}`}>
+      <div
+        className={`${sizeClasses} rounded-full border-slate-200 border-t-indigo-600 animate-spin`}
         style={{
-          width: 34,
-          height: 34,
-          border: '2.5px solid rgba(0,0,0,0.08)',
-          borderTopColor: '#171717',
-          borderRadius: '50%',
+          borderTopColor: '#4f46e5',
         }}
       />
-      <p className="mt-4 text-[13px] font-medium text-neutral-500">{text}</p>
+      {text && (
+        <p className="mt-3.5 text-xs font-semibold text-slate-500 tracking-tight">
+          {text}
+        </p>
+      )}
     </div>
   );
 }

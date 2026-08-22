@@ -1,19 +1,32 @@
-import { motion } from 'framer-motion';
-import { CheckCircle, AlertCircle, Clock, User } from 'lucide-react';
+import React from 'react';
+import {
+  CheckCircle2,
+  AlertCircle,
+  Clock,
+  User,
+  Calendar,
+  Sparkles,
+  ShieldCheck,
+} from 'lucide-react';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
+import ProfileAvatar from '../../components/ProfileAvatar';
 
 export default function RecognitionResult({ result, error }) {
   if (error) {
     return (
-      <Card className="mt-6">
+      <Card glass className="mt-6 border-red-200 bg-red-50/60 p-5 sm:p-6 animate-scale-in">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-            <AlertCircle size={24} className="text-red-500" />
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-red-200 bg-white text-red-600 shadow-xs">
+            <AlertCircle size={22} />
           </div>
           <div>
-            <h4 className="text-lg font-semibold text-gray-900">Recognition Failed</h4>
-            <p className="text-gray-600 mt-1">{error}</p>
+            <h4 className="text-base font-bold text-slate-900 tracking-tight">
+              Recognition Failed
+            </h4>
+            <p className="mt-1 text-xs text-slate-600 leading-relaxed">
+              {error}
+            </p>
           </div>
         </div>
       </Card>
@@ -22,123 +35,116 @@ export default function RecognitionResult({ result, error }) {
 
   if (!result) return null;
 
+  const confidencePct = result.confidenceScore
+    ? Math.round(result.confidenceScore * 100)
+    : null;
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="mt-6"
-    >
-      <Card className="bg-green-50 border-green-200">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-            <CheckCircle size={24} className="text-green-500" />
+    <div className="mt-6 animate-scale-in">
+      <Card glass className="border-emerald-200/90 bg-emerald-50/40 p-6 sm:p-7">
+        {/* Header Notification */}
+        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-emerald-200/70 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-emerald-200 bg-white text-emerald-600 shadow-xs">
+              <CheckCircle2 size={24} strokeWidth={2.2} />
+            </div>
+
+            <div>
+              <h4 className="text-base font-extrabold text-slate-900 tracking-tight">
+                Attendance Successfully Marked
+              </h4>
+              <p className="text-xs font-medium text-emerald-700">
+                Face verified & record synced with institutional ledger
+              </p>
+            </div>
           </div>
-          <div>
-            <h4 className="text-lg font-semibold text-green-800">Attendance Marked</h4>
-            <p className="text-sm text-green-600">Student recognized successfully</p>
+
+          <Badge status={result.status || 'PRESENT'} />
+        </div>
+
+        {/* 4 Detail Cards */}
+        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Student */}
+          <div className="flex items-center gap-3 rounded-xl border border-slate-200/80 bg-white/90 p-3.5 shadow-xs">
+            <ProfileAvatar name={result.studentName} size="md" />
+            <div className="min-w-0">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Student Name
+              </span>
+              <p className="truncate text-xs font-bold text-slate-900">
+                {result.studentName || 'Unknown Student'}
+              </p>
+            </div>
+          </div>
+
+          {/* Time */}
+          <div className="flex items-center gap-3 rounded-xl border border-slate-200/80 bg-white/90 p-3.5 shadow-xs">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 text-amber-600 shrink-0">
+              <Clock size={18} />
+            </div>
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Check-in Time
+              </span>
+              <p className="text-xs font-bold text-slate-900 tabular-nums">
+                {result.attendanceTime || 'Just now'}
+              </p>
+            </div>
+          </div>
+
+          {/* Date */}
+          <div className="flex items-center gap-3 rounded-xl border border-slate-200/80 bg-white/90 p-3.5 shadow-xs">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-600 shrink-0">
+              <Calendar size={18} />
+            </div>
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Recorded Date
+              </span>
+              <p className="text-xs font-bold text-slate-900">
+                {result.attendanceDate || 'Today'}
+              </p>
+            </div>
+          </div>
+
+          {/* Verification Status */}
+          <div className="flex items-center gap-3 rounded-xl border border-slate-200/80 bg-white/90 p-3.5 shadow-xs">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 shrink-0">
+              <ShieldCheck size={18} />
+            </div>
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Biometric Match
+              </span>
+              <p className="text-xs font-bold text-indigo-700">
+                {confidencePct ? `${confidencePct}% match` : 'Verified'}
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="flex items-center gap-3 p-3 bg-white rounded-lg">
-            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-              <User size={20} className="text-blue-500" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 uppercase font-medium">Student</p>
-              <p className="font-semibold text-gray-900">{result.studentName}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 p-3 bg-white rounded-lg">
-            <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
-              <Clock size={20} className="text-amber-500" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 uppercase font-medium">Time</p>
-              <p className="font-semibold text-gray-900">{result.attendanceTime}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 p-3 bg-white rounded-lg">
-            <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-              <Calendar size={20} className="text-purple-500" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 uppercase font-medium">Date</p>
-              <p className="font-semibold text-gray-900">{result.attendanceDate}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 p-3 bg-white rounded-lg">
-            <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
-              <BadgeIcon size={20} className="text-emerald-500" />
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 uppercase font-medium">Status</p>
-              <Badge status={result.status} />
-            </div>
-          </div>
-        </div>
-
-        {result.confidenceScore && (
-          <div className="mt-4 pt-4 border-t border-green-200">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-green-700">Confidence Score</span>
-              <span className="font-semibold text-green-800">
-                {(result.confidenceScore * 100).toFixed(1)}%
+        {/* Confidence Progress Bar */}
+        {confidencePct !== null && (
+          <div className="mt-5 rounded-xl border border-emerald-200/80 bg-white/80 p-3.5">
+            <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
+              <span className="flex items-center gap-1.5 text-slate-600">
+                <Sparkles size={14} className="text-emerald-600" />
+                Biometric Confidence Score
+              </span>
+              <span className="font-bold text-emerald-700 tabular-nums">
+                {confidencePct}%
               </span>
             </div>
-            <div className="mt-2 h-2 bg-green-200 rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${result.confidenceScore * 100}%` }}
-                transition={{ duration: 0.5, ease: 'easeOut' }}
-                className="h-full bg-green-500 rounded-full"
+
+            <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-100">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500 ease-out"
+                style={{ width: `${Math.max(0, Math.min(100, confidencePct))}%` }}
               />
             </div>
           </div>
         )}
       </Card>
-    </motion.div>
-  );
-}
-
-function Calendar({ size, className }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-      <line x1="16" y1="2" x2="16" y2="6" />
-      <line x1="8" y1="2" x2="8" y2="6" />
-      <line x1="3" y1="10" x2="21" y2="10" />
-    </svg>
-  );
-}
-
-function BadgeIcon({ size, className }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-    </svg>
+    </div>
   );
 }

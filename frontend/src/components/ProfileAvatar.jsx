@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { API_ORIGIN } from '../services/api';
 
 /**
@@ -7,26 +7,31 @@ import { API_ORIGIN } from '../services/api';
  *
  * photoUrl: relative path from the backend (e.g. "/uploads/profiles/x.jpg") or null
  * name: full name or username — first letter is used for the fallback
- * size: 'sm' | 'md' | 'lg' | 'xl'
- * shape: 'full' (circle, used in lists) | 'lg' (rounded square, used in Navbar)
+ * size: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+ * shape: 'full' (circle) | 'lg' (rounded square)
  */
-export default function ProfileAvatar({ photoUrl, name, size = 'md', shape = 'full' }) {
-  // Reset the "broken image" state whenever the photo URL itself changes
-  // (e.g. after a new upload) — otherwise a previously-broken image
-  // would stay stuck showing initials even after a valid photo arrives.
+export default function ProfileAvatar({
+  photoUrl,
+  name,
+  size = 'md',
+  shape = 'full',
+  className = '',
+}) {
   const [imgFailed, setImgFailed] = useState(false);
+
   useEffect(() => {
     setImgFailed(false);
   }, [photoUrl]);
 
   const sizeClasses = {
-    sm: 'h-8 w-8 text-sm',
-    md: 'h-11 w-11 text-sm',
-    lg: 'h-16 w-16 text-xl',
-    xl: 'h-28 w-28 text-4xl',
-  }[size];
+    xs: 'h-6 w-6 text-[10px]',
+    sm: 'h-8 w-8 text-xs',
+    md: 'h-10 w-10 text-sm font-semibold',
+    lg: 'h-14 w-14 text-lg font-bold',
+    xl: 'h-24 w-24 text-3xl font-bold',
+  }[size] || 'h-10 w-10 text-sm font-semibold';
 
-  const shapeClass = shape === 'lg' ? 'rounded-lg' : 'rounded-full';
+  const shapeClass = shape === 'lg' ? 'rounded-2xl' : 'rounded-full';
   const initial = (name || '?').charAt(0).toUpperCase();
 
   const showImage = photoUrl && !imgFailed;
@@ -40,14 +45,23 @@ export default function ProfileAvatar({ photoUrl, name, size = 'md', shape = 'fu
         src={absoluteUrl}
         alt={name || 'Profile'}
         onError={() => setImgFailed(true)}
-        className={`${sizeClasses} ${shapeClass} shrink-0 object-cover shadow-sm`}
+        className={`
+          ${sizeClasses} ${shapeClass} shrink-0 object-cover
+          border border-slate-200/90 shadow-xs
+          ${className}
+        `}
       />
     );
   }
 
   return (
     <div
-      className={`${sizeClasses} ${shapeClass} flex shrink-0 items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 font-bold text-white shadow-sm`}
+      className={`
+        ${sizeClasses} ${shapeClass} flex shrink-0 items-center justify-center
+        bg-gradient-to-br from-indigo-500 to-indigo-700 font-bold text-white
+        border border-indigo-200/40 shadow-xs tracking-tight
+        ${className}
+      `}
     >
       {initial}
     </div>

@@ -1,12 +1,13 @@
-import { useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { ScanFace } from 'lucide-react';
+import React, { useState } from 'react';
+import { ScanFace, CheckCircle, Shield } from 'lucide-react';
+import AnimatedGradientBackground from '../../components/ui/AnimatedGradientBackground';
 import PolishedCameraCapture, {
   CAMERA_STATES,
 } from '../../components/PolishedCameraCapture';
 import RecognitionResult from './RecognitionResult';
 import attendanceService from '../../services/attendanceService';
 import Button from '../../components/ui/Button';
+import Card from '../../components/ui/Card';
 
 export default function AttendancePage() {
   const [cameraState, setCameraState] = useState(CAMERA_STATES.IDLE);
@@ -29,8 +30,6 @@ export default function AttendancePage() {
   };
 
   const handleCapture = () => {
-    const captureStart = performance.now();
-
     const video = document.querySelector('video');
 
     if (!video?.videoWidth) {
@@ -41,41 +40,20 @@ export default function AttendancePage() {
     }
 
     const canvas = document.createElement('canvas');
-
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
     const context = canvas.getContext('2d');
-
     if (!context) {
       setError('Unable to capture camera frame.');
       return;
     }
 
     context.drawImage(video, 0, 0);
-
     const captured = canvas.toDataURL('image/jpeg', 0.9);
 
     setCapturedImage(captured);
     setCameraState(CAMERA_STATES.CAPTURED);
-
-    const captureEnd = performance.now();
-
-    console.log(
-      `[PERF] Frontend - capture + JPEG/Base64: ${(
-        captureEnd - captureStart
-      ).toFixed(2)} ms`
-    );
-
-    console.log(
-      `[PERF] Frontend - image dimensions: ${video.videoWidth}x${video.videoHeight}`
-    );
-
-    console.log(
-      `[PERF] Frontend - Base64 payload: ${(
-        captured.length / 1024
-      ).toFixed(2)} KB`
-    );
   };
 
   const handleReCapture = () => {
@@ -86,98 +64,24 @@ export default function AttendancePage() {
   };
 
   const handleSubmit = async () => {
-    if (!capturedImage) {
-      return;
-    }
-
-    const totalStart = performance.now();
+    if (!capturedImage) return;
 
     setCameraState(CAMERA_STATES.PROCESSING);
     setError('');
     setLoading(true);
 
     try {
-      const base64Start = performance.now();
-
       const imageBase64 = capturedImage.split(',')[1];
-
-      const base64End = performance.now();
-
-      console.log(
-        `[PERF] Frontend - extract Base64: ${(
-          base64End - base64Start
-        ).toFixed(2)} ms`
-      );
-
-      console.log(
-        `[PERF] Frontend - request payload Base64 size: ${(
-          imageBase64.length / 1024
-        ).toFixed(2)} KB`
-      );
-
-      console.log(
-        '[PERF] Recognition request START'
-      );
-
-      const requestStart = performance.now();
-
       const data = await attendanceService.recognize(imageBase64);
-
-      const requestEnd = performance.now();
-
-      const requestTime = requestEnd - requestStart;
-      const totalTime = requestEnd - totalStart;
-
-      console.log(
-        `[PERF] Frontend - attendance API request/response: ${requestTime.toFixed(
-          2
-        )} ms`
-      );
-
-      console.log(
-        `[PERF] Frontend - recognition TOTAL: ${totalTime.toFixed(2)} ms`
-      );
-
-      console.log(
-        '[PERF] Recognition request END',
-        data
-      );
-
       setResult(data);
       setCameraState(CAMERA_STATES.SUCCESS);
     } catch (err) {
-      const requestEnd = performance.now();
-
-      const totalTime = requestEnd - totalStart;
-
-      console.error(
-        `[PERF] Frontend - recognition FAILED after ${totalTime.toFixed(
-          2
-        )} ms`
-      );
-
-      console.error(
-        '[PERF] Recognition error:',
-        err
-      );
-
-      if (err.response) {
-        console.error(
-          `[PERF] Backend HTTP status: ${err.response.status}`
-        );
-
-        console.error(
-          '[PERF] Backend response:',
-          err.response.data
-        );
-      }
-
+      console.error('Recognition error:', err);
       setError(
         err.response?.data?.message ||
-          err.response?.data?.detail ||
-          'Face recognition failed.'
+        err.response?.data?.detail ||
+        'Face recognition failed. No matching student record found.'
       );
-
       setCameraState(CAMERA_STATES.ERROR);
     } finally {
       setLoading(false);
@@ -192,71 +96,58 @@ export default function AttendancePage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl">
-      <motion.header
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-7"
-      >
-        <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-start">
-          <motion.div
-            initial={{ scale: 0.85, rotate: -8 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{
-              type: 'spring',
-              stiffness: 260,
-              damping: 18,
-            }}
-            className="w-fit rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-3 shadow-lg shadow-emerald-500/20"
-          >
-            <ScanFace size={28} className="text-white" />
-          </motion.div>
+    <AnimatedGradientBackground
+  type="attendance"
+  className="min-h-full rounded-2xl"
+>
+    <div className="w-full animate-fade-in pb-8">
+      {/* Header */}
+      <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xs">
+            <ScanFace size={26} strokeWidth={2} />
+          </div>
 
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-              Take attendance
+            <div className="mb-1 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Live Biometrics Terminal
+            </div>
+
+            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+              Take Attendance
             </h1>
 
-            <p className="mt-1 text-base text-gray-500">
-              Use facial recognition to mark attendance in real time.
+            <p className="mt-0.5 text-xs sm:text-sm text-slate-500">
+              Capture student face via live camera feed to mark real-time presence.
             </p>
           </div>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, x: -12 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.15 }}
-          className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700"
-        >
-          <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.14)]" />
-          AI-powered facial recognition ready
-        </motion.div>
-      </motion.header>
+        <div className="hidden sm:flex items-center gap-2 rounded-xl border border-slate-200/80 bg-white/90 px-3.5 py-2 text-xs font-semibold text-slate-600 shadow-xs backdrop-blur-md">
+          <Shield size={15} className="text-indigo-600" />
+          <span>Encrypted Biometric Matching</span>
+        </div>
+      </div>
 
-      <motion.section
-        initial={{ opacity: 0, y: 18 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="mb-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-8"
-      >
-        <div className="mb-6 flex flex-col gap-2 border-b border-gray-100 pb-5 sm:flex-row sm:items-center sm:justify-between">
+      {/* Camera Terminal Card */}
+      <Card glass className="p-6 sm:p-8">
+        <div className="mb-6 flex flex-col gap-2 border-b border-slate-100 pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">
-              Recognition terminal
+            <h2 className="text-base font-bold text-slate-900 tracking-tight">
+              Biometric Recognition Station
             </h2>
-
-            <p className="mt-1 text-sm text-gray-500">
-              Start the camera, capture a clear face, then confirm the result.
+            <p className="mt-0.5 text-xs text-slate-500">
+              Position face within the viewfinder guide frame and snap photo.
             </p>
           </div>
 
-          <span className="w-fit rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700">
-            Secure session
+          <span className="w-fit rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1 text-[11px] font-bold text-indigo-700">
+            Automated Ledger Sync
           </span>
         </div>
 
-        <div className="mx-auto flex max-w-2xl flex-col items-center justify-center px-2 py-2">
+        <div className="mx-auto flex max-w-2xl flex-col items-center justify-center">
           <PolishedCameraCapture
             state={cameraState}
             capturedImage={capturedImage}
@@ -269,41 +160,29 @@ export default function AttendancePage() {
             onDone={handleDone}
           />
 
-          <AnimatePresence>
-            {cameraState === CAMERA_STATES.CAPTURED && (
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                className="mt-5 flex justify-center"
+          {/* Submit Action Button when image is captured */}
+          {cameraState === CAMERA_STATES.CAPTURED && (
+            <div className="mt-6 flex justify-center animate-slide-up">
+              <Button
+                variant="success"
+                size="xl"
+                icon={CheckCircle}
+                onClick={handleSubmit}
+                loading={loading}
+                className="min-w-64 rounded-2xl px-8 shadow-md hover:shadow-lg font-bold"
               >
-                <Button
-                  variant="success"
-                  size="lg"
-                  icon={ScanFace}
-                  onClick={handleSubmit}
-                  loading={loading}
-                  className="min-w-64 rounded-xl px-8 shadow-lg shadow-emerald-500/30"
-                >
-                  Recognize & mark attendance
-                </Button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                {loading ? 'Matching with Roster...' : 'Verify Face & Mark Attendance'}
+              </Button>
+            </div>
+          )}
         </div>
-      </motion.section>
+      </Card>
 
-      <AnimatePresence mode="wait">
-        {cameraState === CAMERA_STATES.SUCCESS && result && (
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -18 }}
-          >
-            <RecognitionResult result={result} />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Recognition Result Card Display */}
+      {cameraState === CAMERA_STATES.SUCCESS && result && (
+        <RecognitionResult result={result} />
+      )}
     </div>
+    </AnimatedGradientBackground>
   );
 }

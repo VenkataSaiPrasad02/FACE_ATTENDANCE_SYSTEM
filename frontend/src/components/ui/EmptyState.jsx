@@ -1,5 +1,13 @@
-import { motion } from 'framer-motion';
-import { Inbox, Users, FileText, Search } from 'lucide-react';
+import React from 'react';
+import {
+  Inbox,
+  Users,
+  FileText,
+  Search,
+  GraduationCap,
+  Calendar,
+  ShieldAlert,
+} from 'lucide-react';
 import Button from './Button';
 
 const iconMap = {
@@ -7,34 +15,58 @@ const iconMap = {
   Users,
   FileText,
   Search,
+  GraduationCap,
+  Calendar,
+  ShieldAlert,
   default: Inbox,
 };
 
-export default function EmptyState({ icon: Icon = 'default', title, description, action, className = '' }) {
-  const IconComponent = typeof Icon === 'string' ? iconMap[Icon] || iconMap.default : Icon;
-  
+export default function EmptyState({
+  icon: Icon = 'default',
+  title = 'No records found',
+  description = 'There is currently no data available to display.',
+  action,
+  className = '',
+}) {
+  const IconComponent = typeof Icon === 'string' ? (iconMap[Icon] || iconMap.default) : Icon;
+
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className={`flex flex-col items-center justify-center py-16 px-4 text-center glass-medium rounded-2xl ${className}`}
+    <div
+      className={`
+        flex flex-col items-center justify-center rounded-2xl border border-slate-200/80
+        bg-white/70 px-6 py-14 text-center backdrop-blur-md shadow-xs
+        ${className}
+      `}
     >
-      <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-5 shadow-inner-glow">
-        <IconComponent size={40} className="text-gray-400" />
+      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-blue-50 text-indigo-500 shadow-xs">
+        <IconComponent size={24} strokeWidth={1.75} />
       </div>
-      <h3 className="text-xl font-semibold text-gray-900 mb-2">{title}</h3>
+
+      <h3 className="text-base font-bold text-slate-900 tracking-tight">
+        {title}
+      </h3>
+
       {description && (
-        <p className="text-sm text-gray-500 mb-6 max-w-sm leading-relaxed">{description}</p>
+        <p className="mt-1.5 max-w-sm text-xs leading-relaxed text-slate-500">
+          {description}
+        </p>
       )}
+
       {action && (
-        <Button 
-          variant="secondary" 
-          size="md"
-          {...action} 
-        />
+        <div className="mt-5">
+          {typeof action === 'function' ? (
+            action()
+          ) : React.isValidElement(action) ? (
+            action
+          ) : (
+            <Button
+              variant="secondary"
+              size="sm"
+              {...action}
+            />
+          )}
+        </div>
       )}
-    </motion.div>
+    </div>
   );
 }
-
