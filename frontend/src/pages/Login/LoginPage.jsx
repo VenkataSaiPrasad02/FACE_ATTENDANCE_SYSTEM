@@ -43,8 +43,8 @@ export default function LoginPage() {
     <div className="login-page-bg relative min-h-screen overflow-hidden antialiased selection:bg-indigo-500/15 selection:text-slate-900">
 
       {/* =====================================================
-          AMBIENT BACKGROUND LIGHTING
-      ===================================================== */}
+          AMBIENT BACKGROUND
+      ====================================================== */}
 
       <div
         aria-hidden="true"
@@ -57,25 +57,120 @@ export default function LoginPage() {
         <div className="absolute left-[35%] top-[35%] h-[400px] w-[400px] rounded-full bg-cyan-400/[0.025] blur-3xl" />
       </div>
 
+
       {/* =====================================================
           MAIN CONTAINER
-      ===================================================== */}
+      ====================================================== */}
 
       <div className="relative mx-auto flex min-h-screen w-full max-w-[1440px]">
 
+
         {/* ===================================================
-            LEFT BRANDING / HERO
-        =================================================== */}
+            LEFT HERO PANEL
+        ==================================================== */}
 
-        <section className="login-hero-panel relative hidden w-1/2 flex-col justify-between p-12 lg:flex xl:p-16">
+        <section
+          className="
+            login-hero-panel
+            relative
+            hidden
+            w-1/2
+            flex-col
+            justify-between
+            overflow-hidden
+            p-12
+            lg:flex
+            xl:p-16
+          "
+        >
 
-          {/* -------------------------------------------------
+          {/* =================================================
+              ROBOT VIDEO BACKGROUND
+          ================================================== */}
+
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
+          >
+
+            <video
+              className="
+                absolute
+                inset-0
+                h-full
+                w-full
+                object-cover
+                object-center
+              "
+              src="/videos/robot-attendance.mp4"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+            />
+
+            {/* Dark cinematic overlay */}
+
+            <div
+              className="
+                absolute
+                inset-0
+                bg-gradient-to-r
+                from-white/90
+                via-white/65
+                to-white/20
+              "
+            />
+
+            {/* Bottom gradient */}
+
+            <div
+              className="
+                absolute
+                inset-0
+                bg-gradient-to-t
+                from-white/90
+                via-transparent
+                to-white/35
+              "
+            />
+
+            {/* Futuristic color wash */}
+
+            <div
+              className="
+                absolute
+                inset-0
+                bg-gradient-to-br
+                from-indigo-500/[0.10]
+                via-transparent
+                to-cyan-400/[0.08]
+                mix-blend-multiply
+              "
+            />
+
+          </div>
+
+
+          {/* =================================================
               BRAND
-          ------------------------------------------------- */}
+          ================================================== */}
 
-          <div className="relative z-10 flex items-center gap-3">
+          <div className="relative z-20 flex items-center gap-3">
 
-            <div className="login-brand-logo flex h-11 w-11 items-center justify-center rounded-2xl text-white">
+            <div
+              className="
+                login-brand-logo
+                flex
+                h-11
+                w-11
+                items-center
+                justify-center
+                rounded-2xl
+                text-white
+              "
+            >
               <GraduationCap
                 size={24}
                 strokeWidth={2.2}
@@ -83,6 +178,7 @@ export default function LoginPage() {
             </div>
 
             <div>
+
               <p className="text-sm font-bold tracking-tight text-slate-900">
                 Face Attendance System
               </p>
@@ -90,22 +186,44 @@ export default function LoginPage() {
               <p className="text-xs text-slate-500">
                 Institutional Biometric Platform
               </p>
+
             </div>
 
           </div>
 
 
-          {/* -------------------------------------------------
+          {/* =================================================
               HERO CONTENT
-          ------------------------------------------------- */}
+          ================================================== */}
 
-          <div className="relative z-10 my-auto max-w-lg space-y-8">
+          <div
+            className="
+              relative
+              z-20
+              my-auto
+              max-w-lg
+              space-y-8
+            "
+          >
 
             <div className="space-y-4">
 
               {/* Badge */}
 
-              <div className="login-hero-badge inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-semibold text-indigo-700">
+              <div
+                className="
+                  login-hero-badge
+                  inline-flex
+                  items-center
+                  gap-2
+                  rounded-full
+                  px-3.5
+                  py-1.5
+                  text-xs
+                  font-semibold
+                  text-indigo-700
+                "
+              >
 
                 <Sparkles
                   size={14}
@@ -121,7 +239,16 @@ export default function LoginPage() {
 
               {/* Heading */}
 
-              <h1 className="login-hero-heading text-4xl font-extrabold leading-tight tracking-tight xl:text-5xl">
+              <h1
+                className="
+                  login-hero-heading
+                  text-4xl
+                  font-extrabold
+                  leading-tight
+                  tracking-tight
+                  xl:text-5xl
+                "
+              >
                 Accurate, frictionless attendance for modern institutions.
               </h1>
 
@@ -137,9 +264,9 @@ export default function LoginPage() {
             </div>
 
 
-            {/* -------------------------------------------------
+            {/* =================================================
                 FEATURE CARDS
-            ------------------------------------------------- */}
+            ================================================== */}
 
             <div className="space-y-3.5">
 
@@ -149,22 +276,34 @@ export default function LoginPage() {
                 return (
                   <div
                     key={feature.title}
-                    className="login-feature-card flex items-start gap-4 rounded-2xl p-4"
+                    className="
+                      login-feature-card
+                      flex
+                      items-start
+                      gap-4
+                      rounded-2xl
+                      p-4
+                    "
                   >
 
-                    {/* Icon */}
-
-                    <div className="login-feature-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-indigo-600">
-
+                    <div
+                      className="
+                        login-feature-icon
+                        flex
+                        h-10
+                        w-10
+                        shrink-0
+                        items-center
+                        justify-center
+                        rounded-xl
+                        text-indigo-600
+                      "
+                    >
                       <Icon
                         size={20}
                         strokeWidth={2}
                       />
-
                     </div>
-
-
-                    {/* Content */}
 
                     <div className="min-w-0">
 
@@ -187,11 +326,11 @@ export default function LoginPage() {
           </div>
 
 
-          {/* -------------------------------------------------
+          {/* =================================================
               FOOTER
-          ------------------------------------------------- */}
+          ================================================== */}
 
-          <div className="relative z-10 text-xs font-medium text-slate-400">
+          <div className="relative z-20 text-xs font-medium text-slate-400">
             Powered by TEAM LAZY • v1.0.0
           </div>
 
@@ -200,25 +339,47 @@ export default function LoginPage() {
 
         {/* ===================================================
             RIGHT LOGIN SECTION
-        =================================================== */}
+        ==================================================== */}
 
-        <section className="flex w-full items-center justify-center px-4 py-10 sm:px-8 lg:w-1/2 lg:px-12 xl:px-16">
+        <section
+          className="
+            flex
+            w-full
+            items-center
+            justify-center
+            px-4
+            py-10
+            sm:px-8
+            lg:w-1/2
+            lg:px-12
+            xl:px-16
+          "
+        >
 
           <div className="w-full max-w-md">
 
-            {/* -------------------------------------------------
+            {/* =================================================
                 MOBILE BRAND
-            ------------------------------------------------- */}
+            ================================================== */}
 
             <div className="mb-6 flex items-center justify-center gap-3 lg:hidden">
 
-              <div className="login-brand-logo flex h-10 w-10 items-center justify-center rounded-2xl text-white">
-
+              <div
+                className="
+                  login-brand-logo
+                  flex
+                  h-10
+                  w-10
+                  items-center
+                  justify-center
+                  rounded-2xl
+                  text-white
+                "
+              >
                 <GraduationCap
                   size={22}
                   strokeWidth={2.2}
                 />
-
               </div>
 
               <div>
@@ -236,30 +397,36 @@ export default function LoginPage() {
             </div>
 
 
-            {/* -------------------------------------------------
+            {/* =================================================
                 LOGIN CARD
-            ------------------------------------------------- */}
+            ================================================== */}
 
             <div className="login-card rounded-3xl p-7 sm:p-9">
 
-              {/* Header */}
-
               <div className="mb-6">
 
-                <div className="login-main-icon mb-4 flex h-12 w-12 items-center justify-center rounded-2xl text-indigo-600">
-
+                <div
+                  className="
+                    login-main-icon
+                    mb-4
+                    flex
+                    h-12
+                    w-12
+                    items-center
+                    justify-center
+                    rounded-2xl
+                    text-indigo-600
+                  "
+                >
                   <ScanFace
                     size={24}
                     strokeWidth={2}
                   />
-
                 </div>
-
 
                 <h2 className="text-2xl font-bold tracking-tight text-slate-900">
                   Sign in to your account
                 </h2>
-
 
                 <p className="mt-1.5 text-xs leading-relaxed text-slate-500">
                   Enter your credentials to access the attendance dashboard.
@@ -268,17 +435,12 @@ export default function LoginPage() {
               </div>
 
 
-              {/* -------------------------------------------------
-                  EXISTING LOGIN FORM
-                  FUNCTIONALITY UNCHANGED
-              ------------------------------------------------- */}
+              {/* EXISTING LOGIN FORM */}
 
               <LoginForm />
 
 
-              {/* -------------------------------------------------
-                  SECURITY DIVIDER
-              ------------------------------------------------- */}
+              {/* SECURITY DIVIDER */}
 
               <div className="mt-6 flex items-center gap-3">
 
@@ -293,8 +455,6 @@ export default function LoginPage() {
               </div>
 
 
-              {/* Security message */}
-
               <p className="mt-4 text-center text-[11px] leading-relaxed text-slate-400">
                 Protected by institutional multi-factor security.
               </p>
@@ -302,9 +462,7 @@ export default function LoginPage() {
             </div>
 
 
-            {/* -------------------------------------------------
-                COPYRIGHT
-            ------------------------------------------------- */}
+            {/* COPYRIGHT */}
 
             <p className="mt-6 text-center text-xs text-slate-400">
               © {new Date().getFullYear()} Face Attendance System

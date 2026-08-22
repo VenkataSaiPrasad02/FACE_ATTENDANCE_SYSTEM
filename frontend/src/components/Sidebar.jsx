@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -11,6 +11,7 @@ import {
   CalendarDays,
   CalendarRange,
   ShieldCheck,
+  X,
 } from 'lucide-react';
 
 import { useAuth } from '../hooks/useAuth';
@@ -49,18 +50,21 @@ const mainLinks = [
   },
 ];
 
-function NavItem({ to, label, Icon, end }) {
+function NavItem({ to, label, Icon, end, onNavigate }) {
   return (
     <NavLink
       to={to}
       end={end}
       aria-label={label}
+      onClick={onNavigate}
       className={({ isActive }) => `
-        group relative flex items-center gap-3 rounded-xl
+        group relative flex items-center gap-3
+        rounded-xl
         px-3 py-2.5
         text-xs font-semibold
         transition-all duration-200 ease-out
         select-none
+
         ${
           isActive
             ? `
@@ -69,7 +73,8 @@ function NavItem({ to, label, Icon, end }) {
               from-blue-500
               to-indigo-600
               text-white
-              shadow-md shadow-indigo-500/20
+              shadow-md
+              shadow-indigo-500/20
             `
             : `
               border border-transparent
@@ -84,20 +89,26 @@ function NavItem({ to, label, Icon, end }) {
     >
       {({ isActive }) => (
         <>
-          {/* Active indicator */}
           {isActive && (
             <span
-              className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-white"
+              className="
+                absolute left-0 top-1/2
+                h-6 w-1
+                -translate-y-1/2
+                rounded-r-full
+                bg-white
+              "
               aria-hidden="true"
             />
           )}
 
-          {/* Icon */}
           <span
             className={`
-              flex h-8 w-8 shrink-0 items-center justify-center
+              flex h-8 w-8 shrink-0
+              items-center justify-center
               rounded-lg
               transition-all duration-200
+
               ${
                 isActive
                   ? 'bg-white/20 text-white'
@@ -111,8 +122,7 @@ function NavItem({ to, label, Icon, end }) {
             />
           </span>
 
-          {/* Label */}
-          <span className="hidden truncate tracking-tight lg:inline">
+          <span className="truncate tracking-tight">
             {label}
           </span>
         </>
@@ -123,6 +133,8 @@ function NavItem({ to, label, Icon, end }) {
 
 export default function Sidebar() {
   const { role } = useAuth();
+
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const canManageTeachers = hasPermission(
     role,
@@ -144,77 +156,142 @@ export default function Sidebar() {
     PERMISSIONS.CREATE_ADMIN
   );
 
-  return (
-    <nav
-      aria-label="Main Navigation"
-      className="
-        sticky top-16
-        flex h-[calc(100vh-4rem)]
-        w-18 shrink-0 flex-col
-        overflow-y-auto
+  /*
+   * Navbar sends this event when the hamburger button
+   * is clicked.
+   */
+  useEffect(() => {
+    const openSidebar = () => {
+      setMobileOpen(true);
+    };
 
-        border-r border-indigo-100/70
+    window.addEventListener(
+      'open-mobile-sidebar',
+      openSidebar
+    );
 
-        bg-gradient-to-b
-        from-blue-50
-        via-indigo-50/80
-        to-violet-50
+    return () => {
+      window.removeEventListener(
+        'open-mobile-sidebar',
+        openSidebar
+      );
+    };
+  }, []);
 
-        p-3
-        backdrop-blur-md
+  /*
+   * Prevent body scrolling while mobile sidebar is open.
+   */
+  useEffect(() => {
+    if (!mobileOpen) return;
 
-        shadow-sm
+    const originalOverflow = document.body.style.overflow;
 
-        lg:w-64
-        lg:p-4
-      "
-    >
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [mobileOpen]);
+
+  /*
+   * Escape key closes drawer.
+   */
+  useEffect(() => {
+    if (!mobileOpen) return;
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setMobileOpen(false);
+      }
+    };
+
+    document.addEventListener(
+      'keydown',
+      handleKeyDown
+    );
+
+    return () => {
+      document.removeEventListener(
+        'keydown',
+        handleKeyDown
+      );
+    };
+  }, [mobileOpen]);
+
+  const closeMobileSidebar = () => {
+    setMobileOpen(false);
+  };
+
+  const sidebarContent = (
+    <>
       {/* =====================================================
           BRAND
       ====================================================== */}
       <div className="mb-5 border-b border-indigo-100/70 pb-5">
-        <div className="flex items-center justify-center gap-3 lg:justify-start">
-          
-          <div
+        <div className="flex items-center justify-between gap-3 lg:justify-start">
+
+          <div className="flex items-center gap-3">
+            <div
+              className="
+                flex h-10 w-10 shrink-0
+                items-center justify-center
+                rounded-2xl
+                bg-gradient-to-br
+                from-blue-500
+                to-indigo-600
+                text-white
+                shadow-md
+                shadow-indigo-500/20
+              "
+            >
+              <GraduationCap
+                size={20}
+                strokeWidth={2.2}
+              />
+            </div>
+
+            <div>
+              <div className="text-xs font-bold leading-tight tracking-tight text-slate-900">
+                Face Attendance
+              </div>
+
+              <div className="mt-0.5 text-[10px] font-medium text-slate-500">
+                Admin & Faculty Portal
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile close */}
+          <button
+            type="button"
+            onClick={closeMobileSidebar}
+            aria-label="Close navigation menu"
             className="
-              flex h-10 w-10 shrink-0
+              flex h-9 w-9
               items-center justify-center
-              rounded-2xl
-              bg-gradient-to-br
-              from-blue-500
-              to-indigo-600
-              text-white
-              shadow-md shadow-indigo-500/20
+              rounded-xl
+              border border-indigo-100
+              bg-white/70
+              text-slate-500
+              transition-all
+              hover:bg-white
+              hover:text-indigo-600
+              lg:hidden
             "
           >
-            <GraduationCap
-              size={20}
-              strokeWidth={2.2}
-            />
-          </div>
-
-          <div className="hidden lg:block">
-            <div className="text-xs font-bold leading-tight tracking-tight text-slate-900">
-              Face Attendance
-            </div>
-
-            <div className="mt-0.5 text-[10px] font-medium text-slate-500">
-              Admin & Faculty Portal
-            </div>
-          </div>
+            <X size={19} />
+          </button>
         </div>
       </div>
 
       {/* =====================================================
           NAVIGATION
       ====================================================== */}
-      <div className="flex-1">
+      <div className="flex-1 overflow-y-auto pr-1">
 
-        {/* ===================================================
-            WORKSPACE
-        ==================================================== */}
+        {/* WORKSPACE */}
         <section className="mb-7">
-          <div className="mb-2.5 hidden px-2 lg:block">
+          <div className="mb-2.5 px-2">
             <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-indigo-400">
               Workspace
             </span>
@@ -224,7 +301,8 @@ export default function Sidebar() {
             {mainLinks
               .filter(
                 ({ permission }) =>
-                  !permission || hasPermission(role, permission)
+                  !permission ||
+                  hasPermission(role, permission)
               )
               .map(({ to, label, icon }) => (
                 <NavItem
@@ -233,20 +311,18 @@ export default function Sidebar() {
                   label={label}
                   Icon={icon}
                   end={to === '/'}
+                  onNavigate={closeMobileSidebar}
                 />
               ))}
           </div>
         </section>
 
-        {/* ===================================================
-            ADMINISTRATION
-        ==================================================== */}
+        {/* ADMINISTRATION */}
         {(canManageTeachers ||
           canManageCalendar ||
           canManageAcademicPeriods) && (
           <section className="mb-7">
-
-            <div className="mb-2.5 hidden px-2 lg:block">
+            <div className="mb-2.5 px-2">
               <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-indigo-400">
                 Administration
               </span>
@@ -258,6 +334,7 @@ export default function Sidebar() {
                   to="/teachers"
                   label="Faculty"
                   Icon={UserRound}
+                  onNavigate={closeMobileSidebar}
                 />
               )}
 
@@ -266,6 +343,7 @@ export default function Sidebar() {
                   to="/calendar"
                   label="Calendar"
                   Icon={CalendarDays}
+                  onNavigate={closeMobileSidebar}
                 />
               )}
 
@@ -274,19 +352,17 @@ export default function Sidebar() {
                   to="/academic-periods"
                   label="Academic Periods"
                   Icon={CalendarRange}
+                  onNavigate={closeMobileSidebar}
                 />
               )}
             </div>
           </section>
         )}
 
-        {/* ===================================================
-            SYSTEM
-        ==================================================== */}
+        {/* SYSTEM */}
         {canCreateAdmin && (
           <section>
-
-            <div className="mb-2.5 hidden px-2 lg:block">
+            <div className="mb-2.5 px-2">
               <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-indigo-400">
                 System
               </span>
@@ -297,6 +373,7 @@ export default function Sidebar() {
                 to="/admin-management"
                 label="Admin Management"
                 Icon={ShieldCheck}
+                onNavigate={closeMobileSidebar}
               />
             </div>
           </section>
@@ -307,16 +384,104 @@ export default function Sidebar() {
           FOOTER
       ====================================================== */}
       <div className="mt-6 border-t border-indigo-100/70 pt-4 text-center">
-        <div className="hidden lg:block">
-          <p className="text-[11px] font-semibold text-slate-500">
-            Powered by TEAM LAZY
-          </p>
+        <p className="text-[11px] font-semibold text-slate-500">
+          Powered by TEAM LAZY
+        </p>
 
-          <p className="mt-0.5 text-[10px] text-slate-400">
-            v1.0.0
-          </p>
-        </div>
+        <p className="mt-0.5 text-[10px] text-slate-400">
+          v1.0.0
+        </p>
       </div>
-    </nav>
+    </>
+  );
+
+  return (
+    <>
+      {/* =====================================================
+          DESKTOP SIDEBAR
+      ====================================================== */}
+      <nav
+        aria-label="Main Navigation"
+        className="
+          sticky top-16
+          hidden
+          h-[calc(100vh-4rem)]
+          w-64
+          shrink-0
+          flex-col
+          overflow-hidden
+          border-r border-indigo-100/70
+          bg-gradient-to-b
+          from-blue-50
+          via-indigo-50/80
+          to-violet-50
+          p-4
+          shadow-sm
+          backdrop-blur-md
+          lg:flex
+        "
+      >
+        {sidebarContent}
+      </nav>
+
+      {/* =====================================================
+          MOBILE / TABLET DRAWER
+      ====================================================== */}
+
+      {/* Backdrop */}
+      <div
+        className={`
+          fixed inset-0 z-50
+          bg-slate-950/35
+          backdrop-blur-[2px]
+          transition-opacity duration-300
+          lg:hidden
+
+          ${
+            mobileOpen
+              ? 'pointer-events-auto opacity-100'
+              : 'pointer-events-none opacity-0'
+          }
+        `}
+        onClick={closeMobileSidebar}
+        aria-hidden="true"
+      />
+
+      {/* Drawer */}
+      <aside
+        aria-label="Mobile Navigation"
+        aria-hidden={!mobileOpen}
+        className={`
+          fixed left-0 top-0 z-[60]
+          flex h-screen
+          w-[290px]
+          max-w-[85vw]
+          flex-col
+          overflow-hidden
+          border-r border-white/70
+          bg-gradient-to-b
+          from-blue-50
+          via-indigo-50
+          to-violet-100
+          p-4
+          shadow-2xl
+          backdrop-blur-xl
+
+          transition-transform
+          duration-300
+          ease-out
+
+          lg:hidden
+
+          ${
+            mobileOpen
+              ? 'translate-x-0'
+              : '-translate-x-full'
+          }
+        `}
+      >
+        {sidebarContent}
+      </aside>
+    </>
   );
 }

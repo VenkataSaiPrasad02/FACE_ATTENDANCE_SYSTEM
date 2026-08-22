@@ -1,10 +1,86 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, {
+  createContext,
+  useState,
+  useEffect,
+} from 'react';
+
 import authService from '../services/authService';
 import userService from '../services/userService';
 
 export const AuthContext = createContext(null);
 
+
+/* =========================================================
+   ERROR HELPER
+========================================================= */
+
+function getErrorMessage(error, fallback) {
+  const responseData = error?.response?.data;
+
+  // Backend returned a plain string
+  if (
+    typeof responseData === 'string' &&
+    responseData.trim()
+  ) {
+    return responseData;
+  }
+
+  // Backend returned JSON
+  if (responseData && typeof responseData === 'object') {
+    return (
+      responseData.message ||
+      responseData.error ||
+      responseData.detail ||
+      responseData.errors?.message ||
+      fallback
+    );
+  }
+
+  // Axios/network error
+  return (
+    error?.message ||
+    fallback
+  );
+}
+
+
+/* =========================================================
+   NORMALIZE ERROR
+========================================================= */
+
+function normalizeAuthError(error, fallback) {
+  const message = getErrorMessage(
+    error,
+    fallback
+  );
+
+  const normalizedError = new Error(message);
+
+  // Preserve useful Axios information
+  normalizedError.status =
+    error?.response?.status ||
+    error?.status ||
+    null;
+
+  normalizedError.response =
+    error?.response;
+
+  normalizedError.data =
+    error?.response?.data;
+
+  normalizedError.code =
+    error?.code;
+
+  return normalizedError;
+}
+
+
 export function AuthProvider({ children }) {
+
+  // =======================================================
+  // AUTH STATE
+  // =======================================================
+
   const [token, setToken] = useState(() =>
     localStorage.getItem('jwt')
   );
@@ -17,12 +93,16 @@ export function AuthProvider({ children }) {
     localStorage.getItem('username')
   );
 
-  const [profilePhotoUrl, setProfilePhotoUrl] = useState(null);
+  const [profilePhotoUrl, setProfilePhotoUrl] =
+    useState(null);
 
-  // =========================================================
-  // Load profile photo when logged in
-  // =========================================================
+
+  // =======================================================
+  // LOAD PROFILE PHOTO
+  // =======================================================
+
   useEffect(() => {
+
     if (!token) {
       setProfilePhotoUrl(null);
       return;
@@ -33,100 +113,319 @@ export function AuthProvider({ children }) {
     userService
       .getMyProfile()
       .then((data) => {
+
         if (!cancelled) {
           setProfilePhotoUrl(
             data?.profilePhotoUrl || null
           );
         }
+
       })
-      .catch(() => {
-        // Navbar will simply show initials.
+      .catch((error) => {
+
+        // Profile photo failure should NOT
+        // logout the user or break authentication.
+
+        console.warn(
+          'Unable to load profile photo:',
+          error
+        );
+
+        if (!cancelled) {
+          setProfilePhotoUrl(null);
+        }
+
       });
 
     return () => {
       cancelled = true;
     };
+
   }, [token]);
 
-  // =========================================================
-  // STEP 1 — Username + Password
-  // =========================================================
-  const login = async (usernameInput, password) => {
-    const data = await authService.login(
-      usernameInput,
-      password
-    );
 
-    /*
-     * IMPORTANT:
-     *
-     * New login flow does NOT return JWT here.
-     * It returns:
-     *
-     * {
-     *   otpRequired: true,
-     *   username: "...",
-     *   maskedEmail: "...",
-     *   message: "..."
-     * }
-     *
-     * Therefore DON'T store token here unless
-     * the backend actually returned one.
-     */
+  // =======================================================
+  // STEP 1 — USERNAME + PASSWORD
+  // =======================================================
 
-    if (data?.token) {
-      localStorage.setItem('jwt', data.token);
-      localStorage.setItem('role', data.role);
-      localStorage.setItem('username', data.username);
+  const login = async (
+    usernameInput,
+    password
+  ) => {
 
-      setToken(data.token);
-      setRole(data.role);
-      setUsername(data.username);
+    try {
+
+      if (!usernameInput?.trim()) {
+        throw new Error(
+          'Username is required.'
+        );
+      }
+
+      if (!password) {
+        throw new Error(
+          'Password is required.'
+        );
+      }
+
+      const data =
+        await authService.login(
+          usernameInput.trim(),
+          password
+        );
+
+
+      // ===================================================
+      // BACKEND MAY RETURN AN ERROR OBJECT
+      // ===================================================
+
+      if (
+        data?.success === false ||
+        data?.status === 401 ||
+        data?.status === 403
+      ) {
+
+        throw new Error(
+          data?.message ||
+          data?.error ||
+          'Wrong username or password.'
+        );
+
+      }
+
+
+      // ===================================================
+      // OTP REQUIRED
+      // ===================================================
+
+      if (data?.otpRequired) {
+
+        return data;
+
+      }
+
+
+      // ===================================================
+      // DIRECT JWT LOGIN
+      // ===================================================
+
+      if (data?.token) {
+
+        localStorage.setItem(
+          'jwt',
+          data.token
+        );
+
+        localStorage.setItem(
+          'role',
+          data.role || ''
+        );
+
+        localStorage.setItem(
+          'username',
+          data.username ||
+            usernameInput.trim()
+        );
+
+        setToken(data.token);
+
+        setRole(data.role || null);
+
+        setUsername(
+          data.username ||
+          usernameInput.trim()
+        );
+
+        return data;
+
+      }
+
+
+      // ===================================================
+      // UNEXPECTED RESPONSE
+      // ===================================================
+
+      if (!data) {
+        throw new Error(
+          'No response received from the authentication server.'
+        );
+      }
+
+      return data;
+
+    } catch (error) {
+
+      console.error(
+        'Authentication login failed:',
+        error
+      );
+
+      throw normalizeAuthError(
+        error,
+        'Wrong username or password.'
+      );
+
     }
 
-    return data;
   };
 
-  // =========================================================
-  // STEP 2 — Verify Login OTP
-  // =========================================================
+
+  // =======================================================
+  // STEP 2 — VERIFY LOGIN OTP
+  // =======================================================
+
   const verifyLoginOtp = async (
     usernameInput,
     otp
   ) => {
-    const data = await authService.verifyLoginOtp(
-      usernameInput,
-      otp
-    );
 
-    /*
-     * Backend returns JWT only after successful OTP.
-     */
+    try {
 
-    localStorage.setItem('jwt', data.token);
-    localStorage.setItem('role', data.role);
-    localStorage.setItem('username', data.username);
+      if (!usernameInput?.trim()) {
+        throw new Error(
+          'Username is required.'
+        );
+      }
 
-    setToken(data.token);
-    setRole(data.role);
-    setUsername(data.username);
+      if (!otp?.trim()) {
+        throw new Error(
+          'OTP is required.'
+        );
+      }
 
-    return data;
+      const data =
+        await authService.verifyLoginOtp(
+          usernameInput.trim(),
+          otp.trim()
+        );
+
+
+      // ===================================================
+      // VALIDATE TOKEN
+      // ===================================================
+
+      if (!data?.token) {
+
+        throw new Error(
+          data?.message ||
+          data?.error ||
+          'OTP verification failed.'
+        );
+
+      }
+
+
+      // ===================================================
+      // SAVE AUTH DATA
+      // ===================================================
+
+      localStorage.setItem(
+        'jwt',
+        data.token
+      );
+
+      localStorage.setItem(
+        'role',
+        data.role || ''
+      );
+
+      localStorage.setItem(
+        'username',
+        data.username ||
+          usernameInput.trim()
+      );
+
+
+      setToken(data.token);
+
+      setRole(
+        data.role || null
+      );
+
+      setUsername(
+        data.username ||
+        usernameInput.trim()
+      );
+
+
+      return data;
+
+    } catch (error) {
+
+      console.error(
+        'Login OTP verification failed:',
+        error
+      );
+
+      throw normalizeAuthError(
+        error,
+        'Invalid or expired OTP.'
+      );
+
+    }
+
   };
 
-  // =========================================================
+
+  // =======================================================
   // RESEND LOGIN OTP
-  // =========================================================
-  const resendLoginOtp = async (usernameInput) => {
-    return await authService.resendLoginOtp(
-      usernameInput
-    );
+  // =======================================================
+
+  const resendLoginOtp = async (
+    usernameInput
+  ) => {
+
+    try {
+
+      if (!usernameInput?.trim()) {
+        throw new Error(
+          'Username is required.'
+        );
+      }
+
+      const data =
+        await authService.resendLoginOtp(
+          usernameInput.trim()
+        );
+
+
+      if (
+        data?.success === false ||
+        data?.status >= 400
+      ) {
+
+        throw new Error(
+          data?.message ||
+          data?.error ||
+          'Unable to resend OTP.'
+        );
+
+      }
+
+      return data;
+
+    } catch (error) {
+
+      console.error(
+        'Resend login OTP failed:',
+        error
+      );
+
+      throw normalizeAuthError(
+        error,
+        'Unable to resend OTP.'
+      );
+
+    }
+
   };
 
-  // =========================================================
+
+  // =======================================================
   // LOGOUT
-  // =========================================================
+  // =======================================================
+
   const logout = () => {
+
     localStorage.removeItem('jwt');
     localStorage.removeItem('role');
     localStorage.removeItem('username');
@@ -135,11 +434,14 @@ export function AuthProvider({ children }) {
     setRole(null);
     setUsername(null);
     setProfilePhotoUrl(null);
+
   };
 
-  // =========================================================
+
+  // =======================================================
   // PROVIDER
-  // =========================================================
+  // =======================================================
+
   return (
     <AuthContext.Provider
       value={{

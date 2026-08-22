@@ -11,6 +11,7 @@ import {
   RefreshCw,
   ArrowLeft,
 } from 'lucide-react';
+
 import { Link, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../hooks/useAuth';
@@ -25,51 +26,117 @@ export default function LoginForm() {
 
   const navigate = useNavigate();
 
-  // -----------------------------
-  // Login state
-  // -----------------------------
+  // =========================================================
+  // LOGIN STATE
+  // =========================================================
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  // -----------------------------
-  // OTP state
-  // -----------------------------
+  // =========================================================
+  // OTP STATE
+  // =========================================================
+
   const [otp, setOtp] = useState('');
   const [maskedEmail, setMaskedEmail] = useState('');
   const [otpStep, setOtpStep] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
 
-  // -----------------------------
-  // Common state
-  // -----------------------------
+  // =========================================================
+  // COMMON STATE
+  // =========================================================
+
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
+
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // -----------------------------
-  // OTP resend countdown
-  // -----------------------------
+  // =========================================================
+  // OTP COUNTDOWN
+  // =========================================================
+
   useEffect(() => {
     if (resendCooldown <= 0) return;
 
     const timer = setInterval(() => {
-      setResendCooldown((current) => (current > 0 ? current - 1 : 0));
+      setResendCooldown((current) =>
+        current > 0 ? current - 1 : 0
+      );
     }, 1000);
 
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
   // =========================================================
-  // STEP 1 — Username + Password
+  // ERROR MESSAGE HELPER
   // =========================================================
+
+  const extractErrorMessage = (err, fallback) => {
+    const response = err?.response;
+    const data = response?.data;
+
+    if (typeof data === 'string' && data.trim()) {
+      return data;
+    }
+
+    return (
+      data?.message ||
+      data?.error ||
+      data?.detail ||
+      data?.errors?.message ||
+      err?.message ||
+      fallback
+    );
+  };
+
+  // =========================================================
+  // LOGIN SUCCESS SOUND
+  // =========================================================
+
+  const playLoginSuccessSound = () => {
+    try {
+      const audio = new Audio(
+        '/sounds/login-success.mp3'
+      );
+
+      audio.volume = 0.6;
+
+      audio.currentTime = 0;
+
+      const playPromise = audio.play();
+
+      if (playPromise !== undefined) {
+        playPromise.catch((err) => {
+          console.warn(
+            'Unable to play login success sound:',
+            err
+          );
+        });
+      }
+
+    } catch (err) {
+      console.warn(
+        'Login success audio error:',
+        err
+      );
+    }
+  };
+
+  // =========================================================
+  // STEP 1 — LOGIN
+  // =========================================================
+
   const handleLogin = async (e) => {
     e.preventDefault();
+
     setError('');
     setSuccess('');
 
-    if (!username.trim()) {
+    const cleanUsername = username.trim();
+
+    if (!cleanUsername) {
       setError('Please enter your username.');
       return;
     }
@@ -82,145 +149,390 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
-      const data = await login(username.trim(), password);
+      const data = await login(
+        cleanUsername,
+        password
+      );
+
+      console.log('LOGIN RESPONSE:', data);
+
+      // =====================================================
+      // BACKEND RETURNED ERROR OBJECT
+      // =====================================================
+
+      if (
+        data?.status === 401 ||
+        data?.status === 403 ||
+        data?.success === false ||
+        data?.error ||
+        data?.message === 'Invalid credentials'
+      ) {
+        setError(
+          data?.message ||
+          data?.error ||
+          'Wrong username or password.'
+        );
+
+        return;
+      }
+
+      // =====================================================
+      // OTP REQUIRED
+      // =====================================================
 
       if (data?.otpRequired) {
-        setMaskedEmail(data?.maskedEmail || '');
+        setMaskedEmail(
+          data?.maskedEmail || ''
+        );
+
         setOtpStep(true);
         setOtp('');
         setPassword('');
-        setSuccess(data?.message || 'OTP sent to your registered email.');
+
+        setSuccess(
+          data?.message ||
+          'OTP sent to your registered email.'
+        );
+
         setResendCooldown(30);
+
         return;
       }
+
+      // =====================================================
+      // DIRECT LOGIN
+      // =====================================================
 
       if (data?.token) {
-        navigate('/');
+
+        // 🔊 Successful login sound
+        playLoginSuccessSound();
+
+        setTimeout(() => {
+          navigate('/', {
+            replace: true,
+          });
+        }, 400);
+
         return;
       }
 
-      setError('OTP verification is required to complete login.');
-    } catch (err) {
+      // =====================================================
+      // UNKNOWN RESPONSE
+      // =====================================================
+
       setError(
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        'Invalid username or password.'
+        'Wrong username or password.'
       );
+
+    } catch (err) {
+
+      console.error(
+        'LOGIN ERROR:',
+        err
+      );
+
+      setError(
+        extractErrorMessage(
+          err,
+          'Wrong username or password.'
+        )
+      );
+
     } finally {
       setLoading(false);
     }
   };
 
   // =========================================================
-  // STEP 2 — Verify OTP
+  // STEP 2 — VERIFY OTP
   // =========================================================
+
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
+
     setError('');
     setSuccess('');
 
     const cleanOtp = otp.trim();
 
     if (!/^\d{6}$/.test(cleanOtp)) {
-      setError('Please enter the 6-digit OTP.');
+      setError(
+        'Please enter the 6-digit OTP.'
+      );
       return;
     }
 
     setLoading(true);
 
     try {
-      await verifyLoginOtp(username.trim(), cleanOtp);
-      navigate('/', { replace: true });
-    } catch (err) {
-      setError(
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        'Invalid or expired OTP.'
+
+      // =====================================================
+      // VERIFY OTP
+      // =====================================================
+
+      await verifyLoginOtp(
+        username.trim(),
+        cleanOtp
       );
+
+      // =====================================================
+      // 🎉 LOGIN SUCCESS
+      // =====================================================
+
+      playLoginSuccessSound();
+
+      // Give audio a moment to start
+      // before changing the page.
+      setTimeout(() => {
+
+        navigate('/', {
+          replace: true,
+        });
+
+      }, 400);
+
+    } catch (err) {
+
+      console.error(
+        'OTP verification error:',
+        err
+      );
+
+      setError(
+        extractErrorMessage(
+          err,
+          'Invalid or expired OTP.'
+        )
+      );
+
     } finally {
       setLoading(false);
     }
   };
 
   // =========================================================
-  // Resend OTP
+  // RESEND OTP
   // =========================================================
+
   const handleResendOtp = async () => {
-    if (resendCooldown > 0 || resending || !username.trim()) return;
+
+    if (
+      resendCooldown > 0 ||
+      resending ||
+      !username.trim()
+    ) {
+      return;
+    }
 
     setError('');
     setSuccess('');
     setResending(true);
 
     try {
-      const data = await resendLoginOtp(username.trim());
-      setMaskedEmail(data?.maskedEmail || maskedEmail);
-      setSuccess(data?.message || 'A new OTP has been sent to your registered email.');
+
+      const data =
+        await resendLoginOtp(
+          username.trim()
+        );
+
+      setMaskedEmail(
+        data?.maskedEmail ||
+        maskedEmail
+      );
+
+      setSuccess(
+        data?.message ||
+        'A new OTP has been sent to your registered email.'
+      );
+
       setOtp('');
       setResendCooldown(30);
+
     } catch (err) {
-      setError(
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        'Unable to resend OTP.'
+
+      console.error(
+        'Resend OTP error:',
+        err
       );
+
+      setError(
+        extractErrorMessage(
+          err,
+          'Unable to resend OTP.'
+        )
+      );
+
     } finally {
       setResending(false);
     }
   };
 
   // =========================================================
-  // Return to username/password
+  // RETURN TO LOGIN
   // =========================================================
+
   const handleChangeUsername = () => {
+
     setOtpStep(false);
     setOtp('');
     setMaskedEmail('');
     setError('');
     setSuccess('');
     setResendCooldown(0);
+
   };
 
   // =========================================================
   // OTP SCREEN
   // =========================================================
+
   if (otpStep) {
+
     return (
-      <form onSubmit={handleVerifyOtp} className="space-y-4 animate-fade-in">
-        {/* Error Alert */}
-        {error && <AlertBox message={error} />}
+      <form
+        onSubmit={handleVerifyOtp}
+        className="space-y-6 animate-fade-in"
+      >
 
-        {/* Success Alert */}
-        {success && <SuccessBox message={success} />}
+        {/* ERROR */}
 
-        {/* Header Information */}
-        <div className="flex items-start gap-3 rounded-2xl border border-indigo-100 bg-indigo-50/70 p-4">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
-            <Mail size={18} />
+        {error && (
+          <AlertBox message={error} />
+        )}
+
+        {/* SUCCESS */}
+
+        {success && (
+          <SuccessBox message={success} />
+        )}
+
+        {/* OTP INFORMATION */}
+
+        <div
+          className="
+            relative
+            overflow-hidden
+            rounded-2xl
+            border
+            border-indigo-100
+            bg-gradient-to-br
+            from-indigo-50/90
+            via-blue-50/80
+            to-cyan-50/70
+            p-5
+            shadow-sm
+          "
+        >
+
+          <div
+            className="
+              absolute
+              -right-10
+              -top-10
+              h-24
+              w-24
+              rounded-full
+              bg-indigo-400/15
+              blur-2xl
+            "
+          />
+
+          <div className="relative flex items-start gap-3">
+
+            <div
+              className="
+                flex
+                h-10
+                w-10
+                shrink-0
+                items-center
+                justify-center
+                rounded-xl
+                bg-gradient-to-br
+                from-indigo-500
+                to-blue-600
+                text-white
+                shadow-md
+              "
+            >
+              <Mail size={18} />
+            </div>
+
+            <div>
+
+              <p className="text-xs font-bold text-slate-900">
+                Two-Factor Authentication
+              </p>
+
+              <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
+                We sent a 6-digit code to your registered
+                email
+                {maskedEmail
+                  ? ` (${maskedEmail})`
+                  : '.'}
+              </p>
+
+            </div>
+
           </div>
-          <div>
-            <p className="text-xs font-bold text-slate-900">
-              Two-Factor Authentication
-            </p>
-            <p className="mt-0.5 text-[11px] leading-relaxed text-slate-500">
-              We sent a 6-digit code to your registered email
-              {maskedEmail ? ` (${maskedEmail})` : '.'}
-            </p>
-          </div>
+
         </div>
 
-        {/* OTP Input Field */}
+
+        {/* OTP INPUT */}
+
         <div>
+
           <label
             htmlFor="login-otp"
-            className="mb-1.5 block text-xs font-semibold text-slate-700 tracking-tight"
+            className="
+              mb-2
+              block
+              text-xs
+              font-semibold
+              tracking-tight
+              text-slate-700
+            "
           >
             Enter 6-Digit Code
           </label>
 
-          <div className="group relative flex h-12 w-full items-center rounded-xl border border-slate-200 bg-white transition-all duration-150 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
-            <div className="flex pl-3.5 pr-2 items-center justify-center text-slate-400 group-focus-within:text-indigo-600">
-              <ShieldCheck size={18} />
+          <div
+            className="
+              group
+              relative
+              flex
+              h-14
+              w-full
+              items-center
+              rounded-xl
+              border
+              border-slate-200
+              bg-white/80
+              shadow-sm
+              backdrop-blur-sm
+              transition-all
+              duration-200
+              focus-within:border-indigo-500
+              focus-within:ring-4
+              focus-within:ring-indigo-500/10
+            "
+          >
+
+            <div
+              className="
+                flex
+                items-center
+                justify-center
+                pl-4
+                pr-2
+                text-slate-400
+                transition-colors
+                group-focus-within:text-indigo-600
+              "
+            >
+              <ShieldCheck size={19} />
             </div>
 
             <input
@@ -231,22 +543,43 @@ export default function LoginForm() {
               maxLength={6}
               value={otp}
               onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, '');
-                setOtp(value);
+                setOtp(
+                  e.target.value
+                    .replace(/\D/g, '')
+                );
               }}
               placeholder="••••••"
               required
-              className="h-full w-full bg-transparent px-3 text-center text-lg font-bold tracking-[0.4em] text-slate-900 outline-none placeholder:text-sm placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-300"
               autoFocus
+              className="
+                h-full
+                w-full
+                bg-transparent
+                px-3
+                text-center
+                text-xl
+                font-bold
+                tracking-[0.45em]
+                text-slate-900
+                outline-none
+                placeholder:text-sm
+                placeholder:font-normal
+                placeholder:tracking-normal
+                placeholder:text-slate-300
+              "
             />
+
           </div>
 
-          <p className="mt-1.5 text-[11px] text-slate-400">
+          <p className="mt-2 text-[11px] text-slate-400">
             Code expires in 5 minutes.
           </p>
+
         </div>
 
-        {/* Verify Button */}
+
+        {/* VERIFY */}
+
         <Button
           type="submit"
           variant="primary"
@@ -254,155 +587,488 @@ export default function LoginForm() {
           loading={loading}
           disabled={otp.length !== 6}
           iconRight={ArrowRight}
-          className="w-full"
+          className="
+            mt-3
+            h-12
+            w-full
+            shadow-lg
+            shadow-indigo-500/20
+          "
         >
-          {loading ? 'Verifying Code...' : 'Verify & Continue'}
+          {loading
+            ? 'Verifying Code...'
+            : 'Verify & Continue'}
         </Button>
 
-        {/* Resend Actions */}
-        <div className="flex items-center justify-center pt-2">
+
+        {/* RESEND */}
+
+        <div className="flex justify-center pt-2">
+
           <button
             type="button"
             onClick={handleResendOtp}
-            disabled={resending || resendCooldown > 0}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 transition-colors hover:text-indigo-700 disabled:cursor-not-allowed disabled:text-slate-400"
+            disabled={
+              resending ||
+              resendCooldown > 0
+            }
+            className="
+              inline-flex
+              items-center
+              gap-1.5
+              rounded-lg
+              px-3
+              py-2
+              text-xs
+              font-semibold
+              text-indigo-600
+              transition-all
+              hover:bg-indigo-50
+              hover:text-indigo-700
+              disabled:cursor-not-allowed
+              disabled:text-slate-400
+            "
           >
+
             <RefreshCw
               size={13}
-              className={resending ? 'animate-spin' : ''}
+              className={
+                resending
+                  ? 'animate-spin'
+                  : ''
+              }
             />
+
             {resending
               ? 'Sending code...'
               : resendCooldown > 0
               ? `Resend code in ${resendCooldown}s`
               : 'Resend Code'}
+
           </button>
+
         </div>
 
-        {/* Back to username */}
-        <div className="pt-2 text-center">
+
+        {/* BACK */}
+
+        <div className="pt-1 text-center">
+
           <button
             type="button"
             onClick={handleChangeUsername}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 transition-colors hover:text-slate-800"
+            className="
+              inline-flex
+              items-center
+              gap-1.5
+              rounded-lg
+              px-3
+              py-2
+              text-xs
+              font-semibold
+              text-slate-500
+              transition-all
+              hover:bg-slate-100
+              hover:text-slate-800
+            "
           >
             <ArrowLeft size={14} />
             Use a different account
           </button>
+
         </div>
+
       </form>
     );
   }
 
   // =========================================================
-  // STEP 1 — USERNAME + PASSWORD
+  // NORMAL LOGIN SCREEN
   // =========================================================
-  return (
-    <form onSubmit={handleLogin} className="space-y-4 animate-fade-in">
-      {/* Error Alert */}
-      {error && <AlertBox message={error} />}
 
-      {/* Username Field */}
+  return (
+    <form
+      onSubmit={handleLogin}
+      className="space-y-5 animate-fade-in"
+    >
+
+      {/* ERROR */}
+
+      {error && (
+        <AlertBox message={error} />
+      )}
+
+
+      {/* USERNAME */}
+
       <div>
+
         <label
           htmlFor="username"
-          className="mb-1.5 block text-xs font-semibold text-slate-700 tracking-tight"
+          className="
+            mb-2
+            block
+            text-xs
+            font-semibold
+            tracking-tight
+            text-slate-700
+          "
         >
           Username
         </label>
 
-        <div className="group relative flex h-11 w-full items-center rounded-xl border border-slate-200 bg-white transition-all duration-150 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
-          <div className="flex pl-3.5 pr-2 items-center justify-center text-slate-400 group-focus-within:text-indigo-600 transition-colors">
-            <User size={17} />
+        <div
+          className="
+            group
+            relative
+            flex
+            h-13
+            w-full
+            items-center
+            rounded-xl
+            border
+            border-slate-200
+            bg-white/80
+            shadow-sm
+            backdrop-blur-sm
+            transition-all
+            duration-200
+            focus-within:border-indigo-500
+            focus-within:ring-4
+            focus-within:ring-indigo-500/10
+          "
+        >
+
+          <div
+            className="
+              flex
+              items-center
+              justify-center
+              pl-4
+              pr-2
+              text-slate-400
+              transition-colors
+              group-focus-within:text-indigo-600
+            "
+          >
+            <User size={18} />
           </div>
 
           <input
             id="username"
             type="text"
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) =>
+              setUsername(e.target.value)
+            }
             placeholder="Enter username"
             required
             autoComplete="username"
-            className="h-full w-full bg-transparent pr-3.5 text-xs font-medium text-slate-900 outline-none placeholder:text-slate-400"
+            className="
+              h-full
+              w-full
+              bg-transparent
+              pr-4
+              text-sm
+              font-medium
+              text-slate-900
+              outline-none
+              placeholder:text-slate-400
+            "
           />
+
         </div>
+
       </div>
 
-      {/* Password Field */}
+
+      {/* PASSWORD */}
+
       <div>
-        <div className="mb-1.5 flex items-center justify-between">
-          <label
-            htmlFor="password"
-            className="block text-xs font-semibold text-slate-700 tracking-tight"
-          >
-            Password
-          </label>
 
-          <Link
-            to="/forgot-password"
-            className="text-xs font-semibold text-indigo-600 transition-colors hover:text-indigo-700"
-          >
-            Forgot password?
-          </Link>
-        </div>
+        <label
+          htmlFor="password"
+          className="
+            mb-2
+            block
+            text-xs
+            font-semibold
+            tracking-tight
+            text-slate-700
+          "
+        >
+          Password
+        </label>
 
-        <div className="group relative flex h-11 w-full items-center rounded-xl border border-slate-200 bg-white transition-all duration-150 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
-          <div className="flex pl-3.5 pr-2 items-center justify-center text-slate-400 group-focus-within:text-indigo-600 transition-colors">
-            <Lock size={17} />
+        <div
+          className="
+            group
+            relative
+            flex
+            h-13
+            w-full
+            items-center
+            rounded-xl
+            border
+            border-slate-200
+            bg-white/80
+            shadow-sm
+            backdrop-blur-sm
+            transition-all
+            duration-200
+            focus-within:border-indigo-500
+            focus-within:ring-4
+            focus-within:ring-indigo-500/10
+          "
+        >
+
+          <div
+            className="
+              flex
+              items-center
+              justify-center
+              pl-4
+              pr-2
+              text-slate-400
+              transition-colors
+              group-focus-within:text-indigo-600
+            "
+          >
+            <Lock size={18} />
           </div>
 
           <input
             id="password"
-            type={showPassword ? 'text' : 'password'}
+            type={
+              showPassword
+                ? 'text'
+                : 'password'
+            }
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) =>
+              setPassword(e.target.value)
+            }
             placeholder="Enter password"
             required
             autoComplete="current-password"
-            className="h-full w-full bg-transparent pr-2 text-xs font-medium text-slate-900 outline-none placeholder:text-slate-400"
+            className="
+              h-full
+              w-full
+              bg-transparent
+              pr-2
+              text-sm
+              font-medium
+              text-slate-900
+              outline-none
+              placeholder:text-slate-400
+            "
           />
 
           <button
             type="button"
-            onClick={() => setShowPassword((val) => !val)}
-            aria-label={showPassword ? 'Hide password' : 'Show password'}
-            className="flex h-full w-10 shrink-0 items-center justify-center text-slate-400 transition-colors hover:text-slate-700"
+            onClick={() =>
+              setShowPassword(
+                (value) => !value
+              )
+            }
+            aria-label={
+              showPassword
+                ? 'Hide password'
+                : 'Show password'
+            }
+            className="
+              flex
+              h-full
+              w-11
+              shrink-0
+              items-center
+              justify-center
+              rounded-r-xl
+              text-slate-400
+              transition-colors
+              hover:bg-indigo-50
+              hover:text-indigo-600
+            "
           >
-            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            {showPassword ? (
+              <EyeOff size={17} />
+            ) : (
+              <Eye size={17} />
+            )}
           </button>
+
         </div>
+
+
+        {/* FORGOT PASSWORD */}
+
+        <div className="mt-2.5 flex justify-end">
+
+          <Link
+            to="/forgot-password"
+            className="
+              text-xs
+              font-semibold
+              text-indigo-600
+              transition-all
+              hover:text-indigo-700
+              hover:underline
+              underline-offset-2
+            "
+          >
+            Forgot password?
+          </Link>
+
+        </div>
+
       </div>
 
-      {/* Sign In Button */}
+
+      {/* SIGN IN */}
+
       <Button
         type="submit"
         variant="primary"
         size="lg"
         loading={loading}
         iconRight={ArrowRight}
-        className="w-full mt-2"
+        className="
+          mt-4
+          h-12
+          w-full
+          shadow-lg
+          shadow-indigo-500/20
+          transition-all
+          duration-300
+          hover:-translate-y-0.5
+          hover:shadow-xl
+          hover:shadow-indigo-500/25
+        "
       >
-        {loading ? 'Checking credentials...' : 'Sign In'}
+        {loading
+          ? 'Checking credentials...'
+          : 'Sign In'}
       </Button>
+
+
+      {/* SECURITY */}
+
+      <div
+        className="
+          mt-5
+          rounded-xl
+          border
+          border-indigo-100/80
+          bg-gradient-to-r
+          from-indigo-50/70
+          via-blue-50/60
+          to-cyan-50/60
+          px-4
+          py-3
+          text-center
+        "
+      >
+        <p className="text-[10px] font-medium text-slate-400">
+          🔐 Secure institutional authentication
+        </p>
+      </div>
+
     </form>
   );
 }
 
+
+/* =========================================================
+   ALERT
+========================================================= */
+
 function AlertBox({ message }) {
   return (
-    <div className="flex items-start gap-2.5 rounded-xl border border-red-200/90 bg-red-50/80 p-3 text-red-700 animate-fade-in shadow-xs">
-      <AlertCircle size={16} className="mt-0.5 shrink-0 text-red-600" />
-      <p className="text-xs leading-relaxed font-medium">{message}</p>
+    <div
+      className="
+        flex
+        items-start
+        gap-2.5
+        rounded-xl
+        border
+        border-red-200/90
+        bg-gradient-to-r
+        from-red-50
+        to-rose-50/80
+        p-3
+        text-red-700
+        shadow-sm
+        animate-fade-in
+      "
+    >
+
+      <AlertCircle
+        size={16}
+        className="
+          mt-0.5
+          shrink-0
+          text-red-600
+        "
+      />
+
+      <p
+        className="
+          text-xs
+          font-medium
+          leading-relaxed
+        "
+      >
+        {message}
+      </p>
+
     </div>
   );
 }
 
+
+/* =========================================================
+   SUCCESS
+========================================================= */
+
 function SuccessBox({ message }) {
   return (
-    <div className="flex items-start gap-2.5 rounded-xl border border-emerald-200/90 bg-emerald-50/80 p-3 text-emerald-700 animate-fade-in shadow-xs">
-      <ShieldCheck size={16} className="mt-0.5 shrink-0 text-emerald-600" />
-      <p className="text-xs leading-relaxed font-medium">{message}</p>
+    <div
+      className="
+        flex
+        items-start
+        gap-2.5
+        rounded-xl
+        border
+        border-emerald-200/90
+        bg-gradient-to-r
+        from-emerald-50
+        to-cyan-50/70
+        p-3
+        text-emerald-700
+        shadow-sm
+        animate-fade-in
+      "
+    >
+
+      <ShieldCheck
+        size={16}
+        className="
+          mt-0.5
+          shrink-0
+          text-emerald-600
+        "
+      />
+
+      <p
+        className="
+          text-xs
+          font-medium
+          leading-relaxed
+        "
+      >
+        {message}
+      </p>
+
     </div>
   );
 }

@@ -1374,3 +1374,161 @@ a:focus-visible {
   }
   .login-feature-card, .login-brand-logo { transition: none !important; }
 }
+
+.forgot-page {
+  background:
+    linear-gradient(
+      135deg,
+      #eef2ff 0%,
+      #ffffff 45%,
+      #ecfeff 100%
+    );
+}
+
+.forgot-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  animation: forgot-orb-move 14s ease-in-out infinite alternate;
+}
+
+.forgot-orb-1 {
+  width: 500px;
+  height: 500px;
+  top: -220px;
+  left: -180px;
+  background: linear-gradient(
+    135deg,
+    #6366f1,
+    #8b5cf6
+  );
+  opacity: 0.20;
+}
+
+.forgot-orb-2 {
+  width: 480px;
+  height: 480px;
+  right: -200px;
+  bottom: -180px;
+  background: linear-gradient(
+    135deg,
+    #06b6d4,
+    #3b82f6
+  );
+  opacity: 0.18;
+  animation-delay: -5s;
+}
+
+.forgot-orb-3 {
+  width: 280px;
+  height: 280px;
+  top: 35%;
+  right: 15%;
+  background: linear-gradient(
+    135deg,
+    #ec4899,
+    #8b5cf6
+  );
+  opacity: 0.12;
+  animation-delay: -9s;
+}
+
+@keyframes forgot-orb-move {
+  0% {
+    transform: translate(-30px, -20px) scale(1);
+  }
+
+  35% {
+    transform: translate(45px, 25px) scale(1.08);
+  }
+
+  70% {
+    transform: translate(-20px, 55px) scale(0.94);
+  }
+
+  100% {
+    transform: translate(40px, -30px) scale(1.1);
+  }
+}
+
+.forgot-card {
+  border: 1px solid rgba(255, 255, 255, 0.85);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.96),
+      rgba(239, 246, 255, 0.90),
+      rgba(245, 243, 255, 0.94)
+    );
+
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+
+  box-shadow:
+    0 30px 80px rgba(79, 70, 229, 0.12),
+    0 12px 35px rgba(15, 23, 42, 0.06);
+}
+
+.forgot-card-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  pointer-events: none;
+  animation: forgot-card-move 11s ease-in-out infinite alternate;
+}
+
+.forgot-card-orb-1 {
+  width: 300px;
+  height: 300px;
+  top: -110px;
+  right: -100px;
+
+  background: linear-gradient(
+    135deg,
+    #6366f1,
+    #8b5cf6,
+    #06b6d4
+  );
+
+  opacity: 0.18;
+}
+
+.forgot-card-orb-2 {
+  width: 280px;
+  height: 280px;
+  bottom: -110px;
+  left: -100px;
+
+  background: linear-gradient(
+    135deg,
+    #06b6d4,
+    #3b82f6,
+    #8b5cf6
+  );
+
+  opacity: 0.16;
+  animation-delay: -5s;
+}
+
+@keyframes forgot-card-move {
+  0% {
+    transform: translate(-20px, -20px) scale(1);
+  }
+
+  50% {
+    transform: translate(35px, 40px) scale(1.08);
+  }
+
+  100% {
+    transform: translate(-20px, 20px) scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .forgot-orb,
+  .forgot-card-orb {
+    animation: none;
+  }
+}
