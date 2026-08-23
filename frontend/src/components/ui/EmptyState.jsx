@@ -33,16 +33,16 @@ export default function EmptyState({
   return (
     <div
       className={`
-        flex flex-col items-center justify-center rounded-2xl border border-slate-200/80
-        bg-white/70 px-6 py-14 text-center backdrop-blur-md shadow-xs
+        flex flex-col items-center justify-center rounded-2xl border border-white/[0.08]
+        bg-[#0b1128]/50 px-6 py-14 text-center backdrop-blur-md shadow-card
         ${className}
       `}
     >
-      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-blue-50 text-indigo-500 shadow-xs">
+      <div className="float-gentle mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-300/20 bg-gradient-to-br from-blue-500/15 to-cyan-400/10 text-cyan-300 shadow-glow-sm">
         <IconComponent size={24} strokeWidth={1.75} />
       </div>
 
-      <h3 className="text-base font-bold text-slate-900 tracking-tight">
+      <h3 className="font-display text-base font-bold tracking-tight text-white">
         {title}
       </h3>
 

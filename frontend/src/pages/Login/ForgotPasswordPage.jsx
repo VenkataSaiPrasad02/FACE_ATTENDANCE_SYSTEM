@@ -4,6 +4,7 @@ import { Navigate, Link, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
   ArrowRight,
+  Check,
   CheckCircle2,
   KeyRound,
   Lock,
@@ -188,25 +189,25 @@ export default function ForgotPasswordPage() {
         <div className="forgot-orb forgot-orb-1" />
         <div className="forgot-orb forgot-orb-2" />
         <div className="forgot-orb forgot-orb-3" />
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/80 via-white/70 to-cyan-50/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#050816]/40 via-transparent to-[#050816]/55" />
       </div>
 
       {/* =====================================================
           CENTERED CONTENT COLUMN
       ====================================================== */}
-      <div className="relative z-10 flex w-full max-w-[440px] flex-col items-center">
+      <div className="relative z-10 flex w-full max-w-[440px] flex-col items-center animate-slide-up">
 
         {/* BRAND */}
         <div className="mb-6 flex items-center justify-center gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-cyan-500 text-white shadow-lg shadow-indigo-500/20">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 via-violet-500 to-cyan-400 text-white shadow-glow-sm border border-cyan-300/30">
             <GraduationCap size={23} strokeWidth={2.2} />
           </div>
 
           <div className="text-left">
-            <p className="text-sm font-bold leading-tight tracking-tight text-slate-900">
+            <p className="text-sm font-bold leading-tight tracking-tight text-white">
               Face Attendance System
             </p>
-            <p className="text-[11px] leading-tight text-slate-500">
+            <p className="text-[11px] leading-tight text-slate-400">
               Account Recovery Portal
             </p>
           </div>
@@ -219,28 +220,34 @@ export default function ForgotPasswordPage() {
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden rounded-[1.75rem]">
             <div className="forgot-card-orb forgot-card-orb-1" />
             <div className="forgot-card-orb forgot-card-orb-2" />
-            <div className="absolute inset-0 bg-gradient-to-br from-white/90 via-white/65 to-indigo-50/70" />
+            <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] via-transparent to-black/20" />
           </div>
 
           {/* CONTENT */}
           <div className="relative z-10 flex flex-col">
 
             {/* HEADER */}
-            <div className="mb-7 text-center">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-blue-600 text-white shadow-lg shadow-indigo-500/20">
+            <div className="mb-6 text-center">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 via-indigo-500 to-cyan-400 text-white shadow-glow-sm border border-cyan-300/30">
                 {step === 'username' ? <KeyRound size={26} /> : <MailCheck size={26} />}
               </div>
 
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+              <h1 className="font-display text-2xl font-bold tracking-tight text-white">
                 {step === 'username' ? 'Forgot password?' : 'Reset your password'}
               </h1>
 
-              <p className="mt-2 text-xs leading-relaxed text-slate-500">
+              <p className="mt-2 text-xs leading-relaxed text-slate-400">
                 {step === 'username'
                   ? 'Enter your username to receive an OTP code.'
                   : `Verification code sent to ${maskedEmail}.`}
               </p>
             </div>
+
+            {/* STEP INDICATOR */}
+            <StepIndicator
+              step={step}
+              otpFilled={step === 'otp' && /^\d{6}$/.test(otp.trim())}
+            />
 
             {/* Alerts */}
             {error && <AlertBox message={error} />}
@@ -256,13 +263,13 @@ export default function ForgotPasswordPage() {
                 <div>
                   <label
                     htmlFor="forgot-username"
-                    className="mb-2 block text-xs font-semibold tracking-tight text-slate-700"
+                    className="mb-2 block text-xs font-semibold tracking-tight text-slate-300"
                   >
                     Username
                   </label>
 
-                  <div className="group flex h-13 w-full items-center rounded-xl border border-slate-200 bg-white/85 shadow-sm backdrop-blur-md transition-all duration-200 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
-                    <div className="flex h-full w-12 shrink-0 items-center justify-center text-slate-400 transition-colors group-focus-within:text-indigo-600">
+                  <div className="group flex h-13 w-full items-center rounded-xl border border-white/10 bg-[#0a1026]/80 backdrop-blur-md transition-all duration-200 focus-within:border-cyan-300/60 focus-within:ring-4 focus-within:ring-cyan-400/10">
+                    <div className="flex h-full w-12 shrink-0 items-center justify-center text-slate-500 transition-colors group-focus-within:text-cyan-300">
                       <User size={18} />
                     </div>
 
@@ -275,15 +282,15 @@ export default function ForgotPasswordPage() {
                       required
                       autoComplete="username"
                       autoFocus
-                      className="h-full w-full bg-transparent pr-4 text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+                      className="h-full w-full bg-transparent pr-4 text-sm font-medium text-slate-100 outline-none placeholder:text-slate-600"
                     />
                   </div>
                 </div>
 
                 {/* Information */}
-                <div className="flex items-start gap-3 rounded-xl border border-indigo-100/80 bg-gradient-to-r from-indigo-50/70 via-blue-50/60 to-cyan-50/60 px-4 py-3.5">
-                  <MailCheck size={16} className="mt-0.5 shrink-0 text-indigo-500" />
-                  <p className="text-[11px] leading-relaxed text-slate-500">
+                <div className="flex items-start gap-3 rounded-xl border border-sky-300/20 bg-sky-400/[0.07] px-4 py-3.5">
+                  <MailCheck size={16} className="mt-0.5 shrink-0 text-cyan-300" />
+                  <p className="text-[11px] leading-relaxed text-slate-400">
                     We'll send a 6-digit verification code to your registered email address.
                   </p>
                 </div>
@@ -295,7 +302,7 @@ export default function ForgotPasswordPage() {
                   size="lg"
                   loading={loading}
                   iconRight={ArrowRight}
-                  className="h-13 w-full shadow-lg shadow-indigo-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-500/25"
+                  className="h-13 w-full shadow-glow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-glow"
                 >
                   {loading ? 'Sending code...' : 'Send Recovery Code'}
                 </Button>
@@ -309,12 +316,12 @@ export default function ForgotPasswordPage() {
                 <div className="space-y-5">
                   {/* OTP */}
                   <div>
-                    <label htmlFor="otp" className="mb-2 block text-xs font-semibold text-slate-700">
+                    <label htmlFor="otp" className="mb-2 block text-xs font-semibold text-slate-300">
                       6-Digit Verification Code
                     </label>
 
-                    <div className="group flex h-13 w-full items-center rounded-xl border border-slate-200 bg-white/85 shadow-sm backdrop-blur-md focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
-                      <div className="flex h-full w-12 shrink-0 items-center justify-center text-slate-400">
+                    <div className="group flex h-13 w-full items-center rounded-xl border border-white/10 bg-[#0a1026]/80 backdrop-blur-md focus-within:border-cyan-300/60 focus-within:ring-4 focus-within:ring-cyan-400/10">
+                      <div className="flex h-full w-12 shrink-0 items-center justify-center text-slate-500 group-focus-within:text-cyan-300">
                         <MailCheck size={18} />
                       </div>
 
@@ -329,7 +336,7 @@ export default function ForgotPasswordPage() {
                         placeholder="••••••"
                         required
                         autoFocus
-                        className="h-full w-full bg-transparent px-3 text-center text-xl font-bold tracking-[0.4em] text-slate-900 outline-none placeholder:text-sm placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-300"
+                        className="h-full w-full bg-transparent px-3 text-center text-xl font-bold tracking-[0.4em] text-slate-100 outline-none placeholder:text-sm placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-600"
                       />
                     </div>
                   </div>
@@ -362,12 +369,12 @@ export default function ForgotPasswordPage() {
                     size="lg"
                     loading={loading}
                     iconRight={CheckCircle2}
-                    className="h-13 w-full shadow-lg shadow-indigo-500/20"
+                    className="h-13 w-full shadow-glow-sm"
                   >
                     {loading ? 'Changing password...' : 'Reset Password'}
                   </Button>
 
-                  <div className="flex items-center justify-between rounded-xl border border-indigo-100/70 bg-gradient-to-r from-indigo-50/70 via-blue-50/60 to-cyan-50/60 px-4 py-3">
+                  <div className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3">
                     <span className="text-xs font-medium text-slate-500">
                       {secondsLeft > 0 ? `Expires in ${formatTimer()}` : 'Code expired'}
                     </span>
@@ -376,7 +383,7 @@ export default function ForgotPasswordPage() {
                       type="button"
                       disabled={secondsLeft > 0 || resending}
                       onClick={resendOtp}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-700 disabled:cursor-not-allowed disabled:text-slate-400"
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-300 transition-colors hover:text-cyan-200 disabled:cursor-not-allowed disabled:text-slate-600"
                     >
                       <RefreshCw size={12} className={resending ? 'animate-spin' : ''} />
                       Resend Code
@@ -386,7 +393,7 @@ export default function ForgotPasswordPage() {
                   <button
                     type="button"
                     onClick={goBackToUsername}
-                    className="w-full text-center text-xs font-semibold text-slate-500 hover:text-slate-800"
+                    className="w-full text-center text-xs font-semibold text-slate-400 transition-colors hover:text-white"
                   >
                     Use a different username
                   </button>
@@ -399,16 +406,16 @@ export default function ForgotPasswordPage() {
             ================================================== */}
             <div className="mt-8">
               <div className="mb-4 flex items-center gap-3">
-                <div className="h-px flex-1 bg-slate-200/70" />
-                <span className="rounded-full border border-indigo-100 bg-indigo-50/70 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-indigo-500">
+                <div className="h-px flex-1 bg-white/10" />
+                <span className="rounded-full border border-cyan-300/25 bg-cyan-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-cyan-300">
                   Secure Recovery
                 </span>
-                <div className="h-px flex-1 bg-slate-200/70" />
+                <div className="h-px flex-1 bg-white/10" />
               </div>
 
               <Link
                 to="/login"
-                className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200/70 bg-white/55 px-4 py-3 text-xs font-semibold text-slate-500 backdrop-blur-sm transition-all hover:border-indigo-200 hover:bg-indigo-50/60 hover:text-indigo-600"
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.05] px-4 py-3 text-xs font-semibold text-slate-400 backdrop-blur-sm transition-all hover:border-cyan-300/25 hover:bg-white/[0.09] hover:text-cyan-200"
               >
                 <ArrowLeft size={14} />
                 Back to sign in
@@ -418,7 +425,7 @@ export default function ForgotPasswordPage() {
         </div>
 
         {/* Copyright */}
-        <p className="mt-5 text-center text-xs text-slate-400">
+        <p className="mt-5 text-center text-xs text-slate-500">
           © {new Date().getFullYear()} Face Attendance System
         </p>
       </div>
@@ -427,17 +434,80 @@ export default function ForgotPasswordPage() {
 }
 
 /* =========================================================
+   STEP INDICATOR
+======================================================== */
+function StepIndicator({ step, otpFilled }) {
+  const stages = [
+    { key: 'username', label: 'Username', icon: User },
+    { key: 'otp', label: 'OTP Code', icon: MailCheck },
+    { key: 'password', label: 'New Password', icon: KeyRound },
+  ];
+
+  const getStageState = (index) => {
+    if (index === 0) {
+      return step === 'username' ? 'active' : 'done';
+    }
+    if (index === 1) {
+      if (step !== 'otp') return 'pending';
+      return otpFilled ? 'done' : 'active';
+    }
+    return step === 'otp' && otpFilled ? 'active' : 'pending';
+  };
+
+  const chipClasses = {
+    done: 'border-emerald-300/25 bg-emerald-400/10 text-emerald-300',
+    active:
+      'border-cyan-300/40 bg-cyan-400/10 text-cyan-200 shadow-glow-sm',
+    pending: 'border-white/[0.08] bg-white/[0.03] text-slate-500',
+  };
+
+  const connectorClasses = {
+    done: 'bg-emerald-300/30',
+    active: 'bg-cyan-300/25',
+    pending: 'bg-white/10',
+  };
+
+  return (
+    <div className="mb-6 flex items-center justify-center gap-2">
+      {stages.map((stage, index) => {
+        const state = getStageState(index);
+        const StageIcon = stage.icon;
+
+        return (
+          <React.Fragment key={stage.key}>
+            {index > 0 && (
+              <div className={`h-px w-5 sm:w-7 ${connectorClasses[stages[index - 1] && getStageState(index - 1)]}`} />
+            )}
+
+            <div
+              className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-semibold sm:text-[11px] ${chipClasses[state]}`}
+            >
+              {state === 'done' ? (
+                <Check size={12} strokeWidth={3} />
+              ) : (
+                <StageIcon size={12} />
+              )}
+              <span>{stage.label}</span>
+            </div>
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
+
+/* =========================================================
    PASSWORD FIELD
-========================================================= */
+======================================================== */
 function PasswordField({ id, label, value, setValue, show, setShow, placeholder }) {
   return (
     <div>
-      <label htmlFor={id} className="mb-2 block text-xs font-semibold text-slate-700">
+      <label htmlFor={id} className="mb-2 block text-xs font-semibold text-slate-300">
         {label}
       </label>
 
-      <div className="group flex h-13 w-full items-center rounded-xl border border-slate-200 bg-white/85 shadow-sm backdrop-blur-md transition-all focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
-        <div className="flex h-full w-12 shrink-0 items-center justify-center text-slate-400 group-focus-within:text-indigo-600">
+      <div className="group flex h-13 w-full items-center rounded-xl border border-white/10 bg-[#0a1026]/80 backdrop-blur-md transition-all focus-within:border-cyan-300/60 focus-within:ring-4 focus-within:ring-cyan-400/10">
+        <div className="flex h-full w-12 shrink-0 items-center justify-center text-slate-500 group-focus-within:text-cyan-300">
           <Lock size={18} />
         </div>
 
@@ -448,13 +518,13 @@ function PasswordField({ id, label, value, setValue, show, setShow, placeholder 
           onChange={(e) => setValue(e.target.value)}
           placeholder={placeholder}
           required
-          className="h-full w-full bg-transparent pr-2 text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+          className="h-full w-full bg-transparent pr-2 text-sm font-medium text-slate-100 outline-none placeholder:text-slate-600"
         />
 
         <button
           type="button"
           onClick={() => setShow((current) => !current)}
-          className="flex h-full w-11 shrink-0 items-center justify-center rounded-r-xl text-slate-400 hover:bg-indigo-50 hover:text-indigo-600"
+          className="flex h-full w-11 shrink-0 items-center justify-center rounded-r-xl text-slate-500 transition-colors hover:bg-cyan-400/10 hover:text-cyan-300"
           aria-label={show ? 'Hide password' : 'Show password'}
         >
           {show ? <EyeOff size={17} /> : <Eye size={17} />}
@@ -466,11 +536,11 @@ function PasswordField({ id, label, value, setValue, show, setShow, placeholder 
 
 /* =========================================================
    ALERT
-========================================================= */
+======================================================== */
 function AlertBox({ message }) {
   return (
-    <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50/80 p-3 text-red-700">
-      <AlertCircle size={16} className="mt-0.5 shrink-0" />
+    <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-rose-300/25 bg-rose-500/10 p-3 text-rose-300 animate-fade-in">
+      <AlertCircle size={16} className="mt-0.5 shrink-0 text-rose-400" />
       <p className="text-xs font-medium leading-relaxed">{message}</p>
     </div>
   );
@@ -478,11 +548,11 @@ function AlertBox({ message }) {
 
 /* =========================================================
    SUCCESS
-========================================================= */
+======================================================== */
 function SuccessBox({ message }) {
   return (
-    <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50/80 p-3 text-emerald-700">
-      <CheckCircle2 size={16} className="mt-0.5 shrink-0" />
+    <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-emerald-300/25 bg-emerald-400/10 p-3 text-emerald-300 animate-fade-in">
+      <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-emerald-400" />
       <p className="text-xs font-medium leading-relaxed">{message}</p>
     </div>
   );

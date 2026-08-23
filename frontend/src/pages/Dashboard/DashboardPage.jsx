@@ -68,232 +68,240 @@ export default function DashboardPage() {
   }
 
   return (
-      <AnimatedGradientBackground className="min-h-full rounded-3xl p-4 sm:p-6">
-
-    <div className="w-full pb-8 animate-fade-in">
-      {/* Page Header */}
-      <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-indigo-200/80 bg-indigo-50/80 px-3 py-1 text-xs font-semibold text-indigo-700 shadow-xs">
-            <span className="h-1.5 w-1.5 rounded-full bg-indigo-600 animate-pulse" />
-            Institutional Overview
-          </div>
-
-          <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
-            Attendance Dashboard
-          </h1>
-
-          <p className="mt-1 text-xs sm:text-sm text-slate-500">
-            Real-time biometric attendance metrics, records, and rapid actions.
-          </p>
-        </div>
-
-        {/* Live Date & Time Chip */}
-        <div className="flex w-fit items-center gap-3 rounded-2xl border border-slate-200/80 bg-white/90 px-4 py-2.5 shadow-xs backdrop-blur-md">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 text-white shadow-xs">
-            <Clock size={17} />
-          </div>
-
+    <AnimatedGradientBackground className="min-h-full rounded-3xl p-4 sm:p-6">
+      <div className="w-full pb-8 animate-fade-in">
+        {/* Page Header */}
+        <div className="animate-slide-up mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <div className="text-xs font-bold text-slate-900 tabular-nums">
-              {formatTime(currentTime)}
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-cyan-300/25 bg-cyan-400/10 px-3 py-1 text-xs font-semibold text-cyan-300 shadow-glow-sm">
+              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.9)]" />
+              Institutional Overview
             </div>
-            <div className="flex items-center gap-1 text-[11px] font-medium text-slate-500">
-              <Calendar size={12} className="text-slate-400" />
-              {formatDate(currentTime)}
+
+            <h1 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+              Attendance Dashboard
+            </h1>
+
+            <p className="mt-1 text-xs text-slate-400 sm:text-sm">
+              Real-time biometric attendance metrics, records, and rapid actions.
+            </p>
+          </div>
+
+          {/* Live Date & Time Chip */}
+          <div className="flex w-fit items-center gap-3 rounded-2xl border border-white/[0.08] bg-[#0d1430]/55 px-4 py-2.5 shadow-card backdrop-blur-md">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-cyan-300/25 bg-gradient-to-br from-blue-500/20 to-cyan-400/15 text-cyan-300 shadow-glow-sm">
+              <Clock size={17} />
+            </div>
+
+            <div>
+              <div className="font-display text-xs font-bold text-white tabular-nums">
+                {formatTime(currentTime)}
+              </div>
+              <div className="flex items-center gap-1 text-[11px] font-medium text-slate-400">
+                <Calendar size={12} className="text-slate-500" />
+                {formatDate(currentTime)}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Error Callout */}
-      {error && (
-        <div className="mb-6">
-          <ErrorState
-            title="Failed to load dashboard statistics"
-            message={error}
-            onRetry={loadStats}
-          />
-        </div>
-      )}
-
-      {/* Dashboard KPI Grid & Cards */}
-      {stats && !error && (
-        <>
-          {/* 4 KPI Cards with subtle gradient accents */}
-          <div className="mb-7 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {/* Total Students */}
-            <StatsCard
-              title="Total Students"
-              value={stats.totalStudents}
-              icon={Users}
-              colorScheme="blue"
-              subtitle="Enrolled"
-              detail="Active student roster"
-              to="/students"
-            />
-
-            {/* Present Today */}
-            <StatsCard
-              title="Present Today"
-              value={stats.presentToday}
-              icon={UserCheck}
-              colorScheme="emerald"
-              subtitle="Checked In"
-              detail="Recorded presence"
-              to={`/history?date=${today}&status=PRESENT`}
-            />
-
-            {/* Absent Today */}
-            <StatsCard
-              title="Absent Today"
-              value={stats.absentToday}
-              icon={UserX}
-              colorScheme="rose"
-              subtitle="Pending"
-              detail="Not yet verified"
-              to={`/history?date=${today}&status=ABSENT`}
-            />
-
-            {/* Attendance Rate */}
-            <StatsCard
-              title="Attendance Rate"
-              value={`${stats.attendancePercentage}%`}
-              icon={TrendingUp}
-              colorScheme="amber"
-              subtitle="Today"
-              detail="Daily attendance ratio"
-              to={`/history?date=${today}`}
+        {/* Error Callout */}
+        {error && (
+          <div className="mb-6">
+            <ErrorState
+              title="Failed to load dashboard statistics"
+              message={error}
+              onRetry={loadStats}
             />
           </div>
+        )}
 
-          {/* 2-Column Split: Today's Summary & Quick Actions */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            {/* Summary Breakdown Card */}
-            <Card glass className="p-6">
-              <div className="mb-5 flex items-start justify-between gap-4 border-b border-slate-100 pb-4">
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 tracking-tight">
-                    Today&apos;s Attendance Breakdown
-                  </h3>
-                  <p className="mt-0.5 text-xs text-slate-500">
-                    Comprehensive overview of verified check-ins and absences.
-                  </p>
-                </div>
-
-                <div className="rounded-xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-blue-50 px-3 py-1.5 text-right shadow-xs">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-indigo-600">Rate</div>
-                  <div className="text-base font-extrabold text-indigo-700 tabular-nums">
-                    {Math.round(stats.attendancePercentage)}%
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <StatRow
-                  label="Total Check-Ins Processed"
-                  value={stats.presentToday + stats.absentToday}
-                  total={stats.totalStudents}
-                  color="indigo"
-                />
-
-                <StatRow
-                  label="Verified Present"
-                  value={stats.presentToday}
-                  color="emerald"
-                  percentage={stats.attendancePercentage}
-                />
-
-                <StatRow
-                  label="Unrecorded / Absent"
-                  value={stats.absentToday}
-                  color="rose"
-                  percentage={100 - stats.attendancePercentage}
-                />
-              </div>
-            </Card>
-
-            {/* Quick Actions Panel */}
-            <Card glass className="relative overflow-hidden p-6">
-              <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-gradient-to-br from-indigo-500/5 to-blue-500/5 blur-2xl" />
-
-              <div className="relative mb-5 border-b border-slate-100 pb-4">
-                <h3 className="text-base font-bold text-slate-900 tracking-tight">
-                  Quick Actions
-                </h3>
-                <p className="mt-0.5 text-xs text-slate-500">
-                  Direct shortcuts to high-frequency attendance workflows.
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                <QuickActionRow
-                  title="Take Attendance"
-                  description="Start live camera facial recognition check-in terminal"
-                  href="/attendance"
-                  icon={ScanFace}
-                  badge="Live"
-                  badgeColor="bg-emerald-50 text-emerald-700 border-emerald-200"
-                />
-
-                <QuickActionRow
-                  title="Register Face"
-                  description="Enroll student facial biometrics and profile landmarks"
-                  href="/face-registration"
+        {/* Dashboard KPI Grid & Cards */}
+        {stats && !error && (
+          <>
+            {/* 4 KPI Cards with subtle gradient accents */}
+            <div className="mb-7 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {/* Total Students */}
+              <div className="animate-slide-up opacity-0" style={{ animationDelay: '60ms' }}>
+                <StatsCard
+                  title="Total Students"
+                  value={stats.totalStudents}
                   icon={Users}
-                  badge="Biometrics"
-                  badgeColor="bg-blue-50 text-blue-700 border-blue-200"
-                />
-
-                <QuickActionRow
-                  title="View Attendance History"
-                  description="Search, filter, and inspect institutional attendance records"
-                  href="/history"
-                  icon={FileText}
-                  badge="Logs"
-                  badgeColor="bg-purple-50 text-purple-700 border-purple-200"
+                  colorScheme="blue"
+                  subtitle="Enrolled"
+                  detail="Active student roster"
+                  to="/students"
                 />
               </div>
-            </Card>
-          </div>
-        </>
-      )}
-    </div>
-    </AnimatedGradientBackground>
 
+              {/* Present Today */}
+              <div className="animate-slide-up opacity-0" style={{ animationDelay: '150ms' }}>
+                <StatsCard
+                  title="Present Today"
+                  value={stats.presentToday}
+                  icon={UserCheck}
+                  colorScheme="emerald"
+                  subtitle="Checked In"
+                  detail="Recorded presence"
+                  to={`/history?date=${today}&status=PRESENT`}
+                />
+              </div>
+
+              {/* Absent Today */}
+              <div className="animate-slide-up opacity-0" style={{ animationDelay: '240ms' }}>
+                <StatsCard
+                  title="Absent Today"
+                  value={stats.absentToday}
+                  icon={UserX}
+                  colorScheme="rose"
+                  subtitle="Pending"
+                  detail="Not yet verified"
+                  to={`/history?date=${today}&status=ABSENT`}
+                />
+              </div>
+
+              {/* Attendance Rate */}
+              <div className="animate-slide-up opacity-0" style={{ animationDelay: '330ms' }}>
+                <StatsCard
+                  title="Attendance Rate"
+                  value={`${stats.attendancePercentage}%`}
+                  icon={TrendingUp}
+                  colorScheme="amber"
+                  subtitle="Today"
+                  detail="Daily attendance ratio"
+                  to={`/history?date=${today}`}
+                />
+              </div>
+            </div>
+
+            {/* 2-Column Split: Today's Summary & Quick Actions */}
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              {/* Summary Breakdown Card */}
+              <div className="animate-slide-up opacity-0" style={{ animationDelay: '420ms' }}>
+                <Card glass className="p-6">
+                  <div className="mb-5 flex items-start justify-between gap-4 border-b border-white/[0.08] pb-4">
+                    <div>
+                      <h3 className="font-display text-base font-bold tracking-tight text-white">
+                        Today&apos;s Attendance Breakdown
+                      </h3>
+                      <p className="mt-0.5 text-xs text-slate-400">
+                        Comprehensive overview of verified check-ins and absences.
+                      </p>
+                    </div>
+
+                    <div className="rounded-xl border border-cyan-300/25 bg-gradient-to-br from-blue-500/15 to-cyan-400/10 px-3 py-1.5 text-right shadow-glow-sm">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-cyan-300">Rate</div>
+                      <div className="font-display text-base font-bold text-white tabular-nums">
+                        {Math.round(stats.attendancePercentage)}%
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <StatRow
+                      label="Total Check-Ins Processed"
+                      value={stats.presentToday + stats.absentToday}
+                      total={stats.totalStudents}
+                      color="indigo"
+                    />
+
+                    <StatRow
+                      label="Verified Present"
+                      value={stats.presentToday}
+                      color="emerald"
+                      percentage={stats.attendancePercentage}
+                    />
+
+                    <StatRow
+                      label="Unrecorded / Absent"
+                      value={stats.absentToday}
+                      color="rose"
+                      percentage={100 - stats.attendancePercentage}
+                    />
+                  </div>
+                </Card>
+              </div>
+
+              {/* Quick Actions Panel */}
+              <div className="animate-slide-up opacity-0" style={{ animationDelay: '500ms' }}>
+                <Card glass className="relative overflow-hidden p-6">
+                  <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-gradient-to-br from-blue-500/10 to-cyan-400/10 blur-2xl" />
+
+                  <div className="relative mb-5 border-b border-white/[0.08] pb-4">
+                    <h3 className="font-display text-base font-bold tracking-tight text-white">
+                      Quick Actions
+                    </h3>
+                    <p className="mt-0.5 text-xs text-slate-400">
+                      Direct shortcuts to high-frequency attendance workflows.
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <QuickActionRow
+                      title="Take Attendance"
+                      description="Start live camera facial recognition check-in terminal"
+                      href="/attendance"
+                      icon={ScanFace}
+                      badge="Live"
+                      badgeColor="bg-emerald-400/10 text-emerald-300 border-emerald-300/25"
+                    />
+
+                    <QuickActionRow
+                      title="Register Face"
+                      description="Enroll student facial biometrics and profile landmarks"
+                      href="/face-registration"
+                      icon={Users}
+                      badge="Biometrics"
+                      badgeColor="bg-sky-400/10 text-sky-300 border-sky-300/25"
+                    />
+
+                    <QuickActionRow
+                      title="View Attendance History"
+                      description="Search, filter, and inspect institutional attendance records"
+                      href="/history"
+                      icon={FileText}
+                      badge="Logs"
+                      badgeColor="bg-violet-400/10 text-violet-300 border-violet-300/25"
+                    />
+                  </div>
+                </Card>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </AnimatedGradientBackground>
   );
 }
 
 function StatRow({ label, value, total, color = 'indigo', percentage }) {
   const colorMap = {
     indigo: {
-      bar: 'bg-gradient-to-r from-blue-600 to-indigo-600',
-      pill: 'text-indigo-700 bg-indigo-50 border-indigo-100',
+      bar: 'bg-gradient-to-r from-blue-500 to-cyan-400 shadow-[0_0_10px_rgba(59,130,246,0.45)]',
+      pill: 'text-sky-300 bg-sky-400/10 border-sky-300/25',
     },
     emerald: {
-      bar: 'bg-gradient-to-r from-emerald-500 to-teal-500',
-      pill: 'text-emerald-700 bg-emerald-50 border-emerald-100',
+      bar: 'bg-gradient-to-r from-emerald-400 to-teal-400 shadow-[0_0_10px_rgba(52,211,153,0.45)]',
+      pill: 'text-emerald-300 bg-emerald-400/10 border-emerald-300/25',
     },
     rose: {
-      bar: 'bg-gradient-to-r from-rose-500 to-red-500',
-      pill: 'text-rose-700 bg-rose-50 border-rose-100',
+      bar: 'bg-gradient-to-r from-rose-500 to-red-500 shadow-[0_0_10px_rgba(244,63,94,0.45)]',
+      pill: 'text-rose-300 bg-rose-500/10 border-rose-300/25',
     },
   }[color] || {
-    bar: 'bg-gradient-to-r from-blue-600 to-indigo-600',
-    pill: 'text-indigo-700 bg-indigo-50 border-indigo-100',
+    bar: 'bg-gradient-to-r from-blue-500 to-cyan-400 shadow-[0_0_10px_rgba(59,130,246,0.45)]',
+    pill: 'text-sky-300 bg-sky-400/10 border-sky-300/25',
   };
 
   const computedPercentage = percentage ?? (total ? (value / total) * 100 : 0);
 
   return (
-      <AnimatedGradientBackground className="min-h-full rounded-3xl p-4 sm:p-6">
-
-    <div className="rounded-xl border border-slate-200/70 bg-slate-50/50 p-3.5 transition-colors hover:bg-slate-50">
+    <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-3.5 transition-colors duration-200 hover:bg-white/[0.06]">
       <div className="flex items-center justify-between gap-4">
-        <span className="text-xs font-semibold text-slate-700">{label}</span>
+        <span className="text-xs font-semibold text-slate-300">{label}</span>
 
         <div className="flex items-center gap-2">
-          {total && <span className="text-[11px] text-slate-400">of {total} total</span>}
+          {total && <span className="text-[11px] text-slate-500">of {total} total</span>}
           <span className={`rounded-lg border px-2 py-0.5 text-xs font-bold tabular-nums ${colorMap.pill}`}>
             {value}
             {percentage !== undefined && ` (${Math.round(percentage)}%)`}
@@ -301,39 +309,33 @@ function StatRow({ label, value, total, color = 'indigo', percentage }) {
         </div>
       </div>
 
-      <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-200/80">
+      <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
         <div
           className={`h-full rounded-full transition-all duration-500 ease-out ${colorMap.bar}`}
           style={{ width: `${Math.max(0, Math.min(100, computedPercentage))}%` }}
         />
       </div>
     </div>
-    </AnimatedGradientBackground>
-
   );
 }
 
 function QuickActionRow({ title, description, href, icon: Icon, badge, badgeColor }) {
   return (
-<AnimatedGradientBackground
-  type="dashboard"
-  className="min-h-full rounded-2xl"
->
     <Link
       to={href}
-      className="group flex items-center gap-3.5 rounded-xl border border-slate-200/80 bg-white/80 p-3.5 backdrop-blur-sm shadow-xs transition-all duration-150 ease-out hover:border-slate-300 hover:bg-white hover:shadow-sm"
+      className="group flex items-center gap-3.5 rounded-xl border border-white/[0.08] bg-white/[0.04] p-3.5 shadow-card backdrop-blur-sm transition-all duration-200 ease-out hover:border-cyan-300/25 hover:bg-white/[0.07] hover:shadow-card-hover"
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-indigo-100 bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-xs transition-transform group-hover:scale-105">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan-300/25 bg-gradient-to-br from-blue-500/20 to-cyan-400/15 text-cyan-300 shadow-glow-sm transition-transform duration-200 group-hover:scale-105">
         <Icon size={19} strokeWidth={2} />
       </div>
 
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+          <span className="text-xs font-bold text-slate-100 transition-colors group-hover:text-cyan-300">
             {title}
           </span>
           {badge && (
-            <span className={`rounded-md border px-1.5 py-0.2 text-[9.5px] font-semibold ${badgeColor}`}>
+            <span className={`rounded-md border px-1.5 py-0.5 text-[9.5px] font-semibold ${badgeColor}`}>
               {badge}
             </span>
           )}
@@ -343,10 +345,8 @@ function QuickActionRow({ title, description, href, icon: Icon, badge, badgeColo
 
       <ArrowUpRight
         size={16}
-        className="shrink-0 text-slate-400 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-indigo-600"
+        className="shrink-0 text-slate-500 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-cyan-300"
       />
     </Link>
-      </AnimatedGradientBackground>
-
   );
 }

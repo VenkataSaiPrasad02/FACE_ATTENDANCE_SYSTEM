@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 
 import { useAuth } from '../../hooks/useAuth';
+import BiometricLoginBackground from '../../components/login/BiometricLoginBackground';
 import LoginForm from './LoginForm';
 
 const features = [
@@ -40,22 +41,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="login-page-bg relative min-h-screen overflow-hidden antialiased selection:bg-indigo-500/15 selection:text-slate-900">
+    <div className="login-page-bg relative min-h-screen overflow-hidden antialiased selection:bg-cyan-400/20 selection:text-white">
 
       {/* =====================================================
-          AMBIENT BACKGROUND
+          AMBIENT BIOMETRIC BACKGROUND
       ====================================================== */}
 
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed inset-0 overflow-hidden"
-      >
-        <div className="absolute -top-[15%] -left-[10%] h-[650px] w-[650px] rounded-full bg-indigo-500/[0.04] blur-3xl" />
-
-        <div className="absolute -bottom-[15%] -right-[10%] h-[650px] w-[650px] rounded-full bg-blue-500/[0.035] blur-3xl" />
-
-        <div className="absolute left-[35%] top-[35%] h-[400px] w-[400px] rounded-full bg-cyan-400/[0.025] blur-3xl" />
-      </div>
+      <BiometricLoginBackground />
 
 
       {/* =====================================================
@@ -117,9 +109,9 @@ export default function LoginPage() {
                 absolute
                 inset-0
                 bg-gradient-to-r
-                from-white/90
-                via-white/65
-                to-white/20
+                from-[#050816]/95
+                via-[#050816]/75
+                to-[#050816]/20
               "
             />
 
@@ -130,9 +122,9 @@ export default function LoginPage() {
                 absolute
                 inset-0
                 bg-gradient-to-t
-                from-white/90
+                from-[#050816]/95
                 via-transparent
-                to-white/35
+                to-[#050816]/40
               "
             />
 
@@ -143,10 +135,10 @@ export default function LoginPage() {
                 absolute
                 inset-0
                 bg-gradient-to-br
-                from-indigo-500/[0.10]
+                from-blue-600/[0.14]
                 via-transparent
-                to-cyan-400/[0.08]
-                mix-blend-multiply
+                to-cyan-400/[0.12]
+                mix-blend-screen
               "
             />
 
@@ -179,11 +171,11 @@ export default function LoginPage() {
 
             <div>
 
-              <p className="text-sm font-bold tracking-tight text-slate-900">
+              <p className="text-sm font-bold tracking-tight text-white">
                 Face Attendance System
               </p>
 
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-400">
                 Institutional Biometric Platform
               </p>
 
@@ -221,13 +213,13 @@ export default function LoginPage() {
                   py-1.5
                   text-xs
                   font-semibold
-                  text-indigo-700
+                  text-cyan-200
                 "
               >
 
                 <Sparkles
                   size={14}
-                  className="relative z-10 text-indigo-600"
+                  className="relative z-10 text-cyan-300"
                 />
 
                 <span className="relative z-10">
@@ -242,6 +234,7 @@ export default function LoginPage() {
               <h1
                 className="
                   login-hero-heading
+                  font-display
                   text-4xl
                   font-extrabold
                   leading-tight
@@ -255,7 +248,7 @@ export default function LoginPage() {
 
               {/* Description */}
 
-              <p className="max-w-xl text-sm leading-relaxed text-slate-500">
+              <p className="max-w-xl text-sm leading-relaxed text-slate-400">
                 Streamline classroom attendance, manage faculty and student
                 records, and generate real-time analytics with
                 enterprise-grade biometric security.
@@ -296,7 +289,6 @@ export default function LoginPage() {
                         items-center
                         justify-center
                         rounded-xl
-                        text-indigo-600
                       "
                     >
                       <Icon
@@ -307,11 +299,11 @@ export default function LoginPage() {
 
                     <div className="min-w-0">
 
-                      <h3 className="text-xs font-bold tracking-tight text-slate-900">
+                      <h3 className="text-xs font-bold tracking-tight text-white">
                         {feature.title}
                       </h3>
 
-                      <p className="mt-0.5 text-xs leading-relaxed text-slate-500">
+                      <p className="mt-0.5 text-xs leading-relaxed text-slate-400">
                         {feature.description}
                       </p>
 
@@ -330,7 +322,7 @@ export default function LoginPage() {
               FOOTER
           ================================================== */}
 
-          <div className="relative z-20 text-xs font-medium text-slate-400">
+          <div className="relative z-20 text-xs font-medium text-slate-500">
             Powered by TEAM LAZY • v1.0.0
           </div>
 
@@ -356,7 +348,7 @@ export default function LoginPage() {
           "
         >
 
-          <div className="w-full max-w-md">
+          <div className="w-full max-w-md animate-slide-up">
 
             {/* =================================================
                 MOBILE BRAND
@@ -384,11 +376,11 @@ export default function LoginPage() {
 
               <div>
 
-                <p className="text-sm font-bold tracking-tight text-slate-900">
+                <p className="text-sm font-bold tracking-tight text-white">
                   Face Attendance System
                 </p>
 
-                <p className="text-[11px] text-slate-500">
+                <p className="text-[11px] text-slate-400">
                   Institutional Portal
                 </p>
 
@@ -415,7 +407,7 @@ export default function LoginPage() {
                     items-center
                     justify-center
                     rounded-2xl
-                    text-indigo-600
+                    text-cyan-300
                   "
                 >
                   <ScanFace
@@ -424,11 +416,11 @@ export default function LoginPage() {
                   />
                 </div>
 
-                <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+                <h2 className="font-display text-2xl font-bold tracking-tight text-white">
                   Sign in to your account
                 </h2>
 
-                <p className="mt-1.5 text-xs leading-relaxed text-slate-500">
+                <p className="mt-1.5 text-xs leading-relaxed text-slate-400">
                   Enter your credentials to access the attendance dashboard.
                 </p>
 
@@ -446,7 +438,7 @@ export default function LoginPage() {
 
                 <div className="login-security-divider h-px flex-1" />
 
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                   Secure Access
                 </span>
 
@@ -455,7 +447,7 @@ export default function LoginPage() {
               </div>
 
 
-              <p className="mt-4 text-center text-[11px] leading-relaxed text-slate-400">
+              <p className="mt-4 text-center text-[11px] leading-relaxed text-slate-500">
                 Protected by institutional multi-factor security.
               </p>
 
@@ -464,7 +456,7 @@ export default function LoginPage() {
 
             {/* COPYRIGHT */}
 
-            <p className="mt-6 text-center text-xs text-slate-400">
+            <p className="mt-6 text-center text-xs text-slate-500">
               © {new Date().getFullYear()} Face Attendance System
             </p>
 

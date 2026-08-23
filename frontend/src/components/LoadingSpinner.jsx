@@ -12,11 +12,11 @@ export default function LoadingSpinner({
   }[size] || 'h-9 w-9 border-2.5';
 
   return (
-    <div className={`flex flex-col items-center justify-center py-12 text-slate-500 ${className}`}>
+    <div className={`flex flex-col items-center justify-center py-12 text-slate-400 ${className}`}>
       <div
-        className={`${sizeClasses} rounded-full border-slate-200 border-t-indigo-600 animate-spin`}
+        className={`${sizeClasses} rounded-full border-white/10 animate-spin`}
         style={{
-          borderTopColor: '#4f46e5',
+          borderTopColor: '#22d3ee',
         }}
       />
       {text && (

@@ -12,18 +12,22 @@ export default function SuccessAnimation({
   return (
     <div className="flex flex-col items-center justify-center p-6 text-center animate-scale-in max-w-sm mx-auto">
       {/* Success Badge Icon */}
-      <div className="relative mb-4 flex h-16 w-16 items-center justify-center rounded-3xl border border-emerald-200/90 bg-emerald-50 text-emerald-600 shadow-sm">
+      <div className="relative mb-4 flex h-16 w-16 items-center justify-center rounded-3xl border border-emerald-300/30 bg-gradient-to-br from-emerald-500/20 to-teal-500/10 text-emerald-300 shadow-[0_0_34px_-8px_rgba(52,211,153,0.55)]">
+        <span
+          className="absolute inset-0 rounded-3xl border border-emerald-400/25 animate-ping"
+          aria-hidden="true"
+        />
         <Check size={32} strokeWidth={2.5} />
       </div>
 
-      <h3 className="text-lg font-bold text-slate-900 tracking-tight">
+      <h3 className="font-display text-lg font-bold tracking-tight text-white">
         {title}
       </h3>
 
-      <p className="mt-1 text-xs text-slate-500">
+      <p className="mt-1 text-xs text-slate-400">
         {description || (
           <>
-            Enrolled for: <span className="font-semibold text-slate-800">{studentName || 'Student'}</span>
+            Enrolled for: <span className="font-semibold text-slate-200">{studentName || 'Student'}</span>
           </>
         )}
       </p>

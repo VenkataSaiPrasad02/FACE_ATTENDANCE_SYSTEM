@@ -306,12 +306,12 @@ export default function PolishedCameraCapture({
             gap-2.5
             rounded-xl
             border
-            border-red-200
-            bg-red-50/90
+            border-rose-400/30
+            bg-rose-500/10
             p-3.5
             text-xs
-            text-red-700
-            shadow-sm
+            text-rose-300
+            shadow-glow-sm
             animate-fade-in
           "
         >
@@ -321,7 +321,7 @@ export default function PolishedCameraCapture({
             className="
               mt-0.5
               shrink-0
-              text-red-600
+              text-rose-400
             "
           />
 
@@ -339,16 +339,11 @@ export default function PolishedCameraCapture({
 
       <div
         className="
+          camera-viewfinder
           relative
           w-full
           overflow-hidden
           rounded-3xl
-          border
-          border-slate-200/90
-          bg-slate-950
-          shadow-xl
-          ring-4
-          ring-indigo-500/5
 
           aspect-[4/3]
 
@@ -556,7 +551,7 @@ export default function PolishedCameraCapture({
               flex
               items-center
               justify-center
-              bg-white/95
+              bg-[#050816]/95
               backdrop-blur-md
             "
           >
@@ -584,7 +579,7 @@ export default function PolishedCameraCapture({
               flex
               items-center
               justify-center
-              bg-white/95
+              bg-[#050816]/95
               backdrop-blur-md
             "
           >
@@ -615,10 +610,10 @@ export default function PolishedCameraCapture({
           gap-2.5
           rounded-2xl
           border
-          border-slate-200/80
-          bg-white/80
+          border-white/[0.08]
+          bg-[#0d1430]/60
           p-2.5
-          shadow-sm
+          shadow-card
           backdrop-blur-md
         "
       >

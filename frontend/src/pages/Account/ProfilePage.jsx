@@ -378,7 +378,7 @@ export default function ProfilePage() {
   return (
     <div className="mx-auto max-w-2xl animate-fade-in">
       {/* =====================================================
-          PAGE HEADER
+          PAGE HEADER / HERO IDENTITY CARD
       ====================================================== */}
       <div className="mb-6">
         <Link
@@ -388,45 +388,48 @@ export default function ProfilePage() {
             text-xs font-semibold
             text-slate-500
             transition-colors
-            hover:text-slate-900
+            hover:text-white
           "
         >
           <ArrowLeft size={14} />
           Back to dashboard
         </Link>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3.5">
-            <div
-              className="
-                flex h-11 w-11
-                items-center justify-center
-                rounded-2xl
-                border border-indigo-100
-                bg-indigo-50
-                text-indigo-600
-                shadow-xs
-              "
-            >
-              <UserIcon
-                size={22}
-                strokeWidth={2}
-              />
+        <Card glass className="relative overflow-hidden p-6 sm:p-7">
+          <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-blue-500 via-cyan-400 to-transparent opacity-60" />
+
+          <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-cyan-500/10 blur-3xl" />
+
+          <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-4">
+              <div className="relative shrink-0 rounded-full p-0.5 shadow-glow bg-gradient-to-br from-blue-500 to-cyan-400">
+                <ProfileAvatar
+                  photoUrl={previewUrl || photoUrl}
+                  name={fullName || username}
+                  size="xl"
+                />
+              </div>
+
+              <div>
+                <h1 className="font-display text-xl font-bold tracking-tight text-white sm:text-2xl">
+                  My Profile
+                </h1>
+
+                {username && (
+                  <p className="font-display mt-0.5 font-mono text-sm font-semibold text-cyan-300">
+                    @{username}
+                  </p>
+                )}
+
+                <p className="mt-1 text-xs text-slate-400">
+                  Manage your personal information and profile picture.
+                </p>
+              </div>
             </div>
 
-            <div>
-              <h1 className="text-xl font-bold tracking-tight text-slate-900">
-                My Profile
-              </h1>
-
-              <p className="mt-0.5 text-xs text-slate-500">
-                Manage your personal information and profile picture.
-              </p>
-            </div>
+            {role && <Badge variant={role} />}
           </div>
-
-          {role && <Badge variant={role} />}
-        </div>
+        </Card>
       </div>
 
       {/* =====================================================
@@ -439,15 +442,25 @@ export default function ProfilePage() {
           <SuccessBox message={photoSuccess} />
         )}
 
-        <div className="flex flex-col items-center gap-5 sm:flex-row">
+        <div
+          className="
+            flex flex-col gap-5 rounded-2xl
+            border border-dashed border-white/15
+            bg-white/[0.02]
+            px-5 py-5
+            transition-all duration-200
+            hover:border-cyan-300/40
+            sm:flex-row
+          "
+        >
           <ProfileAvatar
             photoUrl={previewUrl || photoUrl}
             name={fullName || username}
-            size="xl"
-            className="ring-4 ring-slate-100"
+            size="lg"
+            className="ring-4 ring-white/10"
           />
 
-          <div className="flex flex-1 flex-col items-center gap-2 sm:items-start">
+          <div className="flex flex-1 flex-col items-center justify-center gap-2 sm:items-start">
             <input
               ref={fileInputRef}
               type="file"
@@ -507,7 +520,7 @@ export default function ProfilePage() {
               </div>
             )}
 
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-slate-500">
               Select your image and crop the required portion.
               Supported formats: JPEG, PNG, or WebP. Maximum
               file size: 10MB.
@@ -532,12 +545,12 @@ export default function ProfilePage() {
                 animate-spin
                 rounded-full
                 border-2
-                border-slate-200
-                border-t-indigo-600
+                border-white/10
+                border-t-cyan-400
               "
             />
 
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               Loading profile details...
             </p>
           </div>
@@ -548,7 +561,7 @@ export default function ProfilePage() {
           >
             {/* Username */}
             <div>
-              <label className="mb-1.5 block text-xs font-semibold tracking-tight text-slate-700">
+              <label className="mb-1.5 block text-xs font-semibold tracking-tight text-slate-300">
                 Username
               </label>
 
@@ -557,22 +570,22 @@ export default function ProfilePage() {
                   flex h-11 w-full
                   items-center
                   rounded-xl
-                  border border-slate-200
-                  bg-slate-100/80
+                  border border-white/[0.08]
+                  bg-white/[0.04]
                   px-3.5
                   text-xs font-medium
-                  text-slate-600
+                  text-slate-300
                 "
               >
                 <UserIcon
                   size={16}
-                  className="mr-2 text-slate-400"
+                  className="mr-2 text-slate-500"
                 />
 
                 <span>{username}</span>
               </div>
 
-              <p className="mt-1 text-[11px] text-slate-400">
+              <p className="mt-1 text-[11px] text-slate-500">
                 Username is assigned by institutional administrators
                 and cannot be altered.
               </p>
@@ -580,7 +593,7 @@ export default function ProfilePage() {
 
             {/* Role */}
             <div>
-              <label className="mb-1.5 block text-xs font-semibold tracking-tight text-slate-700">
+              <label className="mb-1.5 block text-xs font-semibold tracking-tight text-slate-300">
                 Role & Authorization
               </label>
 
@@ -589,16 +602,16 @@ export default function ProfilePage() {
                   flex h-11 w-full
                   items-center
                   rounded-xl
-                  border border-slate-200
-                  bg-slate-100/80
+                  border border-white/[0.08]
+                  bg-white/[0.04]
                   px-3.5
                   text-xs font-medium
-                  text-slate-600
+                  text-slate-300
                 "
               >
                 <Shield
                   size={16}
-                  className="mr-2 text-slate-400"
+                  className="mr-2 text-slate-500"
                 />
 
                 <span>{role}</span>
@@ -613,7 +626,7 @@ export default function ProfilePage() {
                   mb-1.5 block
                   text-xs font-semibold
                   tracking-tight
-                  text-slate-700
+                  text-slate-300
                 "
               >
                 Full Name
@@ -625,22 +638,22 @@ export default function ProfilePage() {
                   flex h-11 w-full
                   items-center
                   rounded-xl
-                  border border-slate-200
-                  bg-white
+                  border border-white/10
+                  bg-[#0a1026]/80
                   transition-all
                   duration-150
-                  focus-within:border-indigo-500
+                  focus-within:border-cyan-300/60
                   focus-within:ring-4
-                  focus-within:ring-indigo-500/10
+                  focus-within:ring-cyan-400/10
                 "
               >
                 <div
                   className="
                     flex items-center justify-center
                     pl-3.5 pr-2
-                    text-slate-400
+                    text-slate-500
                     transition-colors
-                    group-focus-within:text-indigo-600
+                    group-focus-within:text-cyan-300
                   "
                 >
                   <UserIcon size={17} />
@@ -660,9 +673,9 @@ export default function ProfilePage() {
                     bg-transparent
                     pr-3.5
                     text-xs font-medium
-                    text-slate-900
+                    text-slate-100
                     outline-none
-                    placeholder:text-slate-400
+                    placeholder:text-slate-600
                   "
                 />
               </div>
@@ -676,7 +689,7 @@ export default function ProfilePage() {
                   mb-1.5 block
                   text-xs font-semibold
                   tracking-tight
-                  text-slate-700
+                  text-slate-300
                 "
               >
                 Email Address
@@ -688,22 +701,22 @@ export default function ProfilePage() {
                   flex h-11 w-full
                   items-center
                   rounded-xl
-                  border border-slate-200
-                  bg-white
+                  border border-white/10
+                  bg-[#0a1026]/80
                   transition-all
                   duration-150
-                  focus-within:border-indigo-500
+                  focus-within:border-cyan-300/60
                   focus-within:ring-4
-                  focus-within:ring-indigo-500/10
+                  focus-within:ring-cyan-400/10
                 "
               >
                 <div
                   className="
                     flex items-center justify-center
                     pl-3.5 pr-2
-                    text-slate-400
+                    text-slate-500
                     transition-colors
-                    group-focus-within:text-indigo-600
+                    group-focus-within:text-cyan-300
                   "
                 >
                   <Mail size={17} />
@@ -723,14 +736,14 @@ export default function ProfilePage() {
                     bg-transparent
                     pr-3.5
                     text-xs font-medium
-                    text-slate-900
+                    text-slate-100
                     outline-none
-                    placeholder:text-slate-400
+                    placeholder:text-slate-600
                   "
                 />
               </div>
 
-              <p className="mt-1 text-[11px] text-slate-400">
+              <p className="mt-1 text-[11px] text-slate-500">
                 Two-factor authentication and password recovery OTPs
                 will be delivered to this email.
               </p>
@@ -762,8 +775,9 @@ export default function ProfilePage() {
         <div
           className="
             fixed inset-0 z-[100]
+            animate-fade-in
             flex items-center justify-center
-            bg-slate-950/75
+            bg-black/70
             p-4
             backdrop-blur-md
           "
@@ -772,27 +786,28 @@ export default function ProfilePage() {
             className="
               relative
               w-full max-w-xl
+              animate-scale-in
               overflow-hidden
               rounded-3xl
-              border border-white/20
-              bg-slate-900
-              shadow-2xl
+              border border-white/10
+              bg-[#0b1128]
+              shadow-card
             "
           >
             {/* Crop header */}
             <div
               className="
                 flex items-center justify-between
-                border-b border-white/10
+                border-b border-white/[0.08]
                 bg-gradient-to-r
-                from-indigo-600
-                via-blue-600
+                from-blue-600
+                via-cyan-600
                 to-violet-600
                 px-5 py-4
               "
             >
               <div>
-                <h2 className="text-sm font-bold text-white">
+                <h2 className="font-display text-sm font-bold text-white">
                   Adjust Profile Photo
                 </h2>
 
@@ -825,7 +840,7 @@ export default function ProfilePage() {
                 relative
                 h-[350px]
                 w-full
-                bg-slate-950
+                bg-[#050816]
                 sm:h-[440px]
               "
             >
@@ -844,10 +859,10 @@ export default function ProfilePage() {
             </div>
 
             {/* Controls */}
-            <div className="space-y-4 bg-slate-900 p-5">
+            <div className="space-y-4 bg-[#0b1128] p-5">
               <div>
                 <div className="mb-2 flex items-center justify-between">
-                  <span className="text-[11px] font-semibold text-slate-300">
+                  <span className="text-[11px] font-semibold text-slate-400">
                     Zoom
                   </span>
 
@@ -871,8 +886,8 @@ export default function ProfilePage() {
                     cursor-pointer
                     appearance-none
                     rounded-full
-                    bg-slate-700
-                    accent-indigo-500
+                    bg-white/10
+                    accent-cyan-400
                   "
                 />
               </div>
@@ -885,12 +900,13 @@ export default function ProfilePage() {
                     flex h-11 flex-1
                     items-center justify-center
                     rounded-xl
-                    border border-slate-700
-                    bg-slate-800
+                    border border-white/10
+                    bg-white/[0.06]
                     text-sm font-semibold
-                    text-slate-300
+                    text-slate-200
                     transition
-                    hover:bg-slate-700
+                    hover:bg-white/[0.11]
+                    hover:text-white
                   "
                 >
                   Cancel
@@ -905,16 +921,15 @@ export default function ProfilePage() {
                     items-center justify-center
                     gap-2
                     rounded-xl
+                    border border-cyan-300/30
                     bg-gradient-to-r
-                    from-indigo-500
-                    to-violet-600
+                    from-blue-500
+                    to-cyan-400
                     text-sm font-bold
                     text-white
-                    shadow-lg
-                    shadow-indigo-500/20
+                    shadow-glow-sm
                     transition
-                    hover:from-indigo-600
-                    hover:to-violet-700
+                    hover:shadow-glow
                     disabled:cursor-not-allowed
                     disabled:opacity-50
                   "
@@ -943,19 +958,18 @@ function AlertBox({ message }) {
   return (
     <div
       className="
-        mb-4 flex items-start gap-2.5
+        mb-4 flex animate-fade-in items-start gap-2.5
         rounded-xl
-        border border-red-200/90
-        bg-red-50/80
+        border border-rose-300/25
+        bg-rose-500/10
         p-3
-        text-red-700
-        shadow-xs
-        animate-fade-in
+        text-rose-300
+        shadow-card
       "
     >
       <AlertCircle
         size={16}
-        className="mt-0.5 shrink-0 text-red-600"
+        className="mt-0.5 shrink-0 text-rose-400"
       />
 
       <p className="text-xs font-medium leading-relaxed">
@@ -973,19 +987,18 @@ function SuccessBox({ message }) {
   return (
     <div
       className="
-        mb-4 flex items-start gap-2.5
+        mb-4 flex animate-fade-in items-start gap-2.5
         rounded-xl
-        border border-emerald-200/90
-        bg-emerald-50/80
+        border border-emerald-300/25
+        bg-emerald-400/10
         p-3
-        text-emerald-700
-        shadow-xs
-        animate-fade-in
+        text-emerald-300
+        shadow-card
       "
     >
       <CheckCircle2
         size={16}
-        className="mt-0.5 shrink-0 text-emerald-600"
+        className="mt-0.5 shrink-0 text-emerald-400"
       />
 
       <p className="text-xs font-medium leading-relaxed">

@@ -45,7 +45,7 @@ export default function App() {
         closeOnClick
         pauseOnHover
         draggable
-        theme="colored"
+        theme="dark"
       />
       <BrowserRouter>
         <Routes>

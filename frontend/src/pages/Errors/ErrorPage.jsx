@@ -36,33 +36,39 @@ export default function ErrorPage({
   const gradient = gradientMap[statusCode] || 'from-blue-500 to-indigo-600';
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col items-center justify-center bg-slate-50 px-4 py-12">
-      {/* Subtle ambient lighting */}
-      <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 h-96 w-96 rounded-full bg-indigo-500/5 blur-3xl" />
+    <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-[#050816] px-4 py-12">
+      {/* Subtle ambient mesh + floating orb */}
+      <div className="pointer-events-none absolute inset-0 bg-mesh-subtle" />
+      <div className="float-gentle pointer-events-none absolute -top-24 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-cyan-500/10 blur-3xl" />
 
-      <div className="relative mx-auto flex w-full max-w-md flex-col items-center text-center animate-fade-in">
+      <div className="animate-fade-in relative mx-auto flex w-full max-w-md flex-col items-center text-center">
         {/* Status Code Pill with Gradient */}
-        <div className="mb-5 inline-flex items-center gap-2 rounded-2xl border border-slate-200/90 bg-white/90 px-4 py-1.5 shadow-xs backdrop-blur-md">
-          <div className={`flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br ${gradient} text-white shadow-xs`}>
+        <div className="mb-5 inline-flex items-center gap-2 rounded-2xl border border-white/[0.08] bg-[#0d1430]/60 px-4 py-1.5 shadow-card backdrop-blur-md">
+          <div className={`flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br ${gradient} text-white shadow-glow-sm`}>
             <Icon size={13} strokeWidth={2.5} />
           </div>
-          <span className="text-xs font-black tracking-wider text-slate-800 uppercase">
+          <span className="text-xs font-black uppercase tracking-wider text-slate-300">
             Error {statusCode}
           </span>
         </div>
 
+        {/* Floating Status Icon Tile */}
+        <div className={`float-gentle mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${gradient} text-white shadow-glow`}>
+          <Icon size={28} strokeWidth={2} />
+        </div>
+
         {/* Large Decorative Status */}
-        <h1 className="text-6xl sm:text-7xl font-black tracking-tight text-slate-900 tabular-nums">
+        <h1 className="font-display text-gradient-brand text-7xl font-black tracking-tight tabular-nums sm:text-8xl">
           {statusCode}
         </h1>
 
         {/* Title */}
-        <h2 className="mt-3 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+        <h2 className="font-display mt-3 text-xl font-bold tracking-tight text-white sm:text-2xl">
           {title}
         </h2>
 
         {/* Description */}
-        <p className="mt-2 text-xs sm:text-sm leading-relaxed text-slate-500 max-w-sm">
+        <p className="mt-2 max-w-sm text-xs leading-relaxed text-slate-400 sm:text-sm">
           {description}
         </p>
 
@@ -74,7 +80,6 @@ export default function ErrorPage({
               size="lg"
               icon={LogIn}
               onClick={() => navigate('/login')}
-              className="shadow-sm"
             >
               Sign In
             </Button>
@@ -84,7 +89,6 @@ export default function ErrorPage({
               size="lg"
               icon={RotateCcw}
               onClick={onRetry || (() => window.location.reload())}
-              className="shadow-sm"
             >
               Try Again
             </Button>
@@ -94,7 +98,6 @@ export default function ErrorPage({
               size="lg"
               icon={Home}
               onClick={() => navigate('/')}
-              className="shadow-sm"
             >
               Return Home
             </Button>
@@ -111,7 +114,7 @@ export default function ErrorPage({
         </div>
 
         {/* Footer brand attribution */}
-        <p className="mt-12 text-[11px] font-medium text-slate-400">
+        <p className="mt-12 text-[11px] font-medium text-slate-600">
           Smart Attendance System • Institutional Biometrics
         </p>
       </div>

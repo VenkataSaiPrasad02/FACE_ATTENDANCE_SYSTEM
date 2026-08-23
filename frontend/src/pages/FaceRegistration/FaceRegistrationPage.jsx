@@ -151,204 +151,256 @@ export default function FaceRegistrationPage() {
 
   const selectedStudent = getSelectedStudent();
 
+  const registrationComplete = cameraState === CAMERA_STATES.SUCCESS;
+  const currentStep = !selectedId ? 1 : registrationComplete ? 3 : 2;
+  const steps = ['Student', 'Capture', 'Confirm'];
+
   return (
-     <AnimatedGradientBackground
-  type="face"
-  className="min-h-full rounded-2xl"
->
-
-    <div className="w-full animate-fade-in pb-8">
-      {/* Header */}
-      <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-500 to-indigo-700 text-white shadow-xs">
-            <Fingerprint size={26} strokeWidth={2} />
-          </div>
-
-          <div>
-            <div className="mb-1 inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-0.5 text-[11px] font-semibold text-indigo-700">
-              <span className="h-1.5 w-1.5 rounded-full bg-indigo-600 animate-pulse" />
-              Biometric Enrollment
+    <AnimatedGradientBackground
+      type="face"
+      className="min-h-full rounded-2xl"
+    >
+      <div className="w-full animate-fade-in pb-8">
+        {/* Header */}
+        <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex items-start gap-4">
+            <div className="hover-lift flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-indigo-300/25 bg-gradient-to-br from-indigo-500/20 to-blue-400/15 text-indigo-300 shadow-glow-sm">
+              <Fingerprint size={26} strokeWidth={2} />
             </div>
 
-            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
-              Face Registration
-            </h1>
+            <div>
+              <div className="mb-1 inline-flex items-center gap-2 rounded-full border border-indigo-300/25 bg-indigo-400/10 px-2.5 py-0.5 text-[11px] font-semibold text-indigo-300 shadow-glow-sm">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-indigo-400 shadow-[0_0_6px_rgba(129,140,248,0.9)]" />
+                Biometric Enrollment
+              </div>
 
-            <p className="mt-0.5 text-xs sm:text-sm text-slate-500">
-              Enroll and index student facial vectors for automated attendance matching.
-            </p>
+              <h1 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                Face Registration
+              </h1>
+
+              <p className="mt-0.5 text-xs text-slate-400 sm:text-sm">
+                Enroll and index student facial vectors for automated attendance matching.
+              </p>
+            </div>
+          </div>
+
+          <div className="hidden items-center gap-2 rounded-xl border border-white/[0.08] bg-[#0d1430]/55 px-3.5 py-2 text-xs font-semibold text-slate-300 shadow-card backdrop-blur-md sm:flex">
+            <Shield size={15} className="text-indigo-300" />
+            <span>AES-256 Biometric Protection</span>
           </div>
         </div>
 
-        <div className="hidden sm:flex items-center gap-2 rounded-xl border border-slate-200/80 bg-white/90 px-3.5 py-2 text-xs font-semibold text-slate-600 shadow-xs backdrop-blur-md">
-          <Shield size={15} className="text-indigo-600" />
-          <span>AES-256 Biometric Protection</span>
-        </div>
-      </div>
+        {/* Guided Stepper */}
+        <div
+          className="animate-slide-up mb-6 opacity-0"
+          style={{ animationDelay: '60ms' }}
+        >
+          <div className="flex items-center gap-2 rounded-2xl border border-white/[0.08] bg-[#0d1430]/55 p-3 shadow-card backdrop-blur-md sm:gap-3 sm:px-5">
+            {steps.map((label, index) => {
+              const stepNumber = index + 1;
+              const isDone = stepNumber < currentStep;
+              const isActive = stepNumber === currentStep;
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Left Side: Student Selection & Profile Summary */}
-        <div className="lg:col-span-1 space-y-5">
-          <Card glass className="p-5 sm:p-6 lg:sticky lg:top-24">
-            <h3 className="text-sm font-bold text-slate-900 tracking-tight mb-3.5 flex items-center gap-2">
-              <User size={18} className="text-indigo-600" />
-              Select Student to Enroll
-            </h3>
+              return (
+                <React.Fragment key={label}>
+                  {index > 0 && (
+                    <div
+                      className={`h-px flex-1 ${isDone ? 'bg-emerald-400/30' : 'bg-white/[0.08]'}`}
+                    />
+                  )}
 
-            {students.length === 0 ? (
-              <EmptyState
-                title="No students found"
-                description="Add students to your roster first before registering faces."
-                action={{
-                  variant: 'primary',
-                  children: 'Go to Students',
-                  onClick: () => (window.location.href = '/students'),
-                }}
-              />
-            ) : (
-              <>
-                <div>
-                  <label
-                    htmlFor="student-select"
-                    className="mb-1.5 block text-xs font-semibold text-slate-700"
+                  <div
+                    className={`flex items-center gap-2 rounded-full border px-2.5 py-1 transition-colors duration-200 sm:px-3 ${
+                      isDone
+                        ? 'border-emerald-300/30 bg-emerald-400/10 text-emerald-300'
+                        : isActive
+                          ? 'border-cyan-300/40 bg-cyan-400/10 text-cyan-300 shadow-glow-sm'
+                          : 'border-white/[0.08] bg-white/[0.03] text-slate-500'
+                    }`}
                   >
-                    Select from roster
-                  </label>
+                    <span
+                      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
+                        isDone
+                          ? 'bg-emerald-400/20 text-emerald-300'
+                          : isActive
+                            ? 'bg-cyan-400/20 text-cyan-200'
+                            : 'bg-white/[0.06] text-slate-500'
+                      }`}
+                    >
+                      {isDone ? <CheckCircle2 size={12} /> : stepNumber}
+                    </span>
 
-                  <select
-                    id="student-select"
-                    value={selectedId}
-                    onChange={(e) => setSelectedId(e.target.value)}
-                    disabled={
-                      cameraState === CAMERA_STATES.PROCESSING ||
-                      cameraState === CAMERA_STATES.SUCCESS
-                    }
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-800 outline-none transition-all focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 disabled:opacity-50"
-                  >
-                    <option value="">Choose a student</option>
-                    {students.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.studentNumber} — {s.fullName} {s.faceRegistered ? '✓' : ''}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Selected Student Card */}
-                {selectedStudent && (
-                  <div className="mt-4 rounded-2xl border border-indigo-100 bg-indigo-50/70 p-4 transition-all animate-fade-in">
-                    <div className="flex items-center gap-3.5 mb-3">
-                      <ProfileAvatar
-                        name={selectedStudent.fullName}
-                        size="md"
-                      />
-
-                      <div className="min-w-0">
-                        <p className="truncate text-xs font-bold text-slate-900">
-                          {selectedStudent.fullName}
-                        </p>
-                        <p className="text-[11px] font-medium text-slate-500">
-                          ID: {selectedStudent.studentNumber}
-                        </p>
-                      </div>
-                    </div>
-
-                    {selectedStudent.faceRegistered ? (
-                      <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-100/70 px-3 py-1.5 text-xs font-semibold text-emerald-800">
-                        <CheckCircle2 size={14} className="text-emerald-600" />
-                        <span>Face currently registered</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-100/70 px-3 py-1.5 text-xs font-semibold text-amber-800">
-                        <Info size={14} className="text-amber-600" />
-                        <span>Not enrolled yet</span>
-                      </div>
-                    )}
+                    <span className="text-[10.5px] font-bold uppercase tracking-wider sm:text-[11px]">
+                      {label}
+                    </span>
                   </div>
-                )}
-
-                {/* Instructions Box */}
-                <div className="mt-5 rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4 text-xs">
-                  <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-1.5">
-                    <Sparkles size={14} className="text-indigo-600" />
-                    Enrollment Best Practices
-                  </h4>
-                  <ul className="space-y-1.5 text-slate-500 leading-relaxed text-[11.5px]">
-                    <li className="flex items-start gap-1.5">
-                      <span className="text-indigo-600 font-bold">•</span>
-                      <span>Ensure bright, even front lighting</span>
-                    </li>
-                    <li className="flex items-start gap-1.5">
-                      <span className="text-indigo-600 font-bold">•</span>
-                      <span>Keep head straight and look directly at camera</span>
-                    </li>
-                    <li className="flex items-start gap-1.5">
-                      <span className="text-indigo-600 font-bold">•</span>
-                      <span>Ensure only one person is in the frame</span>
-                    </li>
-                    <li className="flex items-start gap-1.5">
-                      <span className="text-indigo-600 font-bold">•</span>
-                      <span>Remove heavy dark glasses or face coverings</span>
-                    </li>
-                  </ul>
-                </div>
-              </>
-            )}
-          </Card>
+                </React.Fragment>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Right Side: Camera Capture Station */}
-        <div className="lg:col-span-2">
-          <Card glass className="p-6 sm:p-8">
-            <div className="mb-6 flex flex-col gap-2 border-b border-slate-100 pb-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="text-base font-bold text-slate-900 tracking-tight">
-                  Biometric Capture Viewfinder
-                </h2>
-                <p className="mt-0.5 text-xs text-slate-500">
-                  Align face inside the viewport guide and click Capture.
-                </p>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          {/* Left Side: Student Selection & Profile Summary */}
+          <div className="space-y-5 lg:col-span-1">
+            <Card glass className="animate-slide-up p-5 opacity-0 lg:sticky lg:top-24 sm:p-6" style={{ animationDelay: '120ms' }}>
+              <h3 className="mb-3.5 flex items-center gap-2 font-display text-sm font-bold tracking-tight text-white">
+                <User size={18} className="text-cyan-300" />
+                Select Student to Enroll
+              </h3>
+
+              {students.length === 0 ? (
+                <EmptyState
+                  title="No students found"
+                  description="Add students to your roster first before registering faces."
+                  action={{
+                    variant: 'primary',
+                    children: 'Go to Students',
+                    onClick: () => (window.location.href = '/students'),
+                  }}
+                />
+              ) : (
+                <>
+                  <div>
+                    <label
+                      htmlFor="student-select"
+                      className="mb-1.5 block text-xs font-semibold text-slate-300"
+                    >
+                      Select from roster
+                    </label>
+
+                    <select
+                      id="student-select"
+                      value={selectedId}
+                      onChange={(e) => setSelectedId(e.target.value)}
+                      disabled={
+                        cameraState === CAMERA_STATES.PROCESSING ||
+                        cameraState === CAMERA_STATES.SUCCESS
+                      }
+                      className="w-full appearance-none rounded-xl border border-white/10 bg-[#0a1026]/80 px-3.5 py-2.5 text-xs font-semibold text-slate-100 outline-none transition-all [color-scheme:dark] focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-400/10 disabled:opacity-50 [&>option]:bg-[#0a1026] [&>option]:text-slate-200"
+                    >
+                      <option value="">Choose a student</option>
+                      {students.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.studentNumber} — {s.fullName} {s.faceRegistered ? '✓' : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Selected Student Card */}
+                  {selectedStudent && (
+                    <div className="mt-4 animate-fade-in rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 transition-all">
+                      <div className="mb-3 flex items-center gap-3.5">
+                        <ProfileAvatar
+                          name={selectedStudent.fullName}
+                          size="md"
+                        />
+
+                        <div className="min-w-0">
+                          <p className="truncate text-xs font-bold text-white">
+                            {selectedStudent.fullName}
+                          </p>
+                          <p className="font-mono text-[11px] font-medium text-slate-400">
+                            ID: {selectedStudent.studentNumber}
+                          </p>
+                        </div>
+                      </div>
+
+                      {selectedStudent.faceRegistered ? (
+                        <div className="flex items-center gap-2 rounded-xl border border-emerald-300/25 bg-emerald-400/10 px-3 py-1.5 text-xs font-semibold text-emerald-300">
+                          <CheckCircle2 size={14} className="text-emerald-300" />
+                          <span>Face currently registered</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 rounded-xl border border-amber-300/25 bg-amber-400/10 px-3 py-1.5 text-xs font-semibold text-amber-300">
+                          <Info size={14} className="text-amber-300" />
+                          <span>Not enrolled yet</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Instructions Box */}
+                  <div className="mt-5 rounded-2xl border border-white/[0.08] bg-[#0a1026]/60 p-4 text-xs">
+                    <h4 className="mb-2 flex items-center gap-1.5 font-bold text-white">
+                      <Sparkles size={14} className="text-cyan-300" />
+                      Enrollment Best Practices
+                    </h4>
+                    <ul className="space-y-1.5 text-[11.5px] leading-relaxed text-slate-400">
+                      <li className="flex items-start gap-1.5">
+                        <span className="font-bold text-cyan-400">•</span>
+                        <span>Ensure bright, even front lighting</span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <span className="font-bold text-cyan-400">•</span>
+                        <span>Keep head straight and look directly at camera</span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <span className="font-bold text-cyan-400">•</span>
+                        <span>Ensure only one person is in the frame</span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <span className="font-bold text-cyan-400">•</span>
+                        <span>Remove heavy dark glasses or face coverings</span>
+                      </li>
+                    </ul>
+                  </div>
+                </>
+              )}
+            </Card>
+          </div>
+
+          {/* Right Side: Camera Capture Station */}
+          <div className="lg:col-span-2">
+            <Card glass className="animate-slide-up p-6 opacity-0 sm:p-8" style={{ animationDelay: '180ms' }}>
+              <div className="mb-6 flex flex-col gap-2 border-b border-white/[0.08] pb-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="font-display text-base font-bold tracking-tight text-white">
+                    Biometric Capture Viewfinder
+                  </h2>
+                  <p className="mt-0.5 text-xs text-slate-400">
+                    Align face inside the viewport guide and click Capture.
+                  </p>
+                </div>
+
+                <span className="w-fit rounded-full border border-indigo-300/25 bg-indigo-400/10 px-3 py-1 text-[11px] font-semibold text-indigo-300 shadow-glow-sm">
+                  128-Point Vector Scan
+                </span>
               </div>
 
-              <span className="w-fit rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-semibold text-slate-600">
-                128-Point Vector Scan
-              </span>
-            </div>
+              <PolishedCameraCapture
+                state={cameraState}
+                capturedImage={capturedImage}
+                error={error}
+                studentName={studentName}
+                onStart={handleStartCamera}
+                onStop={handleStopCamera}
+                onCapture={handleCapture}
+                onReCapture={handleReCapture}
+                onDone={handleDone}
+              />
 
-            <PolishedCameraCapture
-              state={cameraState}
-              capturedImage={capturedImage}
-              error={error}
-              studentName={studentName}
-              onStart={handleStartCamera}
-              onStop={handleStopCamera}
-              onCapture={handleCapture}
-              onReCapture={handleReCapture}
-              onDone={handleDone}
-            />
-
-            {/* Submit Action Button */}
-            {cameraState === CAMERA_STATES.CAPTURED && (
-              <div className="mt-6 flex justify-center animate-slide-up">
-                <Button
-                  variant="primary"
-                  size="xl"
-                  icon={Fingerprint}
-                  onClick={handleSubmit}
-                  loading={loading}
-                  disabled={!selectedId}
-                  className="min-w-64 rounded-2xl px-8 shadow-md hover:shadow-lg font-bold"
-                >
-                  {loading ? 'Registering Biometrics...' : 'Register Face Biometrics'}
-                </Button>
-              </div>
-            )}
-          </Card>
+              {/* Submit Action Button */}
+              {cameraState === CAMERA_STATES.CAPTURED && (
+                <div className="animate-slide-up mt-6 flex justify-center opacity-0">
+                  <Button
+                    variant="primary"
+                    size="xl"
+                    icon={Fingerprint}
+                    onClick={handleSubmit}
+                    loading={loading}
+                    disabled={!selectedId}
+                    className="min-w-64 rounded-2xl px-8 font-bold"
+                  >
+                    {loading ? 'Registering Biometrics...' : 'Register Face Biometrics'}
+                  </Button>
+                </div>
+              )}
+            </Card>
+          </div>
         </div>
       </div>
-    </div>
-      </AnimatedGradientBackground>
-
+    </AnimatedGradientBackground>
   );
 }

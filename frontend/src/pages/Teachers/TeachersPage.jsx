@@ -150,23 +150,23 @@ export default function TeachersPage() {
 >
     <div className="w-full animate-fade-in pb-8">
       {/* Header */}
-      <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="animate-slide-up mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-500 to-indigo-700 text-white shadow-xs">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-cyan-300/25 bg-gradient-to-br from-blue-500/20 to-cyan-400/15 text-cyan-300 shadow-glow-sm hover-lift">
             <GraduationCap size={24} strokeWidth={2} />
           </div>
 
           <div>
-            <div className="mb-1 inline-flex items-center gap-2 rounded-full border border-indigo-200/80 bg-indigo-50/80 px-2.5 py-0.5 text-[11px] font-semibold text-indigo-700">
-              <span className="h-1.5 w-1.5 rounded-full bg-indigo-600 animate-pulse" />
+            <div className="mb-1 inline-flex items-center gap-2 rounded-full border border-cyan-300/25 bg-cyan-400/10 px-2.5 py-0.5 text-[11px] font-semibold text-cyan-300">
+              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.9)]" />
               Faculty Directory
             </div>
 
-            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
-              Teachers & Faculty
+            <h1 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+              Teachers &amp; Faculty
             </h1>
 
-            <p className="mt-0.5 text-xs sm:text-sm text-slate-500">
+            <p className="mt-0.5 text-xs text-slate-400 sm:text-sm">
               Manage instructional staff, assigned academic departments, and access credentials.
             </p>
           </div>
@@ -178,7 +178,7 @@ export default function TeachersPage() {
           icon={Plus}
           onClick={() => setModal('create')}
           size="lg"
-          className="w-full sm:w-auto shadow-sm font-bold"
+          className="w-full font-bold sm:w-auto"
         >
           Add Teacher
         </Button>
@@ -186,7 +186,7 @@ export default function TeachersPage() {
 
       {/* Summary KPI Cards */}
       {pageData && (
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mb-6 grid grid-cols-1 gap-4 animate-slide-up opacity-0 sm:grid-cols-2 lg:grid-cols-3" style={{ animationDelay: '80ms' }}>
           <StatsCard
             title="Total Faculty"
             value={summary.totalTeachers}
@@ -217,10 +217,10 @@ export default function TeachersPage() {
       )}
 
       {/* Search & Filter Bar */}
-<Card glass className="mb-6 p-4 sm:p-5 space-y-3">
+<Card glass className="mb-6 space-y-3 p-4 sm:p-5">
   {/* Search Input (matches StudentSearch structure) */}
-  <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center animate-fade-in">
-    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
+  <div className="flex w-full flex-col gap-3 animate-fade-in sm:flex-row sm:items-center">
+    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-violet-300/25 bg-violet-400/10 text-violet-300">
       <Search size={18} strokeWidth={2.2} />
     </div>
 
@@ -231,7 +231,7 @@ export default function TeachersPage() {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Search faculty by name, username, email, or phone..."
-        className="w-full rounded-xl border border-slate-200/90 bg-white py-2.5 pl-4 pr-10 text-xs sm:text-sm font-medium text-slate-900 outline-none transition-all duration-200 placeholder:text-slate-400 hover:border-slate-300 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10"
+        className="w-full rounded-xl border border-white/10 bg-[#0a1026]/80 py-2.5 pl-4 pr-10 text-xs font-medium text-slate-100 outline-none transition-all duration-200 placeholder:text-slate-600 hover:border-white/20 focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-400/10 sm:text-sm"
       />
 
       {search && (
@@ -239,14 +239,14 @@ export default function TeachersPage() {
           type="button"
           onClick={() => setSearch('')}
           aria-label="Clear faculty search"
-          className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus:outline-none"
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-white/[0.08] hover:text-slate-200 focus:outline-none"
         >
           <X size={15} />
         </button>
       )}
     </label>
 
-    <p className="text-[11px] font-medium text-slate-400 sm:whitespace-nowrap">
+    <p className="text-[11px] font-medium text-slate-500 sm:whitespace-nowrap">
       Instant filter, no reload
     </p>
   </div>
@@ -257,7 +257,7 @@ export default function TeachersPage() {
       <select
         value={department}
         onChange={(e) => setDepartment(e.target.value)}
-        className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-slate-800 outline-none transition-all hover:border-slate-300 focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10"
+        className="w-full cursor-pointer rounded-xl border border-white/10 bg-[#0a1026]/80 px-3.5 py-2.5 text-xs font-semibold text-slate-100 outline-none transition-all hover:border-white/20 focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-400/10 [&>option]:bg-[#0a1026] sm:text-sm"
       >
         <option value="ALL">All Departments ({summary.totalTeachers})</option>
         {departments.map((dept) => (
@@ -294,9 +294,9 @@ export default function TeachersPage() {
 
       {/* Main Table or Empty State */}
       {loading ? (
-        <Card glass className="p-8 space-y-4">
-          <div className="h-8 w-44 rounded-lg bg-slate-200 animate-shimmer" />
-          <div className="h-40 w-full rounded-xl bg-slate-200/60 animate-shimmer" />
+        <Card glass className="space-y-4 p-8">
+          <div className="skeleton-block h-8 w-44 rounded-lg" />
+          <div className="skeleton-block h-40 w-full rounded-xl opacity-80" />
         </Card>
       ) : filteredTeachers.length === 0 ? (
         <Card glass className="p-8">

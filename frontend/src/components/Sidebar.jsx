@@ -56,6 +56,7 @@ function NavItem({ to, label, Icon, end, onNavigate }) {
       to={to}
       end={end}
       aria-label={label}
+      aria-current={({ isActive }) => (isActive ? 'page' : undefined)}
       onClick={onNavigate}
       className={({ isActive }) => `
         group relative flex items-center gap-3
@@ -68,21 +69,20 @@ function NavItem({ to, label, Icon, end, onNavigate }) {
         ${
           isActive
             ? `
-              border border-white/80
+              border border-cyan-300/25
               bg-gradient-to-r
-              from-blue-500
-              to-indigo-600
+              from-blue-600/30
+              via-blue-500/20
+              to-cyan-400/10
               text-white
-              shadow-md
-              shadow-indigo-500/20
+              shadow-glow-sm
             `
             : `
               border border-transparent
-              text-slate-600
-              hover:border-white/80
-              hover:bg-white/70
-              hover:text-slate-900
-              hover:shadow-sm
+              text-slate-400
+              hover:border-white/[0.08]
+              hover:bg-white/[0.05]
+              hover:text-slate-100
             `
         }
       `}
@@ -92,11 +92,10 @@ function NavItem({ to, label, Icon, end, onNavigate }) {
           {isActive && (
             <span
               className="
-                absolute left-0 top-1/2
-                h-6 w-1
-                -translate-y-1/2
-                rounded-r-full
-                bg-white
+                absolute left-0 top-1/2 h-6 w-[3px]
+                -translate-y-1/2 rounded-r-full
+                bg-gradient-to-b from-cyan-300 to-blue-500
+                shadow-[0_0_8px_rgba(34,211,238,0.8)]
               "
               aria-hidden="true"
             />
@@ -104,22 +103,17 @@ function NavItem({ to, label, Icon, end, onNavigate }) {
 
           <span
             className={`
-              flex h-8 w-8 shrink-0
-              items-center justify-center
-              rounded-lg
-              transition-all duration-200
+              flex h-8 w-8 shrink-0 items-center justify-center
+              rounded-lg transition-all duration-200
 
               ${
                 isActive
-                  ? 'bg-white/20 text-white'
-                  : 'bg-white/70 text-slate-400 group-hover:bg-white group-hover:text-indigo-600'
+                  ? 'bg-gradient-to-br from-blue-500 to-cyan-400 text-white shadow-[0_0_14px_-2px_rgba(34,211,238,0.7)]'
+                  : 'bg-white/[0.06] text-slate-400 group-hover:bg-white/10 group-hover:text-cyan-300'
               }
             `}
           >
-            <Icon
-              size={17}
-              strokeWidth={isActive ? 2.3 : 1.9}
-            />
+            <Icon size={17} strokeWidth={isActive ? 2.3 : 1.9} />
           </span>
 
           <span className="truncate tracking-tight">
@@ -165,16 +159,10 @@ export default function Sidebar() {
       setMobileOpen(true);
     };
 
-    window.addEventListener(
-      'open-mobile-sidebar',
-      openSidebar
-    );
+    window.addEventListener('open-mobile-sidebar', openSidebar);
 
     return () => {
-      window.removeEventListener(
-        'open-mobile-sidebar',
-        openSidebar
-      );
+      window.removeEventListener('open-mobile-sidebar', openSidebar);
     };
   }, []);
 
@@ -205,16 +193,10 @@ export default function Sidebar() {
       }
     };
 
-    document.addEventListener(
-      'keydown',
-      handleKeyDown
-    );
+    document.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      document.removeEventListener(
-        'keydown',
-        handleKeyDown
-      );
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [mobileOpen]);
 
@@ -227,36 +209,40 @@ export default function Sidebar() {
       {/* =====================================================
           BRAND
       ====================================================== */}
-      <div className="mb-5 border-b border-indigo-100/70 pb-5">
+      <div className="mb-5 border-b border-white/[0.07] pb-5">
         <div className="flex items-center justify-between gap-3 lg:justify-start">
 
           <div className="flex items-center gap-3">
             <div
               className="
-                flex h-10 w-10 shrink-0
+                relative flex h-10 w-10 shrink-0
                 items-center justify-center
-                rounded-2xl
-                bg-gradient-to-br
-                from-blue-500
-                to-indigo-600
+                rounded-xl
+                bg-gradient-to-br from-blue-500 via-sky-500 to-cyan-400
                 text-white
-                shadow-md
-                shadow-indigo-500/20
+                shadow-glow-sm
               "
             >
-              <GraduationCap
-                size={20}
-                strokeWidth={2.2}
+              <GraduationCap size={20} strokeWidth={2.2} />
+              <span
+                className="absolute inset-0 rounded-xl ring-1 ring-inset ring-white/20"
+                aria-hidden="true"
               />
             </div>
 
             <div>
-              <div className="text-xs font-bold leading-tight tracking-tight text-slate-900">
+              <div className="font-display text-xs font-bold leading-tight tracking-tight text-white">
                 Face Attendance
               </div>
 
-              <div className="mt-0.5 text-[10px] font-medium text-slate-500">
-                Admin & Faculty Portal
+              <div className="mt-0.5 flex items-center gap-1.5">
+                <span
+                  className="status-dot-live inline-block !h-1.5 !w-1.5"
+                  aria-hidden="true"
+                />
+                <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500">
+                  Admin &amp; Faculty Portal
+                </span>
               </div>
             </div>
           </div>
@@ -267,15 +253,14 @@ export default function Sidebar() {
             onClick={closeMobileSidebar}
             aria-label="Close navigation menu"
             className="
-              flex h-9 w-9
-              items-center justify-center
-              rounded-xl
-              border border-indigo-100
-              bg-white/70
-              text-slate-500
+              flex h-9 w-9 items-center justify-center
+              rounded-xl border border-white/10
+              bg-white/[0.05]
+              text-slate-400
               transition-all
-              hover:bg-white
-              hover:text-indigo-600
+              hover:border-white/20
+              hover:bg-white/10
+              hover:text-white
               lg:hidden
             "
           >
@@ -292,7 +277,7 @@ export default function Sidebar() {
         {/* WORKSPACE */}
         <section className="mb-7">
           <div className="mb-2.5 px-2">
-            <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-indigo-400">
+            <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-300/70">
               Workspace
             </span>
           </div>
@@ -323,7 +308,7 @@ export default function Sidebar() {
           canManageAcademicPeriods) && (
           <section className="mb-7">
             <div className="mb-2.5 px-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-indigo-400">
+              <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-violet-300/70">
                 Administration
               </span>
             </div>
@@ -363,7 +348,7 @@ export default function Sidebar() {
         {canCreateAdmin && (
           <section>
             <div className="mb-2.5 px-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-indigo-400">
+              <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-rose-300/60">
                 System
               </span>
             </div>
@@ -383,12 +368,13 @@ export default function Sidebar() {
       {/* =====================================================
           FOOTER
       ====================================================== */}
-      <div className="mt-6 border-t border-indigo-100/70 pt-4 text-center">
+      <div className="mt-6 border-t border-white/[0.07] pt-4 text-center">
         <p className="text-[11px] font-semibold text-slate-500">
-          Powered by TEAM LAZY
+          Powered by{' '}
+          <span className="text-gradient-brand font-bold">TEAM LAZY</span>
         </p>
 
-        <p className="mt-0.5 text-[10px] text-slate-400">
+        <p className="mt-0.5 text-[10px] text-slate-600">
           v1.0.0
         </p>
       </div>
@@ -403,21 +389,9 @@ export default function Sidebar() {
       <nav
         aria-label="Main Navigation"
         className="
-          sticky top-16
-          hidden
-          h-[calc(100vh-4rem)]
-          w-64
-          shrink-0
-          flex-col
-          overflow-hidden
-          border-r border-indigo-100/70
-          bg-gradient-to-b
-          from-blue-50
-          via-indigo-50/80
-          to-violet-50
-          p-4
-          shadow-sm
-          backdrop-blur-md
+          sticky top-16 hidden h-[calc(100vh-4rem)]
+          w-64 shrink-0 flex-col overflow-hidden p-4
+          glass-sidebar
           lg:flex
         "
       >
@@ -431,11 +405,8 @@ export default function Sidebar() {
       {/* Backdrop */}
       <div
         className={`
-          fixed inset-0 z-50
-          bg-slate-950/35
-          backdrop-blur-[2px]
-          transition-opacity duration-300
-          lg:hidden
+          fixed inset-0 z-50 bg-black/60 backdrop-blur-sm
+          transition-opacity duration-300 lg:hidden
 
           ${
             mobileOpen
@@ -452,24 +423,11 @@ export default function Sidebar() {
         aria-label="Mobile Navigation"
         aria-hidden={!mobileOpen}
         className={`
-          fixed left-0 top-0 z-[60]
-          flex h-screen
-          w-[290px]
-          max-w-[85vw]
-          flex-col
-          overflow-hidden
-          border-r border-white/70
-          bg-gradient-to-b
-          from-blue-50
-          via-indigo-50
-          to-violet-100
-          p-4
-          shadow-2xl
-          backdrop-blur-xl
+          fixed left-0 top-0 z-[60] flex h-screen
+          w-[290px] max-w-[85vw] flex-col overflow-hidden p-4
+          bg-[#070b1c]/95 shadow-panel backdrop-blur-xl
 
-          transition-transform
-          duration-300
-          ease-out
+          transition-transform duration-300 ease-out
 
           lg:hidden
 
@@ -479,6 +437,7 @@ export default function Sidebar() {
               : '-translate-x-full'
           }
         `}
+        style={{ borderRight: '1px solid rgba(148,197,255,0.12)' }}
       >
         {sidebarContent}
       </aside>

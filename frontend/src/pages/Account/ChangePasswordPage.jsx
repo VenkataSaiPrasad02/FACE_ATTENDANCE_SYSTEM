@@ -62,25 +62,25 @@ export default function ChangePasswordPage() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl animate-fade-in">
+    <div className="mx-auto max-w-md animate-fade-in pt-4">
       {/* Page Header */}
-      <div className="mb-6">
+      <div className="animate-slide-up mb-6">
         <Link
           to="/"
-          className="mb-3 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 transition-colors hover:text-slate-900"
+          className="mb-3 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 transition-colors hover:text-white"
         >
           <ArrowLeft size={14} /> Back to dashboard
         </Link>
 
         <div className="flex items-center gap-3.5">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-indigo-100 bg-indigo-50 text-indigo-600 shadow-xs">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-cyan-300/25 bg-gradient-to-br from-blue-500/20 to-cyan-400/15 text-cyan-300 shadow-glow-sm">
             <KeyRound size={22} strokeWidth={2} />
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-slate-900">
+            <h1 className="font-display text-xl font-bold tracking-tight text-white">
               Change password
             </h1>
-            <p className="mt-0.5 text-xs text-slate-500">
+            <p className="mt-0.5 text-xs text-slate-400">
               Update your account password securely.
             </p>
           </div>
@@ -88,7 +88,9 @@ export default function ChangePasswordPage() {
       </div>
 
       {/* Main Card */}
-      <Card glass className="p-6 sm:p-8">
+      <Card glass className="relative overflow-hidden p-6 sm:p-8">
+        <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-blue-500 via-cyan-400 to-transparent opacity-60" />
+
         {error && <AlertBox message={error} />}
         {success && <SuccessBox message={success} />}
 
@@ -126,7 +128,7 @@ export default function ChangePasswordPage() {
             placeholder="Re-enter new password"
           />
 
-          <div className="rounded-xl border border-slate-200/70 bg-slate-50/70 px-4 py-3 text-xs leading-relaxed text-slate-500">
+          <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-xs leading-relaxed text-slate-400">
             Passwords must contain at least 8 characters. Never share your password or recovery OTP codes with anyone.
           </div>
 
@@ -151,11 +153,11 @@ export default function ChangePasswordPage() {
 function PasswordField({ id, label, value, onChange, show, setShow, placeholder, ...props }) {
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 block text-xs font-semibold text-slate-700 tracking-tight">
+      <label htmlFor={id} className="mb-1.5 block text-xs font-semibold text-slate-300 tracking-tight">
         {label}
       </label>
-      <div className="group relative flex h-11 w-full items-center rounded-xl border border-slate-200 bg-white transition-all duration-150 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
-        <div className="flex pl-3.5 pr-2 items-center justify-center text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+      <div className="group relative flex h-11 w-full items-center rounded-xl border border-white/10 bg-[#0a1026]/80 transition-all duration-150 focus-within:border-cyan-300/60 focus-within:ring-4 focus-within:ring-cyan-400/10">
+        <div className="flex items-center justify-center pl-3.5 pr-2 text-slate-500 transition-colors group-focus-within:text-cyan-300">
           <Lock size={17} />
         </div>
 
@@ -166,14 +168,14 @@ function PasswordField({ id, label, value, onChange, show, setShow, placeholder,
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           required
-          className="h-full w-full bg-transparent pr-2 text-xs font-medium text-slate-900 outline-none placeholder:text-slate-400"
+          className="h-full w-full bg-transparent pr-2 text-xs font-medium text-slate-100 outline-none placeholder:text-slate-600"
           {...props}
         />
 
         <button
           type="button"
           onClick={() => setShow((v) => !v)}
-          className="flex h-full w-10 shrink-0 items-center justify-center text-slate-400 transition-colors hover:text-slate-700"
+          className="flex h-full w-10 shrink-0 items-center justify-center text-slate-500 transition-colors hover:text-slate-200"
           aria-label={show ? 'Hide password' : 'Show password'}
         >
           {show ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -185,18 +187,18 @@ function PasswordField({ id, label, value, onChange, show, setShow, placeholder,
 
 function AlertBox({ message }) {
   return (
-    <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-red-200/90 bg-red-50/80 p-3 text-red-700 animate-fade-in shadow-xs">
-      <AlertCircle size={16} className="mt-0.5 shrink-0 text-red-600" />
-      <p className="text-xs leading-relaxed font-medium">{message}</p>
+    <div className="mb-4 flex animate-fade-in items-start gap-2.5 rounded-xl border border-rose-300/25 bg-rose-500/10 p-3 text-rose-300 shadow-card">
+      <AlertCircle size={16} className="mt-0.5 shrink-0 text-rose-400" />
+      <p className="text-xs font-medium leading-relaxed">{message}</p>
     </div>
   );
 }
 
 function SuccessBox({ message }) {
   return (
-    <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-emerald-200/90 bg-emerald-50/80 p-3 text-emerald-700 animate-fade-in shadow-xs">
-      <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-emerald-600" />
-      <p className="text-xs leading-relaxed font-medium">{message}</p>
+    <div className="mb-4 flex animate-fade-in items-start gap-2.5 rounded-xl border border-emerald-300/25 bg-emerald-400/10 p-3 text-emerald-300 shadow-card">
+      <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-emerald-400" />
+      <p className="text-xs font-medium leading-relaxed">{message}</p>
     </div>
   );
 }

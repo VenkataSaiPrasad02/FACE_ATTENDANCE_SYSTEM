@@ -13,13 +13,13 @@ export default function CameraCapture({
   return (
     <div className="flex flex-col items-center justify-center text-center animate-fade-in">
       {cameraError && (
-        <div className="mb-4 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-600">
+        <div className="mb-4 flex items-center gap-2 rounded-xl border border-rose-300/25 bg-rose-500/10 p-3 text-xs text-rose-300 shadow-card">
           <AlertCircle size={16} className="shrink-0" />
           <span>{cameraError}</span>
         </div>
       )}
 
-      <div className="relative aspect-video w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 shadow-md">
+      <div className="camera-viewfinder relative aspect-video w-full max-w-lg overflow-hidden rounded-2xl">
         <video
           ref={videoRef}
           autoPlay

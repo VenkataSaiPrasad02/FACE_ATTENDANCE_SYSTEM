@@ -22,21 +22,21 @@ export default function ErrorMessage({
   return (
     <div
       className={`
-        flex flex-col items-center justify-center rounded-2xl border border-red-200/70
-        bg-red-50/40 px-6 py-12 text-center backdrop-blur-sm shadow-xs animate-fade-in
+        flex flex-col items-center justify-center rounded-2xl border border-rose-400/20
+        bg-rose-500/[0.06] px-6 py-12 text-center backdrop-blur-sm shadow-card animate-fade-in
         ${className}
       `}
     >
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-red-200 bg-white shadow-xs">
-        <IconComponent size={24} className="text-red-500" strokeWidth={1.8} />
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-rose-300/25 bg-gradient-to-br from-rose-500/15 to-red-500/10 text-rose-300 shadow-glow-sm">
+        <IconComponent size={24} className="text-rose-300" strokeWidth={1.8} />
       </div>
 
-      <h3 className="text-base font-bold text-slate-900 tracking-tight">
+      <h3 className="font-display text-base font-bold tracking-tight text-white">
         {title}
       </h3>
 
       {message && (
-        <p className="mt-1.5 max-w-sm text-xs leading-relaxed text-slate-500">
+        <p className="mt-1.5 max-w-sm text-xs leading-relaxed text-slate-400">
           {message}
         </p>
       )}

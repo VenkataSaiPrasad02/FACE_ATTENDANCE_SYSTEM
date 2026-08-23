@@ -3,45 +3,45 @@ import { Loader2 } from 'lucide-react';
 
 const variants = {
   primary: `
-    bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:from-blue-800 active:to-indigo-800
-    text-white shadow-xs hover:shadow-md hover:-translate-y-0.5
-    border border-transparent
-    focus-visible:ring-indigo-500/20
+    bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-400 hover:to-cyan-300 active:from-blue-600 active:to-cyan-500
+    text-white shadow-glow-sm hover:shadow-glow hover:-translate-y-0.5
+    border border-cyan-300/30
+    focus-visible:ring-cyan-400/40
   `,
   secondary: `
-    bg-white/90 hover:bg-white active:bg-slate-50
-    text-slate-700 hover:text-slate-900
-    border border-slate-200/90 hover:border-slate-300
-    shadow-xs hover:shadow-sm hover:-translate-y-0.5
+    bg-white/[0.06] hover:bg-white/[0.11] active:bg-white/[0.14]
+    text-slate-200 hover:text-white
+    border border-white/10 hover:border-white/20
+    shadow-xs hover:shadow-glow-sm hover:-translate-y-0.5
     backdrop-blur-sm
   `,
   ghost: `
-    bg-transparent hover:bg-slate-100/80 active:bg-slate-200/70
-    text-slate-600 hover:text-slate-900
+    bg-transparent hover:bg-white/[0.07] active:bg-white/[0.1]
+    text-slate-400 hover:text-slate-100
     border border-transparent
   `,
   danger: `
-    bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 active:from-rose-800 active:to-red-800
-    text-white shadow-xs hover:shadow-md hover:-translate-y-0.5
-    border border-transparent
-    focus-visible:ring-rose-500/20
+    bg-gradient-to-r from-rose-500 to-red-500 hover:from-rose-400 hover:to-red-400 active:from-rose-600 active:to-red-600
+    text-white shadow-md shadow-rose-500/25 hover:shadow-lg hover:shadow-rose-500/35 hover:-translate-y-0.5
+    border border-rose-300/25
+    focus-visible:ring-rose-400/40
   `,
   dangerGhost: `
-    bg-transparent hover:bg-rose-50 active:bg-rose-100/80
-    text-rose-600 hover:text-rose-700
+    bg-transparent hover:bg-rose-500/12 active:bg-rose-500/20
+    text-rose-400 hover:text-rose-300
     border border-transparent
   `,
   success: `
-    bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:from-emerald-800 active:to-teal-800
-    text-white shadow-xs hover:shadow-md hover:-translate-y-0.5
-    border border-transparent
-    focus-visible:ring-emerald-500/20
+    bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 active:from-emerald-600 active:to-teal-500
+    text-white shadow-glow-sm hover:shadow-glow hover:-translate-y-0.5
+    border border-emerald-300/25
+    focus-visible:ring-emerald-400/40
   `,
   glass: `
-    bg-white/70 hover:bg-white/90 active:bg-white
-    text-slate-700 hover:text-slate-900
-    border border-slate-200/80 hover:border-slate-300
-    shadow-xs hover:shadow-sm
+    bg-[#0d142e]/60 hover:bg-[#141c3e]/80 active:bg-[#1a2452]/80
+    text-slate-200 hover:text-white
+    border border-white/10 hover:border-cyan-300/25
+    shadow-xs hover:shadow-glow-sm
     backdrop-blur-md
   `,
 };
@@ -76,8 +76,8 @@ const Button = forwardRef(({
       className={`
         inline-flex items-center justify-center
         transition-all duration-150 ease-out select-none
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1
-        disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:transform-none
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#050816]
+        disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:transform-none disabled:shadow-none
         active:scale-[0.99]
         ${variants[variant] || variants.primary}
         ${sizes[size] || sizes.md}

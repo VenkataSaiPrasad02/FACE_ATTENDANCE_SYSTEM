@@ -97,11 +97,10 @@ export default function TeacherForm({
           username: formData.username.trim(),
           fullName: formData.fullName.trim(),
           password: formData.password,
-          email: formData.email.trim() || null,
-          phone: formData.phone.trim() || null,
-          department: formData.department.trim() || null,
+          email: formData.email.trim(),
+          phone: formData.phone.trim(),
+          department: formData.department.trim(),
         };
-
         await onSubmit(data);
       }
     } catch (e) {
@@ -118,28 +117,28 @@ export default function TeacherForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
       {error && (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-semibold text-rose-700">
+        <div className="rounded-xl border border-rose-300/25 bg-rose-500/10 px-4 py-3 text-xs font-semibold text-rose-300">
           {error}
         </div>
       )}
 
       {/* SECTION 1: Identity & Credentials */}
-      <div className="rounded-2xl border border-slate-200/80 bg-white/70 p-4 sm:p-5 shadow-xs backdrop-blur-sm">
-        <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-3">
+      <div className="rounded-2xl border border-white/[0.08] bg-[#0d1430]/55 p-4 shadow-card backdrop-blur-sm sm:p-5">
+        <div className="mb-4 flex items-center justify-between border-b border-white/[0.06] pb-3">
           <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-cyan-300/25 bg-cyan-400/10 text-cyan-300">
               <UserRound size={15} />
             </div>
             <div>
-              <h4 className="text-xs sm:text-sm font-bold text-slate-900">
-                Faculty Account & Identity
+              <h4 className="text-xs font-bold text-white sm:text-sm">
+                Faculty Account &amp; Identity
               </h4>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500">
                 Staff member login credentials and identity
               </p>
             </div>
           </div>
-          <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10.5px] font-semibold text-slate-600">
+          <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-0.5 text-[10.5px] font-semibold text-slate-400">
             Step 1
           </span>
         </div>
@@ -148,11 +147,11 @@ export default function TeacherForm({
           {/* Username */}
           {!isEdit ? (
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-700">
-                System Username <span className="text-rose-500">*</span>
+              <label className="mb-1.5 block text-xs font-semibold text-slate-300">
+                System Username <span className="text-rose-400">*</span>
               </label>
-              <div className="group flex h-10 w-full items-center overflow-hidden rounded-xl border border-slate-200 bg-white transition-all duration-150 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
-                <div className="flex h-full w-10 shrink-0 items-center justify-center border-r border-slate-100 bg-slate-50/50 text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+              <div className="group flex h-10 w-full items-center overflow-hidden rounded-xl border border-white/10 bg-[#0a1026]/80 transition-all duration-150 focus-within:border-cyan-300/60 focus-within:ring-4 focus-within:ring-cyan-400/10">
+                <div className="flex h-full w-10 shrink-0 items-center justify-center border-r border-white/[0.06] bg-white/[0.03] text-slate-500 transition-colors group-focus-within:text-cyan-300">
                   <UserRound size={16} />
                 </div>
                 <input
@@ -163,16 +162,16 @@ export default function TeacherForm({
                   maxLength={50}
                   placeholder="e.g. jsmith"
                   required
-                  className="h-full w-full bg-transparent px-3 text-xs sm:text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+                  className="h-full w-full bg-transparent px-3 text-xs font-medium text-slate-100 outline-none placeholder:text-slate-600 sm:text-sm"
                 />
               </div>
             </div>
           ) : (
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+              <label className="mb-1.5 block text-xs font-semibold text-slate-300">
                 System Username
               </label>
-              <div className="flex h-10 w-full items-center rounded-xl border border-slate-200 bg-slate-100/70 px-3 text-xs font-semibold text-slate-500">
+              <div className="flex h-10 w-full items-center rounded-xl border border-white/10 bg-white/[0.04] px-3 text-xs font-semibold text-slate-400">
                 @{initialData.username}
               </div>
             </div>
@@ -180,11 +179,11 @@ export default function TeacherForm({
 
           {/* Full Name */}
           <div className={isEdit ? '' : ''}>
-            <label className="mb-1.5 block text-xs font-semibold text-slate-700">
-              Full Faculty Name {!isEdit && <span className="text-rose-500">*</span>}
+            <label className="mb-1.5 block text-xs font-semibold text-slate-300">
+              Full Faculty Name {!isEdit && <span className="text-rose-400">*</span>}
             </label>
-            <div className="group flex h-10 w-full items-center overflow-hidden rounded-xl border border-slate-200 bg-white transition-all duration-150 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
-              <div className="flex h-full w-10 shrink-0 items-center justify-center border-r border-slate-100 bg-slate-50/50 text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+            <div className="group flex h-10 w-full items-center overflow-hidden rounded-xl border border-white/10 bg-[#0a1026]/80 transition-all duration-150 focus-within:border-cyan-300/60 focus-within:ring-4 focus-within:ring-cyan-400/10">
+              <div className="flex h-full w-10 shrink-0 items-center justify-center border-r border-white/[0.06] bg-white/[0.03] text-slate-500 transition-colors group-focus-within:text-cyan-300">
                 <UserRound size={16} />
               </div>
               <input
@@ -195,18 +194,18 @@ export default function TeacherForm({
                 maxLength={50}
                 placeholder={isEdit ? 'Leave blank to keep unchanged' : 'e.g. Dr. John Smith'}
                 required={!isEdit}
-                className="h-full w-full bg-transparent px-3 text-xs sm:text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+                className="h-full w-full bg-transparent px-3 text-xs font-medium text-slate-100 outline-none placeholder:text-slate-600 sm:text-sm"
               />
             </div>
           </div>
 
           {/* Password */}
           <div className="sm:col-span-2">
-            <label className="mb-1.5 block text-xs font-semibold text-slate-700">
-              {isEdit ? 'Update Password (Optional)' : 'Access Password'} {!isEdit && <span className="text-rose-500">*</span>}
+            <label className="mb-1.5 block text-xs font-semibold text-slate-300">
+              {isEdit ? 'Update Password (Optional)' : 'Access Password'} {!isEdit && <span className="text-rose-400">*</span>}
             </label>
-            <div className="group flex h-10 w-full items-center overflow-hidden rounded-xl border border-slate-200 bg-white transition-all duration-150 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
-              <div className="flex h-full w-10 shrink-0 items-center justify-center border-r border-slate-100 bg-slate-50/50 text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+            <div className="group flex h-10 w-full items-center overflow-hidden rounded-xl border border-white/10 bg-[#0a1026]/80 transition-all duration-150 focus-within:border-cyan-300/60 focus-within:ring-4 focus-within:ring-cyan-400/10">
+              <div className="flex h-full w-10 shrink-0 items-center justify-center border-r border-white/[0.06] bg-white/[0.03] text-slate-500 transition-colors group-focus-within:text-cyan-300">
                 <Lock size={16} />
               </div>
               <input
@@ -217,7 +216,7 @@ export default function TeacherForm({
                 minLength={8}
                 placeholder={isEdit ? 'Leave empty to retain existing password' : 'Minimum 8 characters'}
                 required={!isEdit}
-                className="h-full w-full bg-transparent px-3 text-xs sm:text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+                className="h-full w-full bg-transparent px-3 text-xs font-medium text-slate-100 outline-none placeholder:text-slate-600 sm:text-sm"
               />
             </div>
           </div>
@@ -225,22 +224,22 @@ export default function TeacherForm({
       </div>
 
       {/* SECTION 2: Department & Contact Info */}
-      <div className="rounded-2xl border border-slate-200/80 bg-white/70 p-4 sm:p-5 shadow-xs backdrop-blur-sm">
-        <div className="mb-4 flex items-center justify-between border-b border-slate-100 pb-3">
+      <div className="rounded-2xl border border-white/[0.08] bg-[#0d1430]/55 p-4 shadow-card backdrop-blur-sm sm:p-5">
+        <div className="mb-4 flex items-center justify-between border-b border-white/[0.06] pb-3">
           <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-sky-300/25 bg-sky-400/10 text-sky-300">
               <Building2 size={15} />
             </div>
             <div>
-              <h4 className="text-xs sm:text-sm font-bold text-slate-900">
-                Department & Communication
+              <h4 className="text-xs font-bold text-white sm:text-sm">
+                Department &amp; Communication
               </h4>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500">
                 Academic department and contact details
               </p>
             </div>
           </div>
-          <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10.5px] font-semibold text-slate-600">
+          <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-0.5 text-[10.5px] font-semibold text-slate-400">
             Step 2
           </span>
         </div>
@@ -248,11 +247,11 @@ export default function TeacherForm({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Department */}
           <div className="sm:col-span-2">
-            <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+            <label className="mb-1.5 block text-xs font-semibold text-slate-300">
               Department / Faculty Unit
             </label>
-            <div className="group flex h-10 w-full items-center overflow-hidden rounded-xl border border-slate-200 bg-white transition-all duration-150 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
-              <div className="flex h-full w-10 shrink-0 items-center justify-center border-r border-slate-100 bg-slate-50/50 text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+            <div className="group flex h-10 w-full items-center overflow-hidden rounded-xl border border-white/10 bg-[#0a1026]/80 transition-all duration-150 focus-within:border-cyan-300/60 focus-within:ring-4 focus-within:ring-cyan-400/10">
+              <div className="flex h-full w-10 shrink-0 items-center justify-center border-r border-white/[0.06] bg-white/[0.03] text-slate-500 transition-colors group-focus-within:text-cyan-300">
                 <Building2 size={16} />
               </div>
               <input
@@ -262,18 +261,18 @@ export default function TeacherForm({
                 onChange={handleChange}
                 maxLength={100}
                 placeholder="e.g. Computer Science & Engineering"
-                className="h-full w-full bg-transparent px-3 text-xs sm:text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+                className="h-full w-full bg-transparent px-3 text-xs font-medium text-slate-100 outline-none placeholder:text-slate-600 sm:text-sm"
               />
             </div>
           </div>
 
           {/* Email */}
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+            <label className="mb-1.5 block text-xs font-semibold text-slate-300">
               Institutional Email
             </label>
-            <div className="group flex h-10 w-full items-center overflow-hidden rounded-xl border border-slate-200 bg-white transition-all duration-150 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
-              <div className="flex h-full w-10 shrink-0 items-center justify-center border-r border-slate-100 bg-slate-50/50 text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+            <div className="group flex h-10 w-full items-center overflow-hidden rounded-xl border border-white/10 bg-[#0a1026]/80 transition-all duration-150 focus-within:border-cyan-300/60 focus-within:ring-4 focus-within:ring-cyan-400/10">
+              <div className="flex h-full w-10 shrink-0 items-center justify-center border-r border-white/[0.06] bg-white/[0.03] text-slate-500 transition-colors group-focus-within:text-cyan-300">
                 <Mail size={16} />
               </div>
               <input
@@ -283,18 +282,18 @@ export default function TeacherForm({
                 onChange={handleChange}
                 maxLength={100}
                 placeholder="faculty@institution.edu"
-                className="h-full w-full bg-transparent px-3 text-xs sm:text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+                className="h-full w-full bg-transparent px-3 text-xs font-medium text-slate-100 outline-none placeholder:text-slate-600 sm:text-sm"
               />
             </div>
           </div>
 
           {/* Phone */}
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+            <label className="mb-1.5 block text-xs font-semibold text-slate-300">
               Office / Mobile Phone
             </label>
-            <div className="group flex h-10 w-full items-center overflow-hidden rounded-xl border border-slate-200 bg-white transition-all duration-150 focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
-              <div className="flex h-full w-10 shrink-0 items-center justify-center border-r border-slate-100 bg-slate-50/50 text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+            <div className="group flex h-10 w-full items-center overflow-hidden rounded-xl border border-white/10 bg-[#0a1026]/80 transition-all duration-150 focus-within:border-cyan-300/60 focus-within:ring-4 focus-within:ring-cyan-400/10">
+              <div className="flex h-full w-10 shrink-0 items-center justify-center border-r border-white/[0.06] bg-white/[0.03] text-slate-500 transition-colors group-focus-within:text-cyan-300">
                 <Phone size={16} />
               </div>
               <input
@@ -304,7 +303,7 @@ export default function TeacherForm({
                 onChange={handleChange}
                 maxLength={20}
                 placeholder="+91 9876543210"
-                className="h-full w-full bg-transparent px-3 text-xs sm:text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+                className="h-full w-full bg-transparent px-3 text-xs font-medium text-slate-100 outline-none placeholder:text-slate-600 sm:text-sm"
               />
             </div>
           </div>
@@ -312,14 +311,14 @@ export default function TeacherForm({
       </div>
 
       {/* Action Footer */}
-      <div className="flex flex-col-reverse gap-2.5 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
+      <div className="flex flex-col-reverse gap-2.5 border-t border-white/[0.08] pt-5 sm:flex-row sm:justify-end">
         {onCancel && (
           <Button
             type="button"
             variant="secondary"
             onClick={onCancel}
             disabled={saving}
-            className="w-full sm:w-auto font-semibold"
+            className="w-full font-semibold sm:w-auto"
           >
             Cancel
           </Button>
@@ -329,7 +328,7 @@ export default function TeacherForm({
           type="submit"
           variant="primary"
           loading={saving}
-          className="w-full sm:w-auto shadow-sm font-bold"
+          className="w-full font-bold sm:w-auto"
         >
           {isEdit ? 'Update Faculty Member' : 'Register Faculty Member'}
         </Button>

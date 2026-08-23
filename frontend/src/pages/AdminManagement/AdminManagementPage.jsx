@@ -187,45 +187,45 @@ export default function AdminManagementPage() {
 >
     <div className="w-full animate-fade-in pb-8">
       {/* Header */}
-      <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="animate-slide-up mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-500 to-indigo-700 text-white shadow-xs">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-cyan-300/25 bg-gradient-to-br from-blue-500/20 to-cyan-400/15 text-cyan-300 shadow-glow-sm">
             <ShieldCheck size={26} strokeWidth={2} />
           </div>
 
           <div>
-            <div className="mb-1 inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-0.5 text-[11px] font-semibold text-indigo-700">
-              <span className="h-1.5 w-1.5 rounded-full bg-indigo-600 animate-pulse" />
+            <div className="mb-1 inline-flex items-center gap-2 rounded-full border border-cyan-300/25 bg-cyan-400/10 px-2.5 py-0.5 text-[11px] font-semibold text-cyan-300">
+              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.9)]" />
               Access Governance
             </div>
 
-            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+            <h1 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
               Administrator Management
             </h1>
 
-            <p className="mt-0.5 text-xs sm:text-sm text-slate-500">
+            <p className="mt-0.5 text-xs text-slate-400 sm:text-sm">
               Super Admin terminal: Provision, configure, and audit institutional system administrators.
             </p>
           </div>
         </div>
 
-        <div className="hidden sm:flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-600 shadow-xs">
-          <Shield size={15} className="text-indigo-600" />
+        <div className="hidden items-center gap-2 rounded-xl border border-white/[0.08] bg-[#0d1430]/55 px-3.5 py-2 text-xs font-semibold text-slate-300 shadow-card backdrop-blur-md sm:flex">
+          <Shield size={15} className="text-cyan-300" />
           <span>Root Privilege Area</span>
         </div>
       </div>
 
       {/* Alerts */}
       {error && (
-        <div className="mb-6 flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs text-rose-700 shadow-xs animate-fade-in">
-          <AlertCircle size={16} className="mt-0.5 shrink-0 text-rose-600" />
+        <div className="animate-fade-in mb-6 flex items-start gap-3 rounded-2xl border border-rose-300/25 bg-rose-500/10 px-4 py-3 text-xs text-rose-300">
+          <AlertCircle size={16} className="mt-0.5 shrink-0 text-rose-400" />
           <p className="font-semibold">{error}</p>
         </div>
       )}
 
       {success && (
-        <div className="mb-6 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs text-emerald-800 shadow-xs animate-fade-in">
-          <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-emerald-600" />
+        <div className="animate-fade-in mb-6 flex items-start gap-3 rounded-2xl border border-emerald-300/25 bg-emerald-400/10 px-4 py-3 text-xs text-emerald-300">
+          <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-emerald-400" />
           <p className="font-semibold">{success}</p>
         </div>
       )}
@@ -233,10 +233,12 @@ export default function AdminManagementPage() {
       {/* Main Split Grid */}
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
         {/* Left Column: Create Admin Card */}
-        <Card glass className="p-6 sm:p-7">
-          <div className="mb-5 border-b border-slate-100 pb-3">
-            <h2 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
-              <UserPlus size={18} className="text-indigo-600" />
+        <Card glass className="relative overflow-hidden p-6 sm:p-7">
+          <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-blue-500 via-cyan-400 to-transparent opacity-60" />
+
+          <div className="mb-5 border-b border-white/[0.08] pb-3">
+            <h2 className="font-display flex items-center gap-2 text-base font-bold tracking-tight text-white">
+              <UserPlus size={18} className="text-cyan-300" />
               Provision New Administrator
             </h2>
             <p className="mt-0.5 text-xs text-slate-500">
@@ -297,7 +299,7 @@ export default function AdminManagementPage() {
                 variant="primary"
                 size="lg"
                 loading={loadingCreate}
-                className="w-full shadow-sm font-bold"
+                className="w-full font-bold"
               >
                 Provision Administrator Account
               </Button>
@@ -307,16 +309,16 @@ export default function AdminManagementPage() {
 
         {/* Right Column: Existing Administrators List */}
         <Card glass className="overflow-hidden p-0">
-          <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/60 px-6 py-4">
+          <div className="flex items-center justify-between border-b border-white/[0.08] bg-white/[0.04] px-6 py-4">
             <div>
-              <h2 className="text-base font-bold text-slate-900 tracking-tight">
+              <h2 className="font-display text-base font-bold tracking-tight text-white">
                 Administrator Accounts
               </h2>
               <p className="mt-0.5 text-xs text-slate-500">
                 {admins.length} registered administrator{admins.length === 1 ? '' : 's'}
               </p>
             </div>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-cyan-300/25 bg-gradient-to-br from-blue-500/20 to-cyan-400/15 text-cyan-300 shadow-glow-sm">
               <Users size={18} />
             </div>
           </div>
@@ -326,20 +328,20 @@ export default function AdminManagementPage() {
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="h-16 animate-shimmer rounded-xl bg-slate-100"
+                  className="h-16 rounded-xl border border-white/[0.06] bg-white/[0.03] skeleton-block"
                 />
               ))}
             </div>
           ) : admins.length === 0 ? (
-            <div className="p-10 text-center text-xs font-semibold text-slate-400">
+            <div className="p-10 text-center text-xs font-semibold text-slate-500">
               No administrator accounts found.
             </div>
           ) : (
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-white/[0.05]">
               {admins.map((admin) => (
                 <div
                   key={admin.id ?? admin.username}
-                  className="flex items-center gap-4 px-6 py-4 transition-colors hover:bg-indigo-50/30"
+                  className="flex items-center gap-4 px-6 py-4 transition-colors hover:bg-white/[0.03]"
                 >
                   <ProfileAvatar
                     photoUrl={admin.profilePhotoUrl}
@@ -348,7 +350,7 @@ export default function AdminManagementPage() {
                   />
 
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs sm:text-sm font-bold text-slate-900">
+                    <p className="truncate text-xs font-bold text-white sm:text-sm">
                       {admin.fullName || admin.username}
                     </p>
                     <p className="truncate text-[11px] text-slate-500">
@@ -359,8 +361,8 @@ export default function AdminManagementPage() {
                   <span
                     className={`rounded-full px-2.5 py-0.5 text-[10px] font-extrabold tracking-wider ${
                       admin.role === 'SUPER_ADMIN'
-                        ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                        : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                        ? 'border border-violet-300/30 bg-violet-400/10 text-violet-200'
+                        : 'border border-indigo-300/25 bg-indigo-400/10 text-indigo-300'
                     }`}
                   >
                     {admin.role === 'SUPER_ADMIN' ? 'SUPER ADMIN' : 'ADMIN'}
@@ -370,7 +372,7 @@ export default function AdminManagementPage() {
                     <button
                       type="button"
                       onClick={() => openEdit(admin)}
-                      className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-indigo-50 hover:text-indigo-600"
+                      className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-cyan-400/10 hover:text-cyan-300"
                       title="Edit admin details"
                     >
                       <Pencil size={15} />
@@ -380,7 +382,7 @@ export default function AdminManagementPage() {
                       type="button"
                       onClick={() => openDelete(admin)}
                       disabled={admin.role === 'SUPER_ADMIN'}
-                      className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600 disabled:opacity-20 disabled:cursor-not-allowed"
+                      className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-rose-500/10 hover:text-rose-300 disabled:cursor-not-allowed disabled:opacity-20"
                       title={
                         admin.role === 'SUPER_ADMIN'
                           ? 'Super Admin cannot be removed'
@@ -405,7 +407,7 @@ export default function AdminManagementPage() {
         size="md"
       >
         {editError && (
-          <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs text-rose-700 font-semibold">
+          <div className="mb-4 rounded-xl border border-rose-300/25 bg-rose-500/10 px-3.5 py-2.5 text-xs font-semibold text-rose-300">
             {editError}
           </div>
         )}
@@ -430,13 +432,13 @@ export default function AdminManagementPage() {
             required
           />
 
-          <div className="flex flex-col-reverse gap-2.5 border-t border-slate-100 pt-4 sm:flex-row sm:justify-end">
+          <div className="flex flex-col-reverse gap-2.5 border-t border-white/[0.08] pt-4 sm:flex-row sm:justify-end">
             <Button
               type="button"
               variant="secondary"
               onClick={closeEdit}
               disabled={savingEdit}
-              className="w-full sm:w-auto font-semibold"
+              className="w-full font-semibold sm:w-auto"
             >
               Cancel
             </Button>
@@ -445,7 +447,7 @@ export default function AdminManagementPage() {
               type="submit"
               variant="primary"
               loading={savingEdit}
-              className="w-full sm:w-auto shadow-sm font-bold"
+              className="w-full font-bold sm:w-auto"
             >
               Save Changes
             </Button>
@@ -476,17 +478,17 @@ export default function AdminManagementPage() {
 function Field({ icon: Icon, label, value, onChange, ...props }) {
   return (
     <div>
-      <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+      <label className="mb-1.5 block text-xs font-semibold text-slate-300">
         {label}
       </label>
-      <div className="group flex h-10 w-full items-center overflow-hidden rounded-xl border border-slate-200 bg-white transition-all focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
-        <div className="flex h-full w-10 shrink-0 items-center justify-center border-r border-slate-100 bg-slate-50/50 text-slate-400">
+      <div className="group flex h-10 w-full items-center overflow-hidden rounded-xl border border-white/10 bg-[#0a1026]/80 transition-all focus-within:border-cyan-300/60 focus-within:ring-4 focus-within:ring-cyan-400/10">
+        <div className="flex h-full w-10 shrink-0 items-center justify-center border-r border-white/[0.06] bg-white/[0.03] text-slate-500">
           <Icon size={16} />
         </div>
         <input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="h-full w-full bg-transparent px-3 text-xs sm:text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+          className="h-full w-full bg-transparent px-3 text-xs font-medium text-slate-100 outline-none placeholder:text-slate-600 sm:text-sm"
           {...props}
         />
       </div>
@@ -501,11 +503,11 @@ function PasswordField({ label, value, onChange, show, setShow, placeholder }) {
   className="min-h-full rounded-2xl"
 >
     <div>
-      <label className="mb-1.5 block text-xs font-semibold text-slate-700">
+      <label className="mb-1.5 block text-xs font-semibold text-slate-300">
         {label}
       </label>
-      <div className="group flex h-10 w-full items-center overflow-hidden rounded-xl border border-slate-200 bg-white transition-all focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/10">
-        <div className="flex h-full w-10 shrink-0 items-center justify-center border-r border-slate-100 bg-slate-50/50 text-slate-400">
+      <div className="group flex h-10 w-full items-center overflow-hidden rounded-xl border border-white/10 bg-[#0a1026]/80 transition-all focus-within:border-cyan-300/60 focus-within:ring-4 focus-within:ring-cyan-400/10">
+        <div className="flex h-full w-10 shrink-0 items-center justify-center border-r border-white/[0.06] bg-white/[0.03] text-slate-500">
           <KeyRound size={16} />
         </div>
         <input
@@ -513,14 +515,14 @@ function PasswordField({ label, value, onChange, show, setShow, placeholder }) {
           value={value}
           onChange={(e) => onChange(e.target.value)}
           required
-          className="h-full w-full bg-transparent px-3 text-xs sm:text-sm font-medium text-slate-900 outline-none placeholder:text-slate-400"
+          className="h-full w-full bg-transparent px-3 text-xs font-medium text-slate-100 outline-none placeholder:text-slate-600 sm:text-sm"
           placeholder={placeholder}
           autoComplete="new-password"
         />
         <button
           type="button"
           onClick={() => setShow((val) => !val)}
-          className="flex h-full w-10 shrink-0 items-center justify-center text-slate-400 transition-colors hover:text-slate-700"
+          className="flex h-full w-10 shrink-0 items-center justify-center text-slate-500 transition-colors hover:text-slate-200"
         >
           {show ? <EyeOff size={15} /> : <Eye size={15} />}
         </button>

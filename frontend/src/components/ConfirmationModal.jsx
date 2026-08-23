@@ -51,13 +51,13 @@ export default function ConfirmationModal({
         onClick={() => {
           if (!loading) onCancel?.();
         }}
-        className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm animate-fade-in"
+        className="fixed inset-0 bg-black/70 backdrop-blur-md animate-fade-in"
       />
 
       {/* Centered Modal Card */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative z-10 w-full max-w-sm overflow-hidden rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-7 shadow-2xl backdrop-blur-xl animate-scale-in text-center"
+        className="relative z-10 w-full max-w-sm overflow-hidden rounded-3xl glass-modal p-6 sm:p-7 animate-scale-in text-center"
       >
         {/* Close trigger */}
         <button
@@ -66,7 +66,7 @@ export default function ConfirmationModal({
             if (!loading) onCancel?.();
           }}
           aria-label="Close modal"
-          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-slate-400 transition-all hover:bg-white/[0.08] hover:text-white"
         >
           <X size={16} />
         </button>
@@ -75,8 +75,8 @@ export default function ConfirmationModal({
         <div
           className={`mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-lg ${
             isDanger
-              ? 'bg-gradient-to-br from-rose-500 to-red-600 shadow-rose-500/25'
-              : 'bg-gradient-to-br from-amber-500 to-orange-600 shadow-amber-500/25'
+              ? 'bg-gradient-to-br from-rose-500 to-red-600 shadow-[0_0_30px_-6px_rgba(244,63,94,0.55)]'
+              : 'bg-gradient-to-br from-amber-400 to-orange-500 shadow-[0_0_30px_-6px_rgba(251,146,60,0.5)]'
           }`}
         >
           {isDanger ? (
@@ -89,14 +89,14 @@ export default function ConfirmationModal({
         {/* Content */}
         <h3
           id="confirm-modal-title"
-          className="text-lg font-bold tracking-tight text-slate-900"
+          className="font-display text-lg font-bold tracking-tight text-white"
         >
           {title}
         </h3>
 
         <div
           id="confirm-modal-message"
-          className="mt-2 text-xs sm:text-sm leading-relaxed text-slate-500 max-w-xs mx-auto"
+          className="mt-2 max-w-xs mx-auto text-xs sm:text-sm leading-relaxed text-slate-400"
         >
           {message}
         </div>

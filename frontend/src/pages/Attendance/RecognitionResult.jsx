@@ -15,21 +15,21 @@ import ProfileAvatar from '../../components/ProfileAvatar';
 export default function RecognitionResult({ result, error }) {
   if (error) {
     return (
-      <Card glass className="mt-6 border-red-200 bg-red-50/60 p-5 sm:p-6 animate-scale-in">
+      <div className="mt-6 animate-scale-in rounded-2xl border border-rose-300/25 bg-rose-500/[0.06] p-5 shadow-card backdrop-blur-md sm:p-6">
         <div className="flex items-start gap-4">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-red-200 bg-white text-red-600 shadow-xs">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-rose-300/25 bg-rose-500/10 text-rose-300 shadow-[0_0_14px_rgba(244,63,94,0.35)]">
             <AlertCircle size={22} />
           </div>
           <div>
-            <h4 className="text-base font-bold text-slate-900 tracking-tight">
+            <h4 className="font-display text-base font-bold tracking-tight text-white">
               Recognition Failed
             </h4>
-            <p className="mt-1 text-xs text-slate-600 leading-relaxed">
+            <p className="mt-1 text-xs leading-relaxed text-slate-400">
               {error}
             </p>
           </div>
         </div>
-      </Card>
+      </div>
     );
   }
 
@@ -39,22 +39,29 @@ export default function RecognitionResult({ result, error }) {
     ? Math.round(result.confidenceScore * 100)
     : null;
 
+  const confidenceLevel =
+    confidencePct >= 80
+      ? 'confidence-high'
+      : confidencePct >= 55
+        ? 'confidence-medium'
+        : 'confidence-low';
+
   return (
     <div className="mt-6 animate-scale-in">
-      <Card glass className="border-emerald-200/90 bg-emerald-50/40 p-6 sm:p-7">
+      <div className="overflow-hidden rounded-2xl border border-emerald-300/25 bg-gradient-to-br from-emerald-500/[0.09] via-[#0d1430]/70 to-[#0b1128]/85 p-6 shadow-[0_0_46px_-14px_rgba(52,211,153,0.45)] backdrop-blur-md sm:p-7">
         {/* Header Notification */}
-        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-emerald-200/70 pb-4">
+        <div className="mb-5 flex flex-col gap-3 border-b border-emerald-300/15 pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-emerald-200 bg-white text-emerald-600 shadow-xs">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-emerald-300/30 bg-emerald-400/10 text-emerald-300 shadow-[0_0_14px_rgba(52,211,153,0.35)]">
               <CheckCircle2 size={24} strokeWidth={2.2} />
             </div>
 
             <div>
-              <h4 className="text-base font-extrabold text-slate-900 tracking-tight">
+              <h4 className="font-display text-base font-extrabold tracking-tight text-white">
                 Attendance Successfully Marked
               </h4>
-              <p className="text-xs font-medium text-emerald-700">
-                Face verified & record synced with institutional ledger
+              <p className="text-xs font-medium text-emerald-300/90">
+                Face verified &amp; record synced with institutional ledger
               </p>
             </div>
           </div>
@@ -65,58 +72,58 @@ export default function RecognitionResult({ result, error }) {
         {/* 4 Detail Cards */}
         <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
           {/* Student */}
-          <div className="flex items-center gap-3 rounded-xl border border-slate-200/80 bg-white/90 p-3.5 shadow-xs">
+          <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.04] p-3.5">
             <ProfileAvatar name={result.studentName} size="md" />
             <div className="min-w-0">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                 Student Name
               </span>
-              <p className="truncate text-xs font-bold text-slate-900">
+              <p className="truncate font-display text-sm font-bold text-white">
                 {result.studentName || 'Unknown Student'}
               </p>
             </div>
           </div>
 
           {/* Time */}
-          <div className="flex items-center gap-3 rounded-xl border border-slate-200/80 bg-white/90 p-3.5 shadow-xs">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 text-amber-600 shrink-0">
+          <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.04] p-3.5">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-400/10 text-amber-300">
               <Clock size={18} />
             </div>
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                 Check-in Time
               </span>
-              <p className="text-xs font-bold text-slate-900 tabular-nums">
+              <p className="text-xs font-bold text-slate-300 tabular-nums">
                 {result.attendanceTime || 'Just now'}
               </p>
             </div>
           </div>
 
           {/* Date */}
-          <div className="flex items-center gap-3 rounded-xl border border-slate-200/80 bg-white/90 p-3.5 shadow-xs">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-600 shrink-0">
+          <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.04] p-3.5">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-violet-400/10 text-violet-300">
               <Calendar size={18} />
             </div>
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                 Recorded Date
               </span>
-              <p className="text-xs font-bold text-slate-900">
+              <p className="text-xs font-bold text-slate-300">
                 {result.attendanceDate || 'Today'}
               </p>
             </div>
           </div>
 
           {/* Verification Status */}
-          <div className="flex items-center gap-3 rounded-xl border border-slate-200/80 bg-white/90 p-3.5 shadow-xs">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 shrink-0">
+          <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.04] p-3.5">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-400/10 text-indigo-300">
               <ShieldCheck size={18} />
             </div>
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                 Biometric Match
               </span>
-              <p className="text-xs font-bold text-indigo-700">
+              <p className="text-xs font-bold text-indigo-300">
                 {confidencePct ? `${confidencePct}% match` : 'Verified'}
               </p>
             </div>
@@ -125,26 +132,26 @@ export default function RecognitionResult({ result, error }) {
 
         {/* Confidence Progress Bar */}
         {confidencePct !== null && (
-          <div className="mt-5 rounded-xl border border-emerald-200/80 bg-white/80 p-3.5">
-            <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
-              <span className="flex items-center gap-1.5 text-slate-600">
-                <Sparkles size={14} className="text-emerald-600" />
+          <div className="mt-5 rounded-xl border border-emerald-300/20 bg-white/[0.03] p-3.5">
+            <div className="flex items-center justify-between text-xs font-semibold">
+              <span className="flex items-center gap-1.5 text-slate-300">
+                <Sparkles size={14} className="text-emerald-300" />
                 Biometric Confidence Score
               </span>
-              <span className="font-bold text-emerald-700 tabular-nums">
+              <span className="font-display font-bold text-emerald-300 tabular-nums">
                 {confidencePct}%
               </span>
             </div>
 
-            <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-100">
+            <div className={`confidence-bar mt-2 ${confidenceLevel}`}>
               <div
-                className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500 ease-out"
+                className="confidence-fill"
                 style={{ width: `${Math.max(0, Math.min(100, confidencePct))}%` }}
               />
             </div>
           </div>
         )}
-      </Card>
+      </div>
     </div>
   );
 }

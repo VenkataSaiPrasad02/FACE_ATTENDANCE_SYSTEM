@@ -122,24 +122,24 @@ export default function StudentsPage() {
 >
     <div className="w-full animate-fade-in pb-8">
       {/* Header */}
-      <div className="mb-7">
+      <div className="animate-slide-up mb-7">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-xs">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-cyan-300/25 bg-gradient-to-br from-blue-500/20 to-cyan-400/15 text-cyan-300 shadow-glow-sm hover-lift">
               <Users size={24} strokeWidth={2} />
             </div>
 
             <div>
-              <div className="mb-1 inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-blue-50/80 px-2.5 py-0.5 text-[11px] font-semibold text-blue-700">
-                <span className="h-1.5 w-1.5 rounded-full bg-blue-600 animate-pulse" />
+              <div className="mb-1 inline-flex items-center gap-2 rounded-full border border-cyan-300/25 bg-cyan-400/10 px-2.5 py-0.5 text-[11px] font-semibold text-cyan-300">
+                <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.9)]" />
                 Roster Governance
               </div>
 
-              <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+              <h1 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
                 Student Directory
               </h1>
 
-              <p className="mt-0.5 text-xs sm:text-sm text-slate-500">
+              <p className="mt-0.5 text-xs text-slate-400 sm:text-sm">
                 Manage student profiles, academic courses, batch cohorts, and facial biometrics status.
               </p>
             </div>
@@ -152,7 +152,7 @@ export default function StudentsPage() {
               icon={Plus}
               onClick={() => setModal('create')}
               size="lg"
-              className="w-full sm:w-auto shadow-sm font-bold"
+              className="w-full font-bold sm:w-auto"
             >
               Add Student
             </Button>
@@ -160,9 +160,11 @@ export default function StudentsPage() {
         </div>
 
         {/* Search Panel */}
-        <Card glass className="p-4 sm:p-5">
-          <StudentSearch onSearch={handleSearch} />
-        </Card>
+        <div className="animate-slide-up opacity-0" style={{ animationDelay: '80ms' }}>
+          <Card glass className="p-4 sm:p-5">
+            <StudentSearch onSearch={handleSearch} />
+          </Card>
+        </div>
       </div>
 
       {/* Error Callout */}

@@ -47,7 +47,7 @@ export default function ProfileAvatar({
         onError={() => setImgFailed(true)}
         className={`
           ${sizeClasses} ${shapeClass} shrink-0 object-cover
-          border border-slate-200/90 shadow-xs
+          border border-white/15 shadow-glow-sm
           ${className}
         `}
       />
@@ -58,8 +58,8 @@ export default function ProfileAvatar({
     <div
       className={`
         ${sizeClasses} ${shapeClass} flex shrink-0 items-center justify-center
-        bg-gradient-to-br from-indigo-500 to-indigo-700 font-bold text-white
-        border border-indigo-200/40 shadow-xs tracking-tight
+        bg-gradient-to-br from-blue-500 via-sky-500 to-cyan-400 font-bold text-white
+        border border-cyan-200/30 shadow-glow-sm tracking-tight
         ${className}
       `}
     >

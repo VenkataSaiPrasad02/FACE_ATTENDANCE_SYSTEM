@@ -415,13 +415,14 @@ export default function LoginForm() {
             overflow-hidden
             rounded-2xl
             border
-            border-indigo-100
+            border-cyan-300/20
             bg-gradient-to-br
-            from-indigo-50/90
-            via-blue-50/80
-            to-cyan-50/70
+            from-[#111b3d]/90
+            via-[#0c1430]/85
+            to-[#0a1229]/80
             p-5
-            shadow-sm
+            shadow-card
+            backdrop-blur-md
           "
         >
 
@@ -433,7 +434,7 @@ export default function LoginForm() {
               h-24
               w-24
               rounded-full
-              bg-indigo-400/15
+              bg-cyan-400/10
               blur-2xl
             "
           />
@@ -450,10 +451,12 @@ export default function LoginForm() {
                 justify-center
                 rounded-xl
                 bg-gradient-to-br
-                from-indigo-500
-                to-blue-600
+                from-blue-500
+                to-cyan-400
                 text-white
-                shadow-md
+                shadow-glow-sm
+                border
+                border-cyan-300/30
               "
             >
               <Mail size={18} />
@@ -461,11 +464,11 @@ export default function LoginForm() {
 
             <div>
 
-              <p className="text-xs font-bold text-slate-900">
+              <p className="text-xs font-bold text-white">
                 Two-Factor Authentication
               </p>
 
-              <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
+              <p className="mt-1 text-[11px] leading-relaxed text-slate-400">
                 We sent a 6-digit code to your registered
                 email
                 {maskedEmail
@@ -492,7 +495,7 @@ export default function LoginForm() {
               text-xs
               font-semibold
               tracking-tight
-              text-slate-700
+              text-slate-300
             "
           >
             Enter 6-Digit Code
@@ -508,15 +511,14 @@ export default function LoginForm() {
               items-center
               rounded-xl
               border
-              border-slate-200
-              bg-white/80
-              shadow-sm
-              backdrop-blur-sm
+              border-white/10
+              bg-[#0a1026]/80
+              backdrop-blur-md
               transition-all
               duration-200
-              focus-within:border-indigo-500
+              focus-within:border-cyan-300/60
               focus-within:ring-4
-              focus-within:ring-indigo-500/10
+              focus-within:ring-cyan-400/10
             "
           >
 
@@ -527,9 +529,9 @@ export default function LoginForm() {
                 justify-center
                 pl-4
                 pr-2
-                text-slate-400
+                text-slate-500
                 transition-colors
-                group-focus-within:text-indigo-600
+                group-focus-within:text-cyan-300
               "
             >
               <ShieldCheck size={19} />
@@ -560,18 +562,18 @@ export default function LoginForm() {
                 text-xl
                 font-bold
                 tracking-[0.45em]
-                text-slate-900
+                text-slate-100
                 outline-none
                 placeholder:text-sm
                 placeholder:font-normal
                 placeholder:tracking-normal
-                placeholder:text-slate-300
+                placeholder:text-slate-600
               "
             />
 
           </div>
 
-          <p className="mt-2 text-[11px] text-slate-400">
+          <p className="mt-2 text-[11px] text-slate-500">
             Code expires in 5 minutes.
           </p>
 
@@ -591,8 +593,7 @@ export default function LoginForm() {
             mt-3
             h-12
             w-full
-            shadow-lg
-            shadow-indigo-500/20
+            shadow-glow-sm
           "
         >
           {loading
@@ -621,12 +622,12 @@ export default function LoginForm() {
               py-2
               text-xs
               font-semibold
-              text-indigo-600
+              text-cyan-300
               transition-all
-              hover:bg-indigo-50
-              hover:text-indigo-700
+              hover:bg-cyan-400/10
+              hover:text-cyan-200
               disabled:cursor-not-allowed
-              disabled:text-slate-400
+              disabled:text-slate-600
             "
           >
 
@@ -666,10 +667,10 @@ export default function LoginForm() {
               py-2
               text-xs
               font-semibold
-              text-slate-500
+              text-slate-400
               transition-all
-              hover:bg-slate-100
-              hover:text-slate-800
+              hover:bg-white/[0.06]
+              hover:text-white
             "
           >
             <ArrowLeft size={14} />
@@ -711,7 +712,7 @@ export default function LoginForm() {
             text-xs
             font-semibold
             tracking-tight
-            text-slate-700
+            text-slate-300
           "
         >
           Username
@@ -727,15 +728,14 @@ export default function LoginForm() {
             items-center
             rounded-xl
             border
-            border-slate-200
-            bg-white/80
-            shadow-sm
-            backdrop-blur-sm
+            border-white/10
+            bg-[#0a1026]/80
+            backdrop-blur-md
             transition-all
             duration-200
-            focus-within:border-indigo-500
+            focus-within:border-cyan-300/60
             focus-within:ring-4
-            focus-within:ring-indigo-500/10
+            focus-within:ring-cyan-400/10
           "
         >
 
@@ -746,9 +746,9 @@ export default function LoginForm() {
               justify-center
               pl-4
               pr-2
-              text-slate-400
+              text-slate-500
               transition-colors
-              group-focus-within:text-indigo-600
+              group-focus-within:text-cyan-300
             "
           >
             <User size={18} />
@@ -771,9 +771,9 @@ export default function LoginForm() {
               pr-4
               text-sm
               font-medium
-              text-slate-900
+              text-slate-100
               outline-none
-              placeholder:text-slate-400
+              placeholder:text-slate-600
             "
           />
 
@@ -794,7 +794,7 @@ export default function LoginForm() {
             text-xs
             font-semibold
             tracking-tight
-            text-slate-700
+            text-slate-300
           "
         >
           Password
@@ -810,15 +810,14 @@ export default function LoginForm() {
             items-center
             rounded-xl
             border
-            border-slate-200
-            bg-white/80
-            shadow-sm
-            backdrop-blur-sm
+            border-white/10
+            bg-[#0a1026]/80
+            backdrop-blur-md
             transition-all
             duration-200
-            focus-within:border-indigo-500
+            focus-within:border-cyan-300/60
             focus-within:ring-4
-            focus-within:ring-indigo-500/10
+            focus-within:ring-cyan-400/10
           "
         >
 
@@ -829,9 +828,9 @@ export default function LoginForm() {
               justify-center
               pl-4
               pr-2
-              text-slate-400
+              text-slate-500
               transition-colors
-              group-focus-within:text-indigo-600
+              group-focus-within:text-cyan-300
             "
           >
             <Lock size={18} />
@@ -858,9 +857,9 @@ export default function LoginForm() {
               pr-2
               text-sm
               font-medium
-              text-slate-900
+              text-slate-100
               outline-none
-              placeholder:text-slate-400
+              placeholder:text-slate-600
             "
           />
 
@@ -884,10 +883,10 @@ export default function LoginForm() {
               items-center
               justify-center
               rounded-r-xl
-              text-slate-400
+              text-slate-500
               transition-colors
-              hover:bg-indigo-50
-              hover:text-indigo-600
+              hover:bg-cyan-400/10
+              hover:text-cyan-300
             "
           >
             {showPassword ? (
@@ -909,9 +908,9 @@ export default function LoginForm() {
             className="
               text-xs
               font-semibold
-              text-indigo-600
+              text-cyan-300
               transition-all
-              hover:text-indigo-700
+              hover:text-cyan-200
               hover:underline
               underline-offset-2
             "
@@ -936,13 +935,11 @@ export default function LoginForm() {
           mt-4
           h-12
           w-full
-          shadow-lg
-          shadow-indigo-500/20
+          shadow-glow-sm
           transition-all
           duration-300
           hover:-translate-y-0.5
-          hover:shadow-xl
-          hover:shadow-indigo-500/25
+          hover:shadow-glow
         "
       >
         {loading
@@ -958,17 +955,17 @@ export default function LoginForm() {
           mt-5
           rounded-xl
           border
-          border-indigo-100/80
+          border-white/[0.08]
           bg-gradient-to-r
-          from-indigo-50/70
-          via-blue-50/60
-          to-cyan-50/60
+          from-blue-500/[0.08]
+          via-cyan-500/[0.06]
+          to-violet-500/[0.08]
           px-4
           py-3
           text-center
         "
       >
-        <p className="text-[10px] font-medium text-slate-400">
+        <p className="text-[10px] font-medium text-slate-500">
           🔐 Secure institutional authentication
         </p>
       </div>
@@ -991,12 +988,10 @@ function AlertBox({ message }) {
         gap-2.5
         rounded-xl
         border
-        border-red-200/90
-        bg-gradient-to-r
-        from-red-50
-        to-rose-50/80
+        border-rose-300/25
+        bg-rose-500/10
         p-3
-        text-red-700
+        text-rose-300
         shadow-sm
         animate-fade-in
       "
@@ -1007,7 +1002,7 @@ function AlertBox({ message }) {
         className="
           mt-0.5
           shrink-0
-          text-red-600
+          text-rose-400
         "
       />
 
@@ -1039,12 +1034,10 @@ function SuccessBox({ message }) {
         gap-2.5
         rounded-xl
         border
-        border-emerald-200/90
-        bg-gradient-to-r
-        from-emerald-50
-        to-cyan-50/70
+        border-emerald-300/25
+        bg-emerald-400/10
         p-3
-        text-emerald-700
+        text-emerald-300
         shadow-sm
         animate-fade-in
       "
@@ -1055,7 +1048,7 @@ function SuccessBox({ message }) {
         className="
           mt-0.5
           shrink-0
-          text-emerald-600
+          text-emerald-400
         "
       />
 

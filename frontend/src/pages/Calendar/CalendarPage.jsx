@@ -215,23 +215,23 @@ export default function CalendarPage() {
 >
     <div className="w-full animate-fade-in pb-8">
       {/* Header */}
-      <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="animate-slide-up mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-500 to-indigo-700 text-white shadow-xs">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-cyan-300/25 bg-gradient-to-br from-blue-500/20 to-cyan-400/15 text-cyan-300 shadow-glow-sm">
             <CalendarDays size={24} strokeWidth={2} />
           </div>
 
           <div>
-            <div className="mb-1 inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-0.5 text-[11px] font-semibold text-indigo-700">
-              <span className="h-1.5 w-1.5 rounded-full bg-indigo-600 animate-pulse" />
+            <div className="mb-1 inline-flex items-center gap-2 rounded-full border border-cyan-300/25 bg-cyan-400/10 px-2.5 py-0.5 text-[11px] font-semibold text-cyan-300">
+              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.9)]" />
               Institutional Calendar
             </div>
 
-            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+            <h1 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
               Academic Calendar
             </h1>
 
-            <p className="mt-0.5 text-xs sm:text-sm text-slate-500">
+            <p className="mt-0.5 text-xs text-slate-400 sm:text-sm">
               Configure institutional holidays, working day schedules, and attendance calendar terms.
             </p>
           </div>
@@ -249,12 +249,12 @@ export default function CalendarPage() {
 
       {/* Error Callout */}
       {error && (
-        <div className="mb-6 flex items-center justify-between rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-semibold text-rose-700 shadow-xs animate-fade-in">
+        <div className="mb-6 flex items-center justify-between rounded-2xl border border-rose-300/25 bg-rose-500/10 px-4 py-3 text-xs font-semibold text-rose-300 animate-fade-in">
           <span>{error}</span>
           <button
             type="button"
             onClick={() => setError('')}
-            className="rounded-lg p-1 hover:bg-rose-100"
+            className="rounded-lg p-1 transition-colors hover:bg-rose-500/20"
           >
             <X size={15} />
           </button>
@@ -264,21 +264,21 @@ export default function CalendarPage() {
       {/* Calendar Surface Card */}
       <Card glass className="p-5 sm:p-7">
         {/* Month Navigator Header */}
-        <div className="mb-6 flex items-center justify-between border-b border-slate-100 pb-4">
+        <div className="mb-6 flex items-center justify-between border-b border-white/[0.08] pb-4">
           <button
             type="button"
             onClick={goToPreviousMonth}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-xs transition-colors hover:bg-slate-50 hover:text-indigo-600"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06] text-slate-200 transition-colors hover:bg-white/[0.11] hover:text-white"
             aria-label="Previous month"
           >
             <ChevronLeft size={18} />
           </button>
 
           <div className="text-center">
-            <h2 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900">
+            <h2 className="font-display text-lg font-bold tracking-tight text-white sm:text-xl">
               {monthName} {year}
             </h2>
-            <p className="text-[11px] font-medium text-slate-400">
+            <p className="text-[11px] font-medium text-slate-500">
               Click any calendar day to configure or view holiday details
             </p>
           </div>
@@ -286,7 +286,7 @@ export default function CalendarPage() {
           <button
             type="button"
             onClick={goToNextMonth}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-xs transition-colors hover:bg-slate-50 hover:text-indigo-600"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06] text-slate-200 transition-colors hover:bg-white/[0.11] hover:text-white"
             aria-label="Next month"
           >
             <ChevronRight size={18} />
@@ -296,7 +296,7 @@ export default function CalendarPage() {
         {/* Loading Indicator */}
         {loading && (
           <div className="mb-4 flex items-center justify-center gap-2 text-xs font-semibold text-slate-400">
-            <Loader2 size={15} className="animate-spin text-indigo-600" />
+            <Loader2 size={15} className="animate-spin text-cyan-400" />
             <span>Loading holiday definitions...</span>
           </div>
         )}
@@ -304,27 +304,27 @@ export default function CalendarPage() {
         {/* Legend */}
         <div className="mb-6 flex flex-wrap items-center gap-3 text-[11px] font-semibold text-slate-500">
           <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-indigo-600" />
+            <span className="h-2.5 w-2.5 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.9)]" />
             <span>Today</span>
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+            <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
             <span>Working Day</span>
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-rose-500" />
+            <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
             <span>Sunday</span>
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
+            <span className="h-2.5 w-2.5 rounded-full bg-sky-400" />
             <span>2nd Saturday</span>
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-purple-500" />
+            <span className="h-2.5 w-2.5 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.7)]" />
             <span>Institutional Holiday</span>
           </div>
         </div>
@@ -335,7 +335,7 @@ export default function CalendarPage() {
             <div
               key={day}
               className={`py-1.5 text-center text-[11px] font-bold uppercase tracking-wider ${
-                idx === 0 ? 'text-rose-500' : 'text-slate-400'
+                idx === 0 ? 'text-rose-400' : 'text-slate-500'
               }`}
             >
               {day}
@@ -359,15 +359,22 @@ export default function CalendarPage() {
                 disabled={!day}
                 onClick={() => handleDateClick(day)}
                 className={`
-                  relative min-h-16 sm:min-h-20 rounded-2xl border p-2 text-left transition-all duration-150
+                  relative min-h-16 rounded-2xl border p-2 text-left transition-all duration-150 sm:min-h-20
                   ${
                     !day
                       ? 'cursor-default border-transparent bg-transparent'
-                      : 'border-slate-200/70 bg-slate-50/60 hover:border-indigo-300 hover:bg-indigo-50/40 hover:shadow-xs'
+                      : type === 'holiday'
+                        ? 'border-amber-300/20 bg-amber-400/10 hover:border-amber-300/40 hover:bg-amber-400/15'
+                        : 'border-white/[0.06] bg-transparent hover:border-white/[0.14] hover:bg-white/[0.04]'
+                  }
+                  ${
+                    isToday(day)
+                      ? 'ring-1 ring-cyan-300/60 shadow-[0_0_16px_rgba(34,211,238,0.18)]'
+                      : ''
                   }
                   ${
                     isSelected
-                      ? 'ring-2 ring-indigo-500 ring-offset-2 bg-indigo-50/80 border-indigo-300'
+                      ? 'border-cyan-300/40 bg-white/[0.06] ring-2 ring-cyan-400/70 ring-offset-2 ring-offset-[#0b1128]'
                       : ''
                   }
                 `}
@@ -379,14 +386,14 @@ export default function CalendarPage() {
                         flex h-7 w-7 items-center justify-center rounded-xl text-xs font-bold
                         ${
                           isToday(day)
-                            ? 'bg-indigo-600 text-white shadow-xs'
+                            ? 'bg-gradient-to-r from-blue-500 to-cyan-400 text-white shadow-glow-sm'
                             : type === 'holiday'
-                              ? 'bg-purple-100 text-purple-800'
+                              ? 'bg-amber-400/15 text-amber-200'
                               : type === 'sunday'
-                                ? 'bg-rose-100 text-rose-800'
+                                ? 'bg-rose-500/10 text-rose-200'
                                 : type === 'second-saturday'
-                                  ? 'bg-amber-100 text-amber-800'
-                                  : 'text-slate-700'
+                                  ? 'bg-sky-400/10 text-sky-200'
+                                  : 'text-slate-200'
                         }
                       `}
                     >
@@ -395,15 +402,15 @@ export default function CalendarPage() {
 
                     <span
                       className={`
-                        mt-1.5 block text-[9.5px] sm:text-[10px] font-bold truncate
+                        mt-1.5 block truncate text-[9.5px] font-bold sm:text-[10px]
                         ${
                           type === 'holiday'
-                            ? 'text-purple-700'
+                            ? 'text-amber-300'
                             : type === 'sunday'
-                              ? 'text-rose-600'
+                              ? 'text-rose-300'
                               : type === 'second-saturday'
-                                ? 'text-amber-700'
-                                : 'text-emerald-700'
+                                ? 'text-sky-300'
+                                : 'text-emerald-400'
                         }
                       `}
                     >
@@ -417,7 +424,7 @@ export default function CalendarPage() {
                     </span>
 
                     {type === 'holiday' && (
-                      <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-purple-500" />
+                      <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.9)]" />
                     )}
                   </>
                 )}
@@ -429,14 +436,16 @@ export default function CalendarPage() {
 
       {/* Selected Date Panel Card */}
       {selectedDate && (
-        <Card glass className="mt-6 border-indigo-200/90 bg-indigo-50/50 p-6 animate-scale-in">
-          <div className="mb-4 flex items-start justify-between border-b border-indigo-100 pb-3">
+        <Card glass className="relative mt-6 overflow-hidden p-6 animate-scale-in">
+          <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-blue-500 via-cyan-400 to-transparent opacity-60" />
+
+          <div className="mb-4 flex items-start justify-between border-b border-white/[0.08] pb-3">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-300">
                 Selected Calendar Date
               </span>
 
-              <h3 className="text-base font-bold text-slate-900">
+              <h3 className="font-display mt-0.5 text-base font-bold text-white">
                 {selectedDate.toLocaleDateString('en-US', {
                   weekday: 'long',
                   day: 'numeric',
@@ -452,7 +461,7 @@ export default function CalendarPage() {
                 setSelectedDate(null);
                 setHolidayReason('');
               }}
-              className="rounded-lg p-1 text-slate-400 transition hover:bg-white hover:text-slate-700"
+              className="rounded-lg p-1 text-slate-500 transition hover:bg-white/[0.07] hover:text-slate-200"
               aria-label="Close panel"
             >
               <X size={18} />
@@ -462,7 +471,7 @@ export default function CalendarPage() {
           <div>
             <label
               htmlFor="holiday-reason"
-              className="mb-1.5 block text-xs font-semibold text-slate-700"
+              className="mb-1.5 block text-xs font-semibold text-slate-300"
             >
               Holiday Description / Reason
             </label>
@@ -474,7 +483,7 @@ export default function CalendarPage() {
               onChange={(event) => setHolidayReason(event.target.value)}
               placeholder="e.g. Independence Day, Annual Founder's Day"
               maxLength={255}
-              className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs sm:text-sm font-medium text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+              className="w-full rounded-xl border border-white/10 bg-[#0a1026]/80 px-3.5 py-2.5 text-xs font-medium text-slate-100 outline-none transition-all placeholder:text-slate-600 focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-400/10 sm:text-sm"
             />
           </div>
 
@@ -486,7 +495,7 @@ export default function CalendarPage() {
               onClick={handleSaveHoliday}
               loading={saving}
               disabled={deleting || !holidayReason.trim()}
-              className="font-bold shadow-sm"
+              className="font-bold"
             >
               {isSelectedHoliday ? 'Update Holiday Reason' : 'Mark as Institutional Holiday'}
             </Button>

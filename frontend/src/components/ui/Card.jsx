@@ -15,12 +15,12 @@ export default function Card({
         transition-all duration-200 ease-out
         ${
           glass
-            ? 'bg-white/80 backdrop-blur-md border border-slate-200/80 shadow-sm'
-            : 'bg-white border border-slate-200/90 shadow-sm'
+            ? 'border border-white/[0.08] bg-[#0d1430]/55 shadow-card backdrop-blur-md'
+            : 'border border-white/[0.10] bg-[#0b1128]/85 shadow-card'
         }
         ${
           hover
-            ? 'hover:bg-white hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5'
+            ? 'hover:border-cyan-300/25 hover:shadow-card-hover hover:-translate-y-0.5'
             : ''
         }
         ${padding}

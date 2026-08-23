@@ -22,21 +22,21 @@ export default function ErrorState({
   return (
     <div
       className={`
-        flex flex-col items-center justify-center rounded-2xl border border-rose-200/70
-        bg-rose-50/40 px-6 py-14 text-center backdrop-blur-md shadow-xs
+        flex flex-col items-center justify-center rounded-2xl border border-rose-400/20
+        bg-rose-500/[0.05] px-6 py-14 text-center backdrop-blur-md shadow-card
         ${className}
       `}
     >
-      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-rose-200 bg-gradient-to-br from-rose-50 to-red-100 text-rose-600 shadow-xs">
+      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-rose-300/25 bg-gradient-to-br from-rose-500/15 to-red-500/10 text-rose-300 shadow-[0_0_24px_-6px_rgba(244,63,94,0.45)]">
         <IconComponent size={24} strokeWidth={1.75} />
       </div>
 
-      <h3 className="text-base font-bold text-slate-900 tracking-tight">
+      <h3 className="font-display text-base font-bold tracking-tight text-white">
         {title}
       </h3>
 
       {message && (
-        <p className="mt-1.5 max-w-md text-xs leading-relaxed text-slate-500">
+        <p className="mt-1.5 max-w-md text-xs leading-relaxed text-slate-400">
           {message}
         </p>
       )}

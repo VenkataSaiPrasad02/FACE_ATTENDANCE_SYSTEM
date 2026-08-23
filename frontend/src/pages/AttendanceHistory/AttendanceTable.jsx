@@ -25,33 +25,33 @@ export default function AttendanceTable({
     <div className="space-y-4 animate-fade-in">
       <section
         aria-label={description || title}
-        className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white/90 shadow-xs backdrop-blur-md"
+        className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0b1128]/70 shadow-card backdrop-blur-md"
       >
         {/* Table Header Strip */}
-        <div className="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 border-b border-white/[0.08] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <div
-              className={`flex h-9 w-9 items-center justify-center rounded-xl ${
+              className={`flex h-9 w-9 items-center justify-center rounded-xl border ${
                 isAbsentList
-                  ? 'bg-rose-50 text-rose-600'
-                  : 'bg-indigo-50 text-indigo-600'
+                  ? 'border-rose-300/25 bg-rose-500/10 text-rose-300 shadow-[0_0_12px_rgba(244,63,94,0.3)]'
+                  : 'border-cyan-300/25 bg-cyan-400/10 text-cyan-300 shadow-glow-sm'
               }`}
             >
               <FileCheck2 size={18} strokeWidth={2} />
             </div>
             <div>
-              <h2 className="text-xs sm:text-sm font-bold text-slate-900">{title}</h2>
+              <h2 className="font-display text-xs font-bold text-white sm:text-sm">{title}</h2>
               <p className="text-[11px] text-slate-500">
-                Showing {firstRecord}–{lastRecord} of {totalRecords} records
+                Showing {firstRecord}&ndash;{lastRecord} of {totalRecords} records
               </p>
             </div>
           </div>
 
           <span
-            className={`w-fit rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+            className={`w-fit rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${
               isAbsentList
-                ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                : 'bg-slate-100 text-slate-700 border border-slate-200'
+                ? 'border-rose-300/25 bg-rose-500/10 text-rose-300'
+                : 'border-white/10 bg-white/[0.05] text-slate-300'
             }`}
           >
             Page {currentPage + 1} of {totalPages}
@@ -62,7 +62,7 @@ export default function AttendanceTable({
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1020px] border-collapse text-left text-xs">
             <thead>
-              <tr className="border-b border-slate-200/80 bg-slate-50/75 text-[10.5px] font-bold uppercase tracking-wider text-slate-500">
+              <tr className="border-b border-white/[0.08] bg-white/[0.04] text-[10.5px] font-bold uppercase tracking-wider text-slate-500">
                 <th className="px-5 py-3.5">Student</th>
                 <th className="px-5 py-3.5">Roll Number</th>
                 <th className="px-5 py-3.5">Batch</th>
@@ -74,7 +74,7 @@ export default function AttendanceTable({
                 <th className="px-5 py-3.5">Attendance %</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100/90">
+            <tbody className="divide-y divide-white/[0.05]">
               {records.map((record, index) => (
                 <AttendanceRow
                   key={record.id ?? `${record.studentNumber}-${record.attendanceDate}-${index}`}
@@ -91,11 +91,11 @@ export default function AttendanceTable({
       {totalPages > 1 && (
         <nav
           aria-label="Attendance record pages"
-          className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-1 pt-1"
+          className="flex flex-col gap-3 px-1 pt-1 sm:flex-row sm:items-center sm:justify-between"
         >
           <p className="text-xs font-medium text-slate-500">
-            Showing <span className="font-bold text-slate-800">{firstRecord}–{lastRecord}</span> of{' '}
-            <span className="font-bold text-slate-800">{totalRecords}</span> records
+            Showing <span className="font-bold text-slate-200">{firstRecord}&ndash;{lastRecord}</span> of{' '}
+            <span className="font-bold text-slate-200">{totalRecords}</span> records
           </p>
 
           <div className="flex items-center gap-1.5">
@@ -104,7 +104,7 @@ export default function AttendanceTable({
               type="button"
               disabled={currentPage === 0}
               onClick={() => onPageChange(currentPage - 1)}
-              className="flex h-8 items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-600 transition-colors hover:border-indigo-200 hover:text-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex h-8 items-center gap-1 rounded-lg border border-white/10 bg-white/[0.05] px-2.5 text-xs font-semibold text-slate-300 transition-colors hover:border-cyan-300/30 hover:text-cyan-200 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <ChevronLeft size={14} />
               <span className="hidden sm:inline">Previous</span>
@@ -119,8 +119,8 @@ export default function AttendanceTable({
                   onClick={() => onPageChange(page)}
                   className={`h-8 w-8 rounded-lg text-xs font-bold transition-all ${
                     page === currentPage
-                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs'
-                      : 'border border-slate-200 bg-white text-slate-600 hover:border-indigo-200 hover:text-indigo-600'
+                      ? 'bg-gradient-to-r from-blue-500 to-cyan-400 text-white shadow-glow-sm'
+                      : 'border border-white/10 bg-white/[0.05] text-slate-300 hover:border-cyan-300/30 hover:text-cyan-200'
                   }`}
                 >
                   {page + 1}
@@ -133,7 +133,7 @@ export default function AttendanceTable({
               type="button"
               disabled={currentPage >= totalPages - 1}
               onClick={() => onPageChange(currentPage + 1)}
-              className="flex h-8 items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-600 transition-colors hover:border-indigo-200 hover:text-indigo-600 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex h-8 items-center gap-1 rounded-lg border border-white/10 bg-white/[0.05] px-2.5 text-xs font-semibold text-slate-300 transition-colors hover:border-cyan-300/30 hover:text-cyan-200 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <span className="hidden sm:inline">Next</span>
               <ChevronRight size={14} />
@@ -149,16 +149,16 @@ function AttendanceRow({ record }) {
   const rawConfidence = Number(record.confidenceScore ?? 0);
   const confidence = rawConfidence <= 1 ? rawConfidence * 100 : rawConfidence;
   const confidenceLabel = record.confidenceScore == null ? '—' : `${Math.round(confidence)}%`;
-  const confidenceColor =
-    confidence >= 80 ? 'bg-gradient-to-r from-emerald-500 to-teal-500' : confidence >= 55 ? 'bg-gradient-to-r from-amber-500 to-orange-500' : 'bg-gradient-to-r from-rose-500 to-red-500';
+  const confidenceLevel =
+    confidence >= 80 ? 'confidence-high' : confidence >= 55 ? 'confidence-medium' : 'confidence-low';
 
   return (
-    <tr className="transition-colors hover:bg-indigo-50/30">
+    <tr className="transition-colors hover:bg-white/[0.03]">
       {/* Student */}
       <td className="px-5 py-3.5">
         <div className="flex items-center gap-2.5">
           <ProfileAvatar name={record.studentName} size="sm" />
-          <span className="font-bold text-slate-900 truncate max-w-[170px]">
+          <span className="max-w-[170px] truncate font-bold text-white">
             {record.studentName || 'Unknown Student'}
           </span>
         </div>
@@ -166,28 +166,28 @@ function AttendanceRow({ record }) {
 
       {/* Roll Number */}
       <td className="px-5 py-3.5">
-        <span className="rounded-md border border-slate-200 bg-slate-100/80 px-2 py-0.5 font-mono text-[10.5px] font-semibold text-slate-700">
+        <span className="rounded-md border border-white/10 bg-white/[0.05] px-2 py-0.5 font-mono text-[10.5px] font-semibold text-slate-300">
           {record.studentNumber || '—'}
         </span>
       </td>
 
       {/* Batch */}
-      <td className="px-5 py-3.5 text-slate-600 font-medium whitespace-nowrap">
+      <td className="whitespace-nowrap px-5 py-3.5 font-medium text-slate-400">
         {record.batch || '—'}
       </td>
 
       {/* Semester */}
-      <td className="px-5 py-3.5 text-slate-600 font-medium whitespace-nowrap">
+      <td className="whitespace-nowrap px-5 py-3.5 font-medium text-slate-400">
         {record.semester ? `Sem ${record.semester}` : '—'}
       </td>
 
       {/* Date */}
-      <td className="px-5 py-3.5 text-slate-700 font-medium whitespace-nowrap">
+      <td className="whitespace-nowrap px-5 py-3.5 font-medium text-slate-300">
         {record.attendanceDate || '—'}
       </td>
 
       {/* Time */}
-      <td className="px-5 py-3.5 text-slate-500 tabular-nums whitespace-nowrap">
+      <td className="whitespace-nowrap px-5 py-3.5 tabular-nums text-slate-500">
         {record.attendanceTime || '—'}
       </td>
 
@@ -199,13 +199,13 @@ function AttendanceRow({ record }) {
       {/* Confidence */}
       <td className="px-5 py-3.5">
         <div className="flex min-w-[130px] items-center gap-2">
-          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100">
+          <div className={`confidence-bar ${confidenceLevel}`}>
             <div
-              className={`h-full rounded-full transition-all duration-300 ${confidenceColor}`}
+              className="confidence-fill"
               style={{ width: `${Math.max(0, Math.min(confidence, 100))}%` }}
             />
           </div>
-          <span className="w-8 text-right text-[11px] font-bold tabular-nums text-slate-700">
+          <span className="w-8 text-right text-[11px] font-bold tabular-nums text-slate-200">
             {confidenceLabel}
           </span>
         </div>
@@ -221,16 +221,16 @@ function AttendanceRow({ record }) {
 
 function AttendancePercentageCell({ value }) {
   if (value === null || value === undefined) {
-    return <span className="text-xs text-slate-300">—</span>;
+    return <span className="text-xs text-slate-600">—</span>;
   }
 
   const pct = Number(value);
   const color =
     pct >= 75
-      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+      ? 'bg-emerald-400/10 text-emerald-300 border-emerald-300/25'
       : pct >= 50
-        ? 'bg-amber-50 text-amber-700 border-amber-200'
-        : 'bg-rose-50 text-rose-700 border-rose-200';
+        ? 'bg-amber-400/10 text-amber-300 border-amber-300/25'
+        : 'bg-rose-500/10 text-rose-300 border-rose-300/25';
 
   return (
     <span

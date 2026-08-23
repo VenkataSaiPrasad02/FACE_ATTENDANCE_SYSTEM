@@ -2,53 +2,53 @@ import React from 'react';
 
 const statusConfig = {
   PRESENT: {
-    bg: 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border-emerald-200/80',
-    dot: 'bg-emerald-500',
+    bg: 'bg-emerald-400/10 text-emerald-300 border-emerald-300/25',
+    dot: 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.9)]',
     label: 'Present',
   },
   ABSENT: {
-    bg: 'bg-gradient-to-r from-rose-50 to-red-50 text-rose-700 border-rose-200/80',
-    dot: 'bg-rose-500',
+    bg: 'bg-rose-400/10 text-rose-300 border-rose-300/25',
+    dot: 'bg-rose-400 shadow-[0_0_6px_rgba(251,113,133,0.9)]',
     label: 'Absent',
   },
   REGISTERED: {
-    bg: 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-200/80',
-    dot: 'bg-blue-500',
+    bg: 'bg-blue-400/10 text-blue-300 border-blue-300/25',
+    dot: 'bg-blue-400 shadow-[0_0_6px_rgba(96,165,250,0.9)]',
     label: 'Registered',
   },
   UNKNOWN: {
-    bg: 'bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 border-amber-200/80',
-    dot: 'bg-amber-500',
+    bg: 'bg-amber-400/10 text-amber-300 border-amber-300/25',
+    dot: 'bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.9)]',
     label: 'Unknown',
   },
   ACTIVE: {
-    bg: 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border-emerald-200/80',
-    dot: 'bg-emerald-500',
+    bg: 'bg-emerald-400/10 text-emerald-300 border-emerald-300/25',
+    dot: 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.9)]',
     label: 'Active',
   },
   INACTIVE: {
-    bg: 'bg-slate-100 text-slate-600 border-slate-200',
-    dot: 'bg-slate-400',
+    bg: 'bg-slate-400/10 text-slate-400 border-slate-400/20',
+    dot: 'bg-slate-500',
     label: 'Inactive',
   },
   ADMIN: {
-    bg: 'bg-gradient-to-r from-indigo-50 to-blue-50 text-indigo-700 border-indigo-200/80',
-    dot: 'bg-indigo-500',
+    bg: 'bg-indigo-400/10 text-indigo-300 border-indigo-300/25',
+    dot: 'bg-indigo-400 shadow-[0_0_6px_rgba(129,140,248,0.9)]',
     label: 'Admin',
   },
   SUPER_ADMIN: {
-    bg: 'bg-gradient-to-r from-amber-50 to-orange-50 text-amber-800 border-amber-200/80',
-    dot: 'bg-amber-500',
+    bg: 'bg-violet-400/10 text-violet-200 border-violet-300/30',
+    dot: 'bg-violet-400 shadow-[0_0_6px_rgba(167,139,250,0.9)]',
     label: 'Super Admin',
   },
   TEACHER: {
-    bg: 'bg-gradient-to-r from-sky-50 to-blue-50 text-sky-700 border-sky-200/80',
-    dot: 'bg-sky-500',
+    bg: 'bg-sky-400/10 text-sky-300 border-sky-300/25',
+    dot: 'bg-sky-400 shadow-[0_0_6px_rgba(56,189,248,0.9)]',
     label: 'Teacher',
   },
   STUDENT: {
-    bg: 'bg-gradient-to-r from-teal-50 to-emerald-50 text-teal-700 border-teal-200/80',
-    dot: 'bg-teal-500',
+    bg: 'bg-teal-400/10 text-teal-300 border-teal-300/25',
+    dot: 'bg-teal-400 shadow-[0_0_6px_rgba(45,212,191,0.9)]',
     label: 'Student',
   },
 };
@@ -62,7 +62,7 @@ export default function Badge({
 }) {
   const normalizedKey = (variant || status || 'PRESENT').toString().toUpperCase();
   const config = statusConfig[normalizedKey] || {
-    bg: 'bg-slate-50 text-slate-700 border-slate-200',
+    bg: 'bg-white/[0.06] text-slate-300 border-white/[0.12]',
     dot: 'bg-slate-400',
     label: label || status || 'Default',
   };
@@ -73,7 +73,7 @@ export default function Badge({
     <span
       className={`
         inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5
-        text-xs font-semibold tracking-tight shadow-xs
+        text-xs font-semibold tracking-tight
         ${config.bg}
         ${className}
       `}
