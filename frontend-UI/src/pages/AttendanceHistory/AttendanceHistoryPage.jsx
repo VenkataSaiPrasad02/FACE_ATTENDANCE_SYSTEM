@@ -197,7 +197,7 @@ export default function AttendanceHistoryPage({ studentMode = false }) {
         {loading ? (
           <AttendanceSkeleton />
         ) : !data?.content || data.content.length === 0 ? (
-          <Card glass className="animate-slide-up p-8 opacity-0" style={{ animationDelay: '140ms' }}>
+          <Card glass className="animate-slide-up p-5 opacity-0 sm:p-8" style={{ animationDelay: '140ms' }}>
             <EmptyState
               title={isAbsentView ? 'No absent students recorded' : 'No attendance logs found'}
               description={

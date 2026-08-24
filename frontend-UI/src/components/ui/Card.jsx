@@ -5,7 +5,7 @@ export default function Card({
   className = '',
   hover = false,
   glass = true,
-  padding = 'p-6',
+  padding = 'p-4 sm:p-6',
   ...props
 }) {
   return (

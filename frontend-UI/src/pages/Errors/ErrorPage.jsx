@@ -112,11 +112,6 @@ export default function ErrorPage({
             Go Back
           </Button>
         </div>
-
-        {/* Footer brand attribution */}
-        <p className="mt-12 text-[11px] font-medium text-slate-600">
-          Smart Attendance System • Institutional Biometrics
-        </p>
       </div>
     </div>
   );

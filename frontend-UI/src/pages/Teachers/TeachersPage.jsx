@@ -294,12 +294,12 @@ export default function TeachersPage() {
 
       {/* Main Table or Empty State */}
       {loading ? (
-        <Card glass className="space-y-4 p-8">
+        <Card glass className="space-y-4 p-5 sm:p-8">
           <div className="skeleton-block h-8 w-44 rounded-lg" />
           <div className="skeleton-block h-40 w-full rounded-xl opacity-80" />
         </Card>
       ) : filteredTeachers.length === 0 ? (
-        <Card glass className="p-8">
+        <Card glass className="p-5 sm:p-8">
           <EmptyState
             title={hasFilters ? 'No matching faculty members' : 'No teachers registered'}
             description={

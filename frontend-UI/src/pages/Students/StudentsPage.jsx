@@ -319,7 +319,7 @@ export default function StudentsPage() {
         <StudentsSkeleton />
       ) : !page?.content || page.content.length === 0 ? (
         search ? (
-          <Card glass className="p-8">
+          <Card glass className="p-5 sm:p-8">
             <EmptyState
               title="No matching students found"
               description={`No student records match your query "${search}".`}
@@ -331,7 +331,7 @@ export default function StudentsPage() {
             />
           </Card>
         ) : (
-          <Card glass className="p-8">
+          <Card glass className="p-5 sm:p-8">
             <EmptyState
               title="No students enrolled yet"
               description="Add your first student to begin taking automated facial attendance."
@@ -460,8 +460,8 @@ function FilterSelect({ value, onChange, placeholder, options }) {
       value={value}
       onChange={(e) => onChange(e.target.value)}
       className="
-        h-10 w-full cursor-pointer appearance-none truncate rounded-xl
-        border border-white/10 bg-[#0a1026]/80 px-3 text-[11.5px]
+        h-11 w-full cursor-pointer appearance-none truncate rounded-xl
+        border border-white/10 bg-[#0a1026]/80 px-3 text-xs sm:text-[11.5px]
         font-medium text-slate-200 outline-none backdrop-blur-md transition-all
         focus:border-cyan-300/60 focus:ring-4 focus:ring-cyan-400/10
       "

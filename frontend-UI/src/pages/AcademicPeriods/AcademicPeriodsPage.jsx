@@ -402,12 +402,12 @@ export default function AcademicPeriodsPage() {
 )}
       {/* Main Table Content */}
       {loading ? (
-        <Card glass className="space-y-4 p-8">
+        <Card glass className="space-y-4 p-5 sm:p-8">
           <div className="skeleton-block h-8 w-44 rounded-lg" />
           <div className="skeleton-block h-44 w-full rounded-xl" />
         </Card>
       ) : periods.length === 0 ? (
-        <Card glass className="p-8">
+        <Card glass className="p-5 sm:p-8">
           <EmptyState
             title="No academic periods scheduled"
             description="Create your first academic period to manage semester terms, courses, and attendance."
@@ -420,7 +420,7 @@ export default function AcademicPeriodsPage() {
           />
         </Card>
       ) : filteredPeriods.length === 0 ? (
-        <Card glass className="p-8">
+        <Card glass className="p-5 sm:p-8">
           <EmptyState
             title="No matching periods found"
             description="No academic periods match your current search query or active filter settings."

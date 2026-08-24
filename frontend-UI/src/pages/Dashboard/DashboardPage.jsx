@@ -69,9 +69,9 @@ export default function DashboardPage() {
 
   return (
     <AnimatedGradientBackground className="min-h-full rounded-3xl p-4 sm:p-6">
-      <div className="w-full pb-8 animate-fade-in">
+      <div className="w-full pb-6 animate-fade-in lg:pb-8">
         {/* Page Header */}
-        <div className="animate-slide-up mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="animate-slide-up mb-5 flex flex-col gap-4 sm:mb-7 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-cyan-300/25 bg-cyan-400/10 px-3 py-1 text-xs font-semibold text-cyan-300 shadow-glow-sm">
               <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.9)]" />
@@ -120,7 +120,7 @@ export default function DashboardPage() {
         {stats && !error && (
           <>
             {/* 4 KPI Cards with subtle gradient accents */}
-            <div className="mb-7 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="mb-5 grid grid-cols-1 gap-3 sm:mb-7 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
               {/* Total Students */}
               <div className="animate-slide-up opacity-0" style={{ animationDelay: '60ms' }}>
                 <StatsCard
@@ -175,11 +175,11 @@ export default function DashboardPage() {
             </div>
 
             {/* 2-Column Split: Today's Summary & Quick Actions */}
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
               {/* Summary Breakdown Card */}
               <div className="animate-slide-up opacity-0" style={{ animationDelay: '420ms' }}>
-                <Card glass className="p-6">
-                  <div className="mb-5 flex items-start justify-between gap-4 border-b border-white/[0.08] pb-4">
+                <Card glass className="p-4 sm:p-6">
+                  <div className="mb-4 flex items-start justify-between gap-3 border-b border-white/[0.08] pb-3.5 sm:mb-5 sm:pb-4">
                     <div>
                       <h3 className="font-display text-base font-bold tracking-tight text-white">
                         Today&apos;s Attendance Breakdown
@@ -224,10 +224,10 @@ export default function DashboardPage() {
 
               {/* Quick Actions Panel */}
               <div className="animate-slide-up opacity-0" style={{ animationDelay: '500ms' }}>
-                <Card glass className="relative overflow-hidden p-6">
+                <Card glass className="relative overflow-hidden p-4 sm:p-6">
                   <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-gradient-to-br from-blue-500/10 to-cyan-400/10 blur-2xl" />
 
-                  <div className="relative mb-5 border-b border-white/[0.08] pb-4">
+                  <div className="relative mb-4 border-b border-white/[0.08] pb-3.5 sm:mb-5 sm:pb-4">
                     <h3 className="font-display text-base font-bold tracking-tight text-white">
                       Quick Actions
                     </h3>

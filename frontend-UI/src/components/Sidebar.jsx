@@ -1,79 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import {
-  LayoutDashboard,
-  Users,
-  ScanFace,
-  CheckCircle,
-  FileText,
-  GraduationCap,
-  UserRound,
-  CalendarDays,
-  CalendarRange,
-  ShieldCheck,
-  X,
-  Radio,
-  Smartphone,
-  Sparkles,
-} from 'lucide-react';
+import { GraduationCap, X } from 'lucide-react';
 
 import { useAuth } from '../hooks/useAuth';
-import { hasPermission, PERMISSIONS } from '../auth/roles';
-
-const mainLinks = [
-  {
-    to: '/',
-    label: 'Dashboard',
-    icon: LayoutDashboard,
-    permission: PERMISSIONS.VIEW_DASHBOARD,
-  },
-  {
-    to: '/students',
-    label: 'Students',
-    icon: Users,
-    permission: PERMISSIONS.MANAGE_STUDENTS,
-  },
-  {
-    to: '/face-registration',
-    label: 'Face Registration',
-    icon: ScanFace,
-    permission: PERMISSIONS.MANAGE_FACE_REGISTRATION,
-  },
-  {
-    to: '/open-attendance',
-    label: 'Open Attendance',
-    icon: Radio,
-    permission: PERMISSIONS.OPEN_ATTENDANCE_SESSION,
-  },
-  {
-    to: '/attendance',
-    label: 'Take Attendance',
-    icon: CheckCircle,
-    permission: PERMISSIONS.MANAGE_ATTENDANCE,
-  },
-  {
-    to: '/history',
-    label: 'Attendance History',
-    icon: FileText,
-    permission: PERMISSIONS.VIEW_ATTENDANCE_HISTORY,
-  },
-  /*
-   * Student-only entries — visible only when the signed-in role
-   * carries the matching permission.
-   */
-  {
-    to: '/take-attendance',
-    label: 'Take Attendance',
-    icon: Smartphone,
-    permission: PERMISSIONS.TAKE_ATTENDANCE,
-  },
-  {
-    to: '/my-attendance',
-    label: 'My Attendance',
-    icon: FileText,
-    permission: PERMISSIONS.VIEW_OWN_ATTENDANCE,
-  },
-];
+import {
+  getPermittedMainLinks,
+  getPermittedAdminLinks,
+  getPermittedSystemLinks,
+} from './navConfig';
 
 function NavItem({ to, label, Icon, end, onNavigate }) {
   return (
@@ -157,30 +91,9 @@ export default function Sidebar() {
 
   const isStudent = role === 'STUDENT';
 
-  const canManageTeachers = hasPermission(
-    role,
-    PERMISSIONS.MANAGE_TEACHERS
-  );
-
-  const canManageCalendar = hasPermission(
-    role,
-    PERMISSIONS.MANAGE_CALENDAR
-  );
-
-  const canManageAcademicPeriods = hasPermission(
-    role,
-    PERMISSIONS.MANAGE_ACADEMIC_PERIODS
-  );
-
-  const canManageAutoFill = hasPermission(
-    role,
-    PERMISSIONS.MANAGE_AUTO_FILL
-  );
-
-  const canCreateAdmin = hasPermission(
-    role,
-    PERMISSIONS.CREATE_ADMIN
-  );
+  const mainLinks = getPermittedMainLinks(role);
+  const adminLinks = getPermittedAdminLinks(role);
+  const systemLinks = getPermittedSystemLinks(role);
 
   /*
    * Navbar sends this event when the hamburger button
@@ -315,30 +228,21 @@ export default function Sidebar() {
           </div>
 
           <div className="space-y-1.5">
-            {mainLinks
-              .filter(
-                ({ permission }) =>
-                  !permission ||
-                  hasPermission(role, permission)
-              )
-              .map(({ to, label, icon }) => (
-                <NavItem
-                  key={to}
-                  to={to}
-                  label={label}
-                  Icon={icon}
-                  end={to === '/'}
-                  onNavigate={closeMobileSidebar}
-                />
-              ))}
+            {mainLinks.map(({ to, label, icon }) => (
+              <NavItem
+                key={to}
+                to={to}
+                label={label}
+                Icon={icon}
+                end={to === '/'}
+                onNavigate={closeMobileSidebar}
+              />
+            ))}
           </div>
         </section>
 
         {/* ADMINISTRATION */}
-        {(canManageTeachers ||
-          canManageCalendar ||
-          canManageAcademicPeriods ||
-          canManageAutoFill) && (
+        {adminLinks.length > 0 && (
           <section className="mb-7">
             <div className="mb-2.5 px-2">
               <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-violet-300/70">
@@ -347,47 +251,21 @@ export default function Sidebar() {
             </div>
 
             <div className="space-y-1.5">
-              {canManageTeachers && (
+              {adminLinks.map(({ to, label, icon }) => (
                 <NavItem
-                  to="/teachers"
-                  label="Faculty"
-                  Icon={UserRound}
+                  key={to}
+                  to={to}
+                  label={label}
+                  Icon={icon}
                   onNavigate={closeMobileSidebar}
                 />
-              )}
-
-              {canManageCalendar && (
-                <NavItem
-                  to="/calendar"
-                  label="Calendar"
-                  Icon={CalendarDays}
-                  onNavigate={closeMobileSidebar}
-                />
-              )}
-
-              {canManageAcademicPeriods && (
-                <NavItem
-                  to="/academic-periods"
-                  label="Academic Periods"
-                  Icon={CalendarRange}
-                  onNavigate={closeMobileSidebar}
-                />
-              )}
-
-              {canManageAutoFill && (
-                <NavItem
-                  to="/manage-autofill"
-                  label="Auto Fill"
-                  Icon={Sparkles}
-                  onNavigate={closeMobileSidebar}
-                />
-              )}
+              ))}
             </div>
           </section>
         )}
 
         {/* SYSTEM */}
-        {canCreateAdmin && (
+        {systemLinks.length > 0 && (
           <section>
             <div className="mb-2.5 px-2">
               <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-rose-300/60">
@@ -396,12 +274,15 @@ export default function Sidebar() {
             </div>
 
             <div className="space-y-1.5">
-              <NavItem
-                to="/admin-management"
-                label="Admin Management"
-                Icon={ShieldCheck}
-                onNavigate={closeMobileSidebar}
-              />
+              {systemLinks.map(({ to, label, icon }) => (
+                <NavItem
+                  key={to}
+                  to={to}
+                  label={label}
+                  Icon={icon}
+                  onNavigate={closeMobileSidebar}
+                />
+              ))}
             </div>
           </section>
         )}
@@ -466,7 +347,7 @@ export default function Sidebar() {
         aria-hidden={!mobileOpen}
         className={`
           fixed left-0 top-0 z-[60] flex h-screen
-          w-[290px] max-w-[85vw] flex-col overflow-hidden p-4
+          w-[290px] max-w-[85vw] flex-col overflow-hidden p-4 pb-safe
           bg-[#070b1c]/95 shadow-panel backdrop-blur-xl
 
           transition-transform duration-300 ease-out

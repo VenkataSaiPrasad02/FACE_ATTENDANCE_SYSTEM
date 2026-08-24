@@ -63,8 +63,8 @@ export default function StatsCard({
   const cardBody = (
     <div
       className={`
-        group relative flex min-h-[170px] flex-col justify-between overflow-hidden rounded-2xl
-        border border-white/[0.08] bg-[#0d1430]/55 p-5 shadow-card backdrop-blur-md
+        group relative flex flex-col justify-between overflow-hidden rounded-2xl
+        border border-white/[0.08] bg-[#0d1430]/55 p-4 shadow-card backdrop-blur-md sm:p-5
         transition-all duration-200 ease-out hover:border-cyan-300/25 hover:shadow-card-hover hover:-translate-y-0.5
         ${className}
       `}
@@ -78,16 +78,16 @@ export default function StatsCard({
       />
 
       {/* Header with Icon and Subtitle/Badge */}
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between gap-2">
         <div
-          className={`flex h-10 w-10 items-center justify-center rounded-xl ${theme.tile} ${theme.tileGlow}`}
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${theme.tile} ${theme.tileGlow} sm:h-10 sm:w-10`}
         >
-          <Icon size={20} strokeWidth={2} />
+          <Icon size={19} strokeWidth={2} />
         </div>
 
         {subtitle && (
           <span
-            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10.5px] font-semibold tracking-tight ${theme.badge}`}
+            className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold tracking-tight ${theme.badge}`}
           >
             <span className="h-1.5 w-1.5 rounded-full bg-current opacity-80" />
             {subtitle}
@@ -97,21 +97,21 @@ export default function StatsCard({
 
       {/* Value and Title */}
       <div className="my-2">
-        <div className="font-display text-3xl font-bold tracking-tight text-white tabular-nums">
+        <div className="font-display text-2xl font-bold tracking-tight text-white tabular-nums sm:text-3xl">
           {value ?? '-'}
         </div>
-        <div className="mt-1 text-xs font-semibold uppercase tracking-wider text-slate-500">
+        <div className="mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 sm:text-xs">
           {title}
         </div>
       </div>
 
       {/* Footer metadata or navigation link */}
-      <div className="mt-auto flex items-center justify-between border-t border-white/[0.06] pt-3 text-[11px] font-medium text-slate-500">
-        <span>{detail || 'Recorded today'}</span>
+      <div className="mt-auto flex items-center justify-between gap-2 border-t border-white/[0.06] pt-2.5 text-[11px] font-medium text-slate-500">
+        <span className="truncate">{detail || 'Recorded today'}</span>
 
         {to && (
-          <span className={`inline-flex items-center gap-1 font-semibold transition-colors ${theme.link}`}>
-            View details
+          <span className={`inline-flex shrink-0 items-center gap-1 font-semibold transition-colors ${theme.link}`}>
+            Details
             <ArrowUpRight size={13} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </span>
         )}

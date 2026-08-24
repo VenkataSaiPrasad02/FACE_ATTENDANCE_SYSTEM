@@ -392,7 +392,7 @@ export default function TakeAttendancePage() {
 
         {/* ==================== NO ACTIVE SESSION ==================== */}
         {!loading && !loadError && !hasSession && (
-          <Card glass className="animate-slide-up p-8 text-center">
+          <Card glass className="animate-slide-up p-6 text-center sm:p-8">
             <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-3xl border border-white/10 bg-white/[0.04]">
               <CameraOff size={30} className="text-slate-400" />
               <span className="status-dot-live absolute -right-1 -top-1" aria-hidden="true" />
@@ -453,7 +453,7 @@ export default function TakeAttendancePage() {
                 </span>
               </div>
 
-              <div className="space-y-3 px-5 py-5">
+              <div className="space-y-2.5 px-4 py-4 sm:px-5 sm:py-5">
                 <div className="flex items-start gap-3">
                   <GraduationCap size={17} className="mt-0.5 shrink-0 text-cyan-300" />
                   <div>
@@ -484,7 +484,7 @@ export default function TakeAttendancePage() {
             {/* Camera / location stage */}
             <Card
               glass
-              className="animate-slide-up mt-5 p-5 opacity-0 sm:p-6"
+              className="animate-slide-up mt-4 p-4 opacity-0 sm:mt-5 sm:p-6"
               style={{ animationDelay: '80ms' }}
             >
               {/* Pre-camera guidance */}
@@ -621,7 +621,7 @@ export default function TakeAttendancePage() {
             </Card>
 
             {/* Verification checklist */}
-            <div className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+            <div className="mt-4 grid grid-cols-1 gap-2.5 sm:mt-5 sm:grid-cols-3">
               <ChecklistItem
                 done
                 label="Session active"

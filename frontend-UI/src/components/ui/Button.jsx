@@ -48,10 +48,10 @@ const variants = {
 
 const sizes = {
   xs: 'px-2.5 py-1 text-xs font-medium rounded-lg gap-1.5',
-  sm: 'px-3 py-1.5 text-xs font-semibold rounded-lg gap-1.5',
-  md: 'px-4 py-2 text-sm font-semibold rounded-xl gap-2',
-  lg: 'px-5 py-2.5 text-sm font-bold rounded-xl gap-2.5',
-  xl: 'px-6 py-3 text-base font-bold rounded-2xl gap-3',
+  sm: 'px-3 py-2 text-xs font-semibold rounded-lg gap-1.5',
+  md: 'px-4 py-2.5 text-sm font-semibold rounded-xl gap-2',
+  lg: 'px-5 py-3 text-sm font-bold rounded-xl gap-2.5',
+  xl: 'px-6 py-3.5 text-base font-bold rounded-2xl gap-3',
 };
 
 const Button = forwardRef(({

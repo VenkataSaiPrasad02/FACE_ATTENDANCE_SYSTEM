@@ -60,8 +60,21 @@ export default function TeacherTable({
               </span>
             </div>
 
+            {/* Department — mobile cards */}
+            <div className="divide-y divide-white/[0.05] lg:hidden">
+              {departmentTeachers.map((teacher, index) => (
+                <TeacherCard
+                  key={teacher.id}
+                  teacher={teacher}
+                  index={index + 1}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                />
+              ))}
+            </div>
+
             {/* Department Table */}
-            <div className="overflow-x-auto">
+            <div className="hidden overflow-x-auto lg:block">
               <table className="w-full min-w-[800px] border-collapse text-left">
                 <thead>
                   <tr className="border-b border-white/[0.08] bg-white/[0.04] text-[10.5px] font-bold uppercase tracking-wider text-slate-500">
@@ -160,6 +173,69 @@ export default function TeacherTable({
           </div>
         );
       })}
+    </div>
+  );
+}
+
+/* =========================================================
+   MOBILE TEACHER CARD
+========================================================= */
+
+function TeacherCard({ teacher, index, onEdit, onDelete }) {
+  return (
+    <div className="flex items-center gap-3 px-4 py-3">
+      <ProfileAvatar
+        photoUrl={teacher.profilePhotoUrl}
+        name={teacher.fullName || teacher.username}
+        size="md"
+      />
+
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-bold text-white">
+          {teacher.fullName || teacher.username || '—'}
+        </p>
+
+        <p className="mt-0.5 truncate text-[11px] text-slate-500">
+          #{String(index).padStart(2, '0')}
+          {teacher.username && ` · @${teacher.username}`}
+        </p>
+
+        {teacher.email && (
+          <p className="mt-1 flex min-w-0 items-center gap-1.5 text-[11px] text-slate-400">
+            <Mail size={12} className="shrink-0 text-slate-600" />
+            <span className="truncate">{teacher.email}</span>
+          </p>
+        )}
+
+        {teacher.phone && (
+          <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-slate-500">
+            <Phone size={12} className="shrink-0 text-slate-600" />
+            {teacher.phone}
+          </p>
+        )}
+      </div>
+
+      <div className="flex shrink-0 items-center gap-1">
+        <button
+          type="button"
+          onClick={() => onEdit(teacher)}
+          aria-label="Edit teacher"
+          title="Edit teacher"
+          className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 transition-colors hover:bg-cyan-400/10 hover:text-cyan-300"
+        >
+          <Pencil size={16} />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onDelete(teacher)}
+          aria-label="Delete teacher"
+          title="Delete teacher"
+          className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 transition-colors hover:bg-rose-500/10 hover:text-rose-300"
+        >
+          <Trash2 size={16} />
+        </button>
+      </div>
     </div>
   );
 }

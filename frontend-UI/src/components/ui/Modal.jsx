@@ -64,19 +64,19 @@ export default function Modal({
       <div
         onClick={(e) => e.stopPropagation()}
         className={`
-          relative z-10 w-full max-h-[90vh] overflow-y-auto rounded-3xl glass-modal p-6 sm:p-8 animate-scale-in
+          relative z-10 max-h-[92dvh] w-full overflow-y-auto rounded-2xl p-4 glass-modal animate-scale-in sm:max-h-[90vh] sm:rounded-3xl sm:p-8
           ${maxWidthMap[chosenSize] || maxWidthMap.md}
           ${className}
         `}
       >
         {/* Header */}
         {(title || showClose) && (
-          <div className="flex items-start justify-between gap-4 pb-4 border-b border-white/[0.08] mb-5">
+          <div className="mb-5 flex items-start justify-between gap-4 border-b border-white/[0.08] pb-4">
             <div>
               {title && (
                 <h3
                   id="modal-title"
-                  className="font-display text-lg font-bold tracking-tight text-white"
+                  className="font-display text-base font-bold tracking-tight text-white sm:text-lg"
                 >
                   {title}
                 </h3>
@@ -93,7 +93,7 @@ export default function Modal({
                 type="button"
                 onClick={onClose}
                 aria-label="Close dialog"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 text-slate-400 hover:border-white/25 hover:bg-white/[0.07] hover:text-white transition-all"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 text-slate-400 transition-all hover:border-white/25 hover:bg-white/[0.07] hover:text-white"
               >
                 <X size={16} />
               </button>

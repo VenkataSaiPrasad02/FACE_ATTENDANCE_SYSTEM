@@ -59,8 +59,19 @@ export default function AttendanceTable({
           </span>
         </div>
 
+        {/* Records — mobile cards */}
+        <div className="divide-y divide-white/[0.05] lg:hidden">
+          {records.map((record, index) => (
+            <AttendanceCard
+              key={record.id ?? `${record.studentNumber}-${record.attendanceDate}-${index}`}
+              record={record}
+              studentMode={studentMode}
+            />
+          ))}
+        </div>
+
         {/* Records Table */}
-        <div className="overflow-x-auto">
+        <div className="hidden overflow-x-auto lg:block">
           <table className="w-full min-w-[1020px] border-collapse text-left text-xs">
             <thead>
               <tr className="border-b border-white/[0.08] bg-white/[0.04] text-[10.5px] font-bold uppercase tracking-wider text-slate-500">
@@ -283,6 +294,177 @@ function AttendancePercentageCell({ value }) {
     >
       {pct}%
     </span>
+  );
+}
+
+/* =========================================================
+   MOBILE ATTENDANCE CARD
+   Compact record card shown below md; mirrors the table row.
+========================================================= */
+
+function AttendanceCard({ record, studentMode }) {
+  const rawConfidence = Number(record.confidenceScore ?? 0);
+  const confidence = rawConfidence <= 1 ? rawConfidence * 100 : rawConfidence;
+  const confidenceLabel = record.confidenceScore == null ? '—' : `${Math.round(confidence)}%`;
+  const confidenceLevel =
+    confidence >= 80 ? 'confidence-high' : confidence >= 55 ? 'confidence-medium' : 'confidence-low';
+  const isManual = String(record.attendanceMethod || '').toUpperCase() === 'MANUAL';
+
+  return (
+    <div className="space-y-3 px-4 py-3.5">
+      {/* Identity + status */}
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2.5">
+          {!studentMode && (
+            <>
+              <ProfileAvatar name={record.studentName} size="sm" />
+              <div className="min-w-0">
+                <p className="truncate text-sm font-bold text-white">
+                  {record.studentName || 'Unknown Student'}
+                </p>
+                <p className="mt-0.5 truncate font-mono text-[11px] text-slate-500">
+                  {record.studentNumber || '—'}
+                  {(record.batch || record.semester) &&
+                    ` · ${[record.batch, record.semester ? `Sem ${record.semester}` : null]
+                      .filter(Boolean)
+                      .join(' · ')}`}
+                </p>
+              </div>
+            </>
+          )}
+
+          {studentMode && (
+            <div className="min-w-0">
+              <p className="truncate font-mono text-sm font-bold text-white">
+                {record.attendanceDate || '—'}
+              </p>
+              <p className="mt-0.5 tabular-nums text-[11px] text-slate-500">
+                Check-in {record.attendanceTime || '—'}
+              </p>
+            </div>
+          )}
+        </div>
+
+        <Badge status={record.status} />
+      </div>
+
+      {/* Meta grid */}
+      <div className={`grid gap-x-3 gap-y-2 ${studentMode ? 'grid-cols-1' : 'grid-cols-2'}`}>
+        {studentMode && (
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
+              Method
+            </p>
+              <div className="mt-1">
+                {isManual ? (
+                  <span
+                    className="inline-flex items-center gap-1 rounded-full border border-violet-300/25 bg-violet-400/10 px-2 py-0.5 text-[10px] font-semibold text-violet-300"
+                    title={record.markedByName ? `Marked by ${record.markedByName}` : undefined}
+                  >
+                    <UserRoundPen size={11} />
+                    Manual{record.markedByName ? ` · ${record.markedByName}` : ''}
+                  </span>
+                ) : (
+                  <span
+                    className="inline-flex items-center gap-1 rounded-full border border-cyan-300/25 bg-cyan-400/10 px-2 py-0.5 text-[10px] font-semibold text-cyan-300"
+                    title={
+                      record.attendanceSessionId
+                        ? 'Verified from the student’s own phone inside a live session'
+                        : 'Verified by biometric face match'
+                    }
+                  >
+                    {record.attendanceSessionId ? <Smartphone size={11} /> : <ScanFace size={11} />}
+                    Face
+                  </span>
+                )}
+              </div>
+            </div>
+        )}
+
+        {!studentMode && (
+          <>
+            <CardField label="Date" value={record.attendanceDate || '—'} mono />
+            <CardField label="Check-in" value={record.attendanceTime || '—'} mono />
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                Method
+              </p>
+              <div className="mt-1">
+                {isManual ? (
+                  <span
+                    className="inline-flex items-center gap-1 rounded-full border border-violet-300/25 bg-violet-400/10 px-2 py-0.5 text-[10px] font-semibold text-violet-300"
+                    title={record.markedByName ? `Marked by ${record.markedByName}` : undefined}
+                  >
+                    <UserRoundPen size={11} />
+                    Manual
+                  </span>
+                ) : (
+                  <span
+                    className="inline-flex items-center gap-1 rounded-full border border-cyan-300/25 bg-cyan-400/10 px-2 py-0.5 text-[10px] font-semibold text-cyan-300"
+                    title={
+                      record.attendanceSessionId
+                        ? 'Verified from the student’s own phone inside a live session'
+                        : 'Verified by biometric face match'
+                    }
+                  >
+                    {record.attendanceSessionId ? <Smartphone size={11} /> : <ScanFace size={11} />}
+                    Face
+                  </span>
+                )}
+              </div>
+              {isManual && record.markedByName && (
+                <p className="mt-0.5 truncate text-[10px] text-slate-500">
+                  by {record.markedByName}
+                </p>
+              )}
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                Attendance %
+              </p>
+              <div className="mt-1">
+                <AttendancePercentageCell value={record.attendancePercentage} />
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Confidence bar */}
+      <div>
+        <div className="mb-1 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-600">
+          <span>Match Confidence</span>
+          <span className="tabular-nums text-slate-400">{confidenceLabel}</span>
+        </div>
+        <div className={`confidence-bar ${confidenceLevel}`}>
+          <div
+            className="confidence-fill"
+            style={{ width: `${Math.max(0, Math.min(confidence, 100))}%` }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   SHARED MOBILE FIELD
+========================================================= */
+
+function CardField({ label, value, mono = false }) {
+  return (
+    <div className="min-w-0">
+      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
+        {label}
+      </p>
+      <p
+        className={`mt-0.5 truncate text-xs font-semibold text-slate-300 ${
+          mono ? 'font-mono tabular-nums' : ''
+        }`}
+      >
+        {value}
+      </p>
+    </div>
   );
 }
 

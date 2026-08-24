@@ -8,17 +8,51 @@ export default function StudentsSkeleton() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-2">
           <div className="skeleton-block h-8 w-44 rounded-lg" />
-          <div className="skeleton-block h-4 w-64 rounded-md opacity-70" />
+          <div className="skeleton-block h-4 w-64 max-w-full rounded-md opacity-70" />
         </div>
-        <div className="skeleton-block h-11 w-36 rounded-xl" />
+        <div className="skeleton-block h-11 w-full rounded-xl sm:w-36" />
       </div>
 
       <Card glass className="p-4 sm:p-5">
         <div className="skeleton-block h-10 w-full rounded-xl opacity-80" />
       </Card>
 
-      {/* Table Skeleton */}
-      <Card glass className="overflow-hidden p-0">
+      {/* Mobile card-list skeleton */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:hidden">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <Card key={i} glass className="overflow-hidden p-0">
+            <div className="flex items-center gap-3 border-b border-white/[0.06] bg-white/[0.03] px-4 py-3">
+              <div className="skeleton-block h-9 w-9 shrink-0 rounded-full" />
+              <div className="min-w-0 flex-1 space-y-1.5">
+                <div className="skeleton-block h-3.5 w-32 rounded" />
+                <div className="skeleton-block h-2.5 w-24 rounded opacity-70" />
+              </div>
+              <div className="skeleton-block h-5 w-16 rounded-full" />
+            </div>
+
+            <div className="grid grid-cols-2 gap-x-3 gap-y-2.5 px-4 py-3">
+              {[1, 2, 3, 4].map((j) => (
+                <div key={j} className="space-y-1">
+                  <div className="skeleton-block h-2.5 w-12 rounded opacity-70" />
+                  <div className="skeleton-block h-3.5 w-20 rounded" />
+                </div>
+              ))}
+              <div className="col-span-2 space-y-1">
+                <div className="skeleton-block h-2.5 w-10 rounded opacity-70" />
+                <div className="skeleton-block h-3.5 w-40 max-w-full rounded" />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 border-t border-white/[0.06] bg-white/[0.02] px-4 py-2.5">
+              <div className="skeleton-block h-6 w-6 rounded-lg" />
+              <div className="skeleton-block h-6 w-6 rounded-lg" />
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {/* Table skeleton */}
+      <Card glass className="hidden overflow-hidden p-0 lg:block">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[900px]">
             <thead>
