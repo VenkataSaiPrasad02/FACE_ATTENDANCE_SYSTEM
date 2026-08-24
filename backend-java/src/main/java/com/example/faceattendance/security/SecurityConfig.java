@@ -78,11 +78,31 @@ public class SecurityConfig {
                                 // Teacher-only endpoints (attendance operations)
                                 .requestMatchers("/api/attendance/**").hasAnyRole("ADMIN", "TEACHER", "SUPER_ADMIN")
 
+                                // Student self-service portal — students only
+                                .requestMatchers("/api/student-portal/**").hasRole("STUDENT")
+
+                                // Attendance sessions: staff manage, students participate.
+                                // Specific matchers must come before the broad wildcard.
+                                .requestMatchers("/api/attendance-sessions/open")
+                                        .hasAnyRole("TEACHER", "ADMIN", "SUPER_ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/api/attendance-sessions/active")
+                                        .hasAnyRole("TEACHER", "ADMIN", "SUPER_ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/api/attendance-sessions/my-session")
+                                        .hasRole("STUDENT")
+                                .requestMatchers("/api/attendance-sessions/*/attendance")
+                                        .hasRole("STUDENT")
+                                .requestMatchers("/api/attendance-sessions/**")
+                                        .hasAnyRole("TEACHER", "ADMIN", "SUPER_ADMIN")
+
 
                                 // Face registration endpoints - ADMIN only
                                 .requestMatchers("/api/face/register/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                                 .requestMatchers("/api/face/delete/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                                 .requestMatchers("/api/academic-periods/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+
+                                // Student auto-fill presets - ADMIN/SUPER_ADMIN only
+                                .requestMatchers("/api/student-auto-fill/**")
+                                        .hasAnyRole("ADMIN", "SUPER_ADMIN")
                                 // Own-profile endpoints — any authenticated user
                                 .requestMatchers(HttpMethod.GET, "/api/users/me").authenticated()
                                 .requestMatchers(HttpMethod.PUT, "/api/users/me").authenticated()

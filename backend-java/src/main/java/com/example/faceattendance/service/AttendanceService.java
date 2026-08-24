@@ -22,6 +22,16 @@ public interface AttendanceService {
     AttendanceResponse recognize(RecognizeAttendanceRequest request);
 
     /**
+     * Manually marks a student PRESENT on the given date (today when
+     * omitted). Records an audit trail: method = MANUAL plus the
+     * userId of the teacher/admin/super-admin performing the action.
+     */
+    AttendanceResponse markManual(
+            com.example.faceattendance.dto.attendance.ManualAttendanceRequest request,
+            Long markedByUserId
+    );
+
+    /**
      * Returns paginated attendance records with optional filters.
      */
     Page<AttendanceResponse> getAll(
@@ -54,5 +64,10 @@ public interface AttendanceService {
      * A student with no active academic period maps to null.
      */
     Map<Long, Double> getAttendancePercentages(List<Student> students);
+
+    /**
+     * Number of PRESENT records for a student between two dates (inclusive).
+     */
+    long countPresent(Long studentId, LocalDate startDate, LocalDate endDate);
 
 }

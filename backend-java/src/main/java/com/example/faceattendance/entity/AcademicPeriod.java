@@ -23,6 +23,14 @@ public class AcademicPeriod {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /*
+     * Optional display name / subject title for the period
+     * (e.g. "Data Structures"). Falls back to the
+     * course • batch • semester combination when absent.
+     */
+    @Column(length = 100)
+    private String name;
+
     @Column(nullable = false, length = 50)
     private String course;
 

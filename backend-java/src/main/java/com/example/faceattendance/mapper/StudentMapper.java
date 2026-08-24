@@ -24,6 +24,13 @@ public class StudentMapper {
                 .batch(student.getBatch())
                 .semester(student.getSemester())
                 .year(student.getYear())
+                .teacherId(student.getTeacher() != null
+                        ? student.getTeacher().getId()
+                        : null)
+                .teacherName(student.getTeacher() != null
+                                && student.getTeacher().getUser() != null
+                        ? student.getTeacher().getUser().getFullName()
+                        : null)
                 .faceRegistered(student.getFaceRegistered())
                 .createdAt(student.getCreatedAt())
                 .updatedAt(student.getUpdatedAt())

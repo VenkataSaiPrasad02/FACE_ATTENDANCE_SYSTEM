@@ -1,18 +1,23 @@
 package com.example.faceattendance.service.impl;
 
 import com.example.faceattendance.dto.student.CreateStudentRequest;
+import com.example.faceattendance.dto.student.FilterOptionsResponse;
 import com.example.faceattendance.dto.student.StudentResponse;
 import com.example.faceattendance.dto.student.UpdateStudentRequest;
 import com.example.faceattendance.entity.Student;
+import com.example.faceattendance.entity.Teacher;
 import com.example.faceattendance.exception.DuplicateStudentException;
 import com.example.faceattendance.exception.ResourceNotFoundException;
 import com.example.faceattendance.mapper.StudentMapper;
 import com.example.faceattendance.repository.AttendanceRepository;
 import com.example.faceattendance.repository.FaceDataRepository;
 import com.example.faceattendance.repository.StudentRepository;
+import com.example.faceattendance.repository.TeacherRepository;
 import com.example.faceattendance.service.AttendanceService;
 import com.example.faceattendance.service.EmbeddingCacheService;
+import com.example.faceattendance.service.StudentAccountService;
 import com.example.faceattendance.service.StudentService;
+import com.example.faceattendance.utils.AcademicLabels;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -35,6 +40,8 @@ public class StudentServiceImpl implements StudentService {
     private final AttendanceRepository attendanceRepository;
     private final FaceDataRepository faceDataRepository;
     private final EmbeddingCacheService embeddingCacheService;
+    private final StudentAccountService studentAccountService;
+    private final TeacherRepository teacherRepository;
 
     @Override
     @Transactional
@@ -59,7 +66,26 @@ public class StudentServiceImpl implements StudentService {
             );
         }
 
+        // Normalize academic year before saving ('1' -> '1st Year')
+        if (StringUtils.hasText(request.getYear())) {
+            student.setYear(
+                    formatYear(request.getYear())
+            );
+        }
+
+        student.setTeacher(
+                resolveTeacher(request.getTeacherId())
+        );
+
         Student saved = studentRepository.save(student);
+
+        /*
+         * Provision the login account (username = roll number,
+         * initial password from configuration, mustChangePassword=true)
+         * in the same transaction.
+         */
+        studentAccountService.ensureAccount(saved);
+        saved = studentRepository.save(saved);
 
         log.info(
                 "Student created: id={}, rollNumber={}",
@@ -74,15 +100,26 @@ public class StudentServiceImpl implements StudentService {
     @Transactional(readOnly = true)
     public Page<StudentResponse> getAll(
             Pageable pageable,
-            String search) {
+            String search,
+            String course,
+            String batch,
+            String semester,
+            String year,
+            Long teacherId) {
 
-        Page<Student> page =
-                StringUtils.hasText(search)
-                        ? studentRepository.searchByNameOrNumber(
-                        search.trim(),
-                        pageable
-                )
-                        : studentRepository.findAll(pageable);
+        String normalizedSearch = StringUtils.hasText(search)
+                ? search.trim()
+                : null;
+
+        Page<Student> page = studentRepository.findWithFilters(
+                normalizedSearch,
+                blankToNull(course),
+                blankToNull(batch),
+                normalizeSemesterFilter(semester),
+                normalizeYearFilter(year),
+                teacherId,
+                pageable
+        );
 
         /*
          * One grouped calculation for the whole page.
@@ -139,7 +176,6 @@ public class StudentServiceImpl implements StudentService {
         if (StringUtils.hasText(request.getEmail())) {
             student.setEmail(request.getEmail());
         }
-
         if (StringUtils.hasText(request.getPhone())) {
             student.setPhone(request.getPhone());
         }
@@ -149,7 +185,9 @@ public class StudentServiceImpl implements StudentService {
         }
 
         if (StringUtils.hasText(request.getYear())) {
-            student.setYear(request.getYear());
+            student.setYear(
+                    formatYear(request.getYear())
+            );
         }
 
         if (StringUtils.hasText(request.getBatch())) {
@@ -162,6 +200,20 @@ public class StudentServiceImpl implements StudentService {
             );
         }
 
+        /*
+         * Teacher assignment: the edit form always sends the full
+         * academic block, so a null id here means "no teacher".
+         */
+        student.setTeacher(
+                resolveTeacher(request.getTeacherId())
+        );
+
+        /*
+         * Keep the login account in sync: roll-number changes rename the
+         * username, and missing accounts are provisioned on the spot.
+         */
+        studentAccountService.ensureAccount(student);
+
         Student saved = studentRepository.save(student);
 
         log.info(
@@ -172,30 +224,75 @@ public class StudentServiceImpl implements StudentService {
         return studentMapper.toDto(saved);
     }
 
+    private String blankToNull(String value) {
+        return StringUtils.hasText(value) ? value.trim() : null;
+    }
+
+    /** Null-safe teacher lookup; a null id clears the assignment. */
+    private Teacher resolveTeacher(Long teacherId) {
+        if (teacherId == null) {
+            return null;
+        }
+        return teacherRepository.findById(teacherId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Teacher not found: " + teacherId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public FilterOptionsResponse getFilterOptions() {
+
+        /*
+         * Year options must contain ONLY academic year/level values
+         * ('1st Year', '2nd Year', ...). Legacy rows sometimes hold
+         * batch ranges or bare numbers in the same column; those are
+         * normalized and, when they are not year-shaped at all,
+         * excluded so Batch values never leak into the Year filter.
+         * The stored data itself is left untouched.
+         */
+        List<String> years = studentRepository
+                .findDistinctYears()
+                .stream()
+                .map(this::formatYear)
+                .filter(value -> value != null
+                        && value.matches("\\d+(st|nd|rd|th) Year"))
+                .distinct()
+                .sorted()
+                .toList();
+
+        List<String> semesters = studentRepository
+                .findDistinctSemesters()
+                .stream()
+                .map(this::formatSemester)
+                .filter(StringUtils::hasText)
+                .distinct()
+                .sorted()
+                .toList();
+
+        return FilterOptionsResponse.builder()
+                .courses(studentRepository.findDistinctCourses())
+                .batches(studentRepository.findDistinctBatches())
+                .semesters(semesters)
+                .years(years)
+                .build();
+    }
+
+    private String normalizeSemesterFilter(String semester) {
+        String value = blankToNull(semester);
+        return value == null ? null : formatSemester(value);
+    }
+
+    private String normalizeYearFilter(String year) {
+        String value = blankToNull(year);
+        return value == null ? null : formatYear(value);
+    }
+
+    private String formatYear(String year) {
+        return AcademicLabels.formatYear(year);
+    }
+
     private String formatSemester(String semester) {
-
-        if (semester == null || semester.isBlank()) {
-            return semester;
-        }
-
-        String value = semester.trim();
-
-        // Already formatted
-        if (value.matches("\\d+(st|nd|rd|th) Semester")) {
-            return value;
-        }
-
-        return switch (value) {
-            case "1" -> "1st Semester";
-            case "2" -> "2nd Semester";
-            case "3" -> "3rd Semester";
-            case "4" -> "4th Semester";
-            case "5" -> "5th Semester";
-            case "6" -> "6th Semester";
-            case "7" -> "7th Semester";
-            case "8" -> "8th Semester";
-            default -> value;
-        };
+        return AcademicLabels.formatSemester(semester);
     }
 
     @Override

@@ -31,4 +31,6 @@ public class UpdateStudentRequest {
 
     @Size(max = 30)
     private String year;
+
+    private Long teacherId;
 }

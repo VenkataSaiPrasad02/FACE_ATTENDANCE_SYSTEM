@@ -12,6 +12,13 @@ import java.time.LocalDate;
 @Schema(description = "Request to create an academic period")
 public class CreateAcademicPeriodRequest {
 
+    @Size(max = 100)
+    @Schema(
+            description = "Optional display name / subject title for the period",
+            example = "Data Structures"
+    )
+    private String name;
+
     @NotBlank(message = "Branch is required")
     @Size(max = 50)
     @Schema(

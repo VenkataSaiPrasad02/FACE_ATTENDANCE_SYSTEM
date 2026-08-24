@@ -1,6 +1,7 @@
 package com.example.faceattendance.dto.attendance;
 
 import com.example.faceattendance.entity.Attendance.AttendanceStatus;
+import com.example.faceattendance.entity.Attendance;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -48,6 +49,18 @@ public class AttendanceResponse {
     private AttendanceStatus status;
 
     private Double confidenceScore;
+
+    @Schema(description = "How attendance was recorded", example = "FACE")
+    private Attendance.AttendanceMethod attendanceMethod;
+
+    @Schema(description = "Id of the staff user who manually marked this record")
+    private Long markedByUserId;
+
+    @Schema(description = "Name of the staff user who manually marked this record")
+    private String markedByName;
+
+    @Schema(description = "Attendance session during which this record was created")
+    private Long attendanceSessionId;
 
     private String notes;
 

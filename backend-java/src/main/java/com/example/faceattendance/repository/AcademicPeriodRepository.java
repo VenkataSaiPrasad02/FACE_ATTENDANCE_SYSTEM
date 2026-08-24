@@ -26,6 +26,9 @@ public interface AcademicPeriodRepository
     List<AcademicPeriod>
     findAllByOrderByStartDateDesc();
 
+    List<AcademicPeriod>
+    findByActiveTrueOrderByStartDateDesc();
+
     boolean existsByCourseAndBatchAndSemester(
             String course,
             String batch,

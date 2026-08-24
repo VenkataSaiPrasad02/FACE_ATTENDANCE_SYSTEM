@@ -104,6 +104,26 @@ public class Student {
     @Builder.Default
     private Boolean faceRegistered = false;
 
+    /*
+     * Optional teacher/advisor assigned to this student. Used for
+     * organizing and filtering students in the management UI.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "teacher_id")
+    private Teacher teacher;
+
+    /*
+     * Login account for this student. Created automatically when the
+     * student is registered: username = roll number, role = STUDENT.
+     * Nullable because legacy rows are linked at startup.
+     */
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "user_id",
+            unique = true
+    )
+    private User user;
+
     @CreationTimestamp
     @Column(
             nullable = false,

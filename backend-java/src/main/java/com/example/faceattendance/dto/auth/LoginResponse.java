@@ -31,6 +31,9 @@ public class LoginResponse {
     @Schema(description = "User role", example = "ADMIN")
     private String role;
 
+    @Schema(description = "True when the account must change its initial password before using the system")
+    private Boolean mustChangePassword;
+
     @Schema(description = "Token expiration in milliseconds")
     private long expiresIn;
 }

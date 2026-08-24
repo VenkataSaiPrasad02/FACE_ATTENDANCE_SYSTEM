@@ -47,6 +47,16 @@ public class User {
     @Builder.Default
     private Boolean enabled = true;
 
+    /*
+     * When true, the account holder must change the (initial) password
+     * before being allowed to use any system functionality beyond
+     * changing the password. Used for student accounts provisioned with
+     * a shared initial password.
+     */
+    @Column(name = "must_change_password", nullable = false)
+    @Builder.Default
+    private Boolean mustChangePassword = false;
+
     @Column(name = "profile_photo_url", length = 500)
     private String profilePhotoUrl;
 

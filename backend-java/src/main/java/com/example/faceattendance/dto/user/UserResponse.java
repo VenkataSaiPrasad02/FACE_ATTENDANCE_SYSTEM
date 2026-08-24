@@ -22,5 +22,6 @@ public class UserResponse {
     private String role;
     private String profilePhotoUrl;
     private Boolean enabled;
+    private Boolean mustChangePassword;
     private LocalDateTime createdAt;
 }

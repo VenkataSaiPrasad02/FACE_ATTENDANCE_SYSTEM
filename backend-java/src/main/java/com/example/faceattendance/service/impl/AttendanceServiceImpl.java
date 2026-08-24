@@ -4,8 +4,10 @@ import com.example.faceattendance.client.FaceRecognitionClient;
 import com.example.faceattendance.dto.academicperiod.AcademicPeriodResponse;
 import com.example.faceattendance.dto.attendance.AttendanceResponse;
 import com.example.faceattendance.dto.attendance.AttendanceSummaryResponse;
+import com.example.faceattendance.dto.attendance.ManualAttendanceRequest;
 import com.example.faceattendance.dto.attendance.RecognizeAttendanceRequest;
 import com.example.faceattendance.entity.Attendance;
+import com.example.faceattendance.entity.Attendance.AttendanceMethod;
 import com.example.faceattendance.entity.Attendance.AttendanceStatus;
 import com.example.faceattendance.entity.Student;
 import com.example.faceattendance.exception.DuplicateAttendanceException;
@@ -16,6 +18,7 @@ import com.example.faceattendance.mapper.AttendanceMapper;
 import com.example.faceattendance.repository.AttendanceRepository;
 import com.example.faceattendance.repository.FaceDataRepository;
 import com.example.faceattendance.repository.StudentRepository;
+import com.example.faceattendance.repository.UserRepository;
 import com.example.faceattendance.service.AcademicPeriodService;
 import com.example.faceattendance.service.AttendanceService;
 import com.example.faceattendance.service.EmbeddingCacheService;
@@ -47,6 +50,7 @@ public class AttendanceServiceImpl implements AttendanceService {
     private final AttendanceRepository attendanceRepository;
     private final StudentRepository studentRepository;
     private final FaceDataRepository faceDataRepository;
+    private final UserRepository userRepository;
 
     // NEW: In-memory embedding cache
     private final EmbeddingCacheService embeddingCacheService;
@@ -285,6 +289,7 @@ public class AttendanceServiceImpl implements AttendanceService {
                         .attendanceTime(LocalTime.now())
                         .status(AttendanceStatus.PRESENT)
                         .confidenceScore(confidence)
+                        .attendanceMethod(AttendanceMethod.FACE)
                         .build();
 
         PerfMonitor.Snapshot saveSnap = perf.start();
@@ -310,6 +315,101 @@ public class AttendanceServiceImpl implements AttendanceService {
         );
 
         return attendanceMapper.toDto(saved);
+    }
+
+
+    // ============================================================
+    // MANUAL MARKING (teacher / admin / super-admin)
+    // ============================================================
+
+    @Override
+    @Transactional
+    public AttendanceResponse markManual(
+            ManualAttendanceRequest request,
+            Long markedByUserId) {
+
+        Student student =
+                studentRepository.findById(request.getStudentId())
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Student not found with id: "
+                                                + request.getStudentId()
+                                )
+                        );
+
+        LocalDate date =
+                request.getDate() != null
+                        ? request.getDate()
+                        : LocalDate.now();
+
+        // Duplicate prevention — same rule as face recognition.
+        if (attendanceRepository
+                .existsByStudentIdAndAttendanceDate(
+                        student.getId(),
+                        date
+                )) {
+
+            throw new DuplicateAttendanceException(
+                    "Attendance already marked for student '"
+                            + student.getFullName()
+                            + "' on "
+                            + date
+            );
+        }
+
+        /*
+         * The date must fall inside the student's active academic
+         * period so manual records stay consistent with reports.
+         * The working-day check is intentionally skipped: staff use
+         * this path precisely to override special situations.
+         */
+        AcademicPeriodResponse period =
+                academicPeriodService.getActive(
+                        student.getCourse(),
+                        student.getBatch(),
+                        student.getSemester()
+                );
+
+        if (date.isBefore(period.getStartDate())
+                || date.isAfter(period.getEndDate())) {
+
+            throw new IllegalStateException(
+                    "Cannot mark attendance for "
+                            + date
+                            + " because it is outside the active academic period ("
+                            + period.getStartDate()
+                            + " to "
+                            + period.getEndDate()
+                            + ")"
+            );
+        }
+
+        Attendance attendance =
+                Attendance.builder()
+                        .student(student)
+                        .attendanceDate(date)
+                        .attendanceTime(LocalTime.now())
+                        .status(AttendanceStatus.PRESENT)
+                        .attendanceMethod(AttendanceMethod.MANUAL)
+                        .markedByUserId(markedByUserId)
+                        .build();
+
+        Attendance saved =
+                attendanceRepository.save(attendance);
+
+        log.info(
+                "Attendance MANUALLY marked by user {}: studentId={}, date={}",
+                markedByUserId,
+                student.getId(),
+                date
+        );
+
+        AttendanceResponse response = attendanceMapper.toDto(saved);
+
+        userRepository.findById(markedByUserId)
+                .ifPresent(user -> response.setMarkedByName(user.getFullName()));
+
+        return response;
     }
 
 
@@ -353,6 +453,19 @@ public class AttendanceServiceImpl implements AttendanceService {
         Map<Long, Double> percentageByStudentId =
                 getAttendancePercentages(studentsOnPage);
 
+        // Bulk-resolve the names of staff who manually marked records.
+        List<Long> markerIds = page.getContent().stream()
+                .map(Attendance::getMarkedByUserId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        Map<Long, String> nameByUserId = new HashMap<>();
+        if (!markerIds.isEmpty()) {
+            userRepository.findAllById(markerIds).forEach(u ->
+                    nameByUserId.put(u.getId(), u.getFullName()));
+        }
+
         return page.map(attendance -> {
 
             AttendanceResponse response =
@@ -365,6 +478,11 @@ public class AttendanceServiceImpl implements AttendanceService {
                 response.setAttendancePercentage(
                         percentageByStudentId.get(student.getId())
                 );
+            }
+
+            if (attendance.getMarkedByUserId() != null) {
+                response.setMarkedByName(
+                        nameByUserId.get(attendance.getMarkedByUserId()));
             }
 
             return response;
@@ -629,6 +747,17 @@ public class AttendanceServiceImpl implements AttendanceService {
         }
 
         return result;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countPresent(Long studentId, LocalDate startDate, LocalDate endDate) {
+        return attendanceRepository.countByStudentIdAndStatusAndAttendanceDateBetween(
+                studentId,
+                AttendanceStatus.PRESENT,
+                startDate,
+                endDate
+        );
     }
 
 

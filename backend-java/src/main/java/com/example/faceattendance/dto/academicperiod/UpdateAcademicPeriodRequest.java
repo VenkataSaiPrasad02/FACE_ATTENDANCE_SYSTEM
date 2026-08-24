@@ -10,6 +10,9 @@ import java.time.LocalDate;
 @Schema(description = "Request to update an academic period")
 public class UpdateAcademicPeriodRequest {
 
+    @Size(max = 100)
+    private String name;
+
     @Size(max = 50)
     private String course;
 

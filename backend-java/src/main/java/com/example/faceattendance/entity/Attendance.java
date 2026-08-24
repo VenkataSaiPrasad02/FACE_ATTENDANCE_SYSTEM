@@ -63,6 +63,36 @@ public class Attendance {
     @Column(name = "confidence_score")
     private Double confidenceScore;
 
+    /*
+     * How this attendance record was created:
+     * FACE  — face recognition (student device or kiosk)
+     * MANUAL— manually marked by teacher/admin/super-admin.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(
+            name = "attendance_method",
+            nullable = false,
+            length = 10
+    )
+    @Builder.Default
+    private AttendanceMethod attendanceMethod = AttendanceMethod.FACE;
+
+    /*
+     * Audit trail: the User.id of the teacher/admin/super-admin who
+     * manually marked this attendance. Null for FACE records.
+     */
+    @Column(name = "marked_by_user_id")
+    private Long markedByUserId;
+
+    /*
+     * The attendance session during which this record was created
+     * (student self-attendance). Plain id reference so history is
+     * preserved even if sessions are ever removed. Null for manual
+     * and legacy records.
+     */
+    @Column(name = "attendance_session_id")
+    private Long attendanceSessionId;
+
 
     @CreationTimestamp
     @Column(
@@ -82,5 +112,10 @@ public class Attendance {
     public enum AttendanceStatus {
         PRESENT,
         ABSENT
+    }
+
+    public enum AttendanceMethod {
+        FACE,
+        MANUAL
     }
 }

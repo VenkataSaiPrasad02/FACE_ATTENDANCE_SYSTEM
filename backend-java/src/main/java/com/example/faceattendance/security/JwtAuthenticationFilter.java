@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -15,6 +17,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Intercepts every request, extracts the JWT from the Authorization header,
@@ -54,11 +58,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
+
+                    Collection<? extends GrantedAuthority> authorities =
+                            resolveAuthorities(userDetails);
+
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(
                                     userDetails,
                                     null,
-                                    userDetails.getAuthorities()
+                                    authorities
                             );
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
@@ -69,5 +77,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    /**
+     * Accounts flagged {@code must_change_password} (e.g. students still
+     * using their initial password) are stripped of their real role and
+     * given only ROLE_PASSWORD_CHANGE_REQUIRED. That lets them reach the
+     * change-password and own-profile endpoints while every other
+     * endpoint rejects them until the password is changed server-side.
+     */
+    private Collection<? extends GrantedAuthority> resolveAuthorities(UserDetails userDetails) {
+        if (userDetails instanceof CustomUserDetails custom
+                && Boolean.TRUE.equals(custom.getUser().getMustChangePassword())) {
+            return List.of(new SimpleGrantedAuthority("ROLE_PASSWORD_CHANGE_REQUIRED"));
+        }
+        return userDetails.getAuthorities();
     }
 }

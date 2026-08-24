@@ -1,6 +1,7 @@
 package com.example.faceattendance.controller;
 
 import com.example.faceattendance.dto.student.CreateStudentRequest;
+import com.example.faceattendance.dto.student.FilterOptionsResponse;
 import com.example.faceattendance.dto.student.StudentResponse;
 import com.example.faceattendance.dto.student.UpdateStudentRequest;
 import com.example.faceattendance.service.StudentService;
@@ -44,14 +45,31 @@ public class StudentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(studentService.create(request));
     }
 
-    @Operation(summary = "List students", description = "Returns paginated list; pass 'search' to filter by name or student number")
+    @Operation(summary = "List students", description = "Paginated list with server-side search plus course/batch/semester/year/teacher filters")
     @ApiResponse(responseCode = "200", description = "Success")
     @GetMapping
     public ResponseEntity<Page<StudentResponse>> getAll(
             Pageable pageable,
-            @Parameter(description = "Search by name or student number")
-            @RequestParam(required = false) String search) {
-        return ResponseEntity.ok(studentService.getAll(pageable, search));
+            @Parameter(description = "Search by name, student number, or email")
+            @RequestParam(required = false) String search,
+            @Parameter(description = "Exact course, e.g. MCA")
+            @RequestParam(required = false) String course,
+            @Parameter(description = "Exact batch, e.g. 2025-2027")
+            @RequestParam(required = false) String batch,
+            @Parameter(description = "Exact semester, e.g. 2nd Semester")
+            @RequestParam(required = false) String semester,
+            @Parameter(description = "Exact year, e.g. 1st Year")
+            @RequestParam(required = false) String year,
+            @Parameter(description = "Assigned teacher id")
+            @RequestParam(required = false) Long teacherId) {
+        return ResponseEntity.ok(
+                studentService.getAll(pageable, search, course, batch, semester, year, teacherId));
+    }
+
+    @Operation(summary = "Filter options", description = "Distinct courses/batches/semesters/years for building filter dropdowns")
+    @GetMapping("/filter-options")
+    public ResponseEntity<FilterOptionsResponse> getFilterOptions() {
+        return ResponseEntity.ok(studentService.getFilterOptions());
     }
 
     @Operation(summary = "Get student by ID")

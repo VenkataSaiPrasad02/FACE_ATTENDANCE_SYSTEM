@@ -84,6 +84,45 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), "PASSWORD_MISMATCH");
     }
 
+    @ExceptionHandler(FaceMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleFaceMismatch(FaceMismatchException ex) {
+        log.warn("Face mismatch: {}", ex.getMessage());
+        return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage(), "FACE_MISMATCH");
+    }
+
+    @ExceptionHandler(OutsideAttendanceAreaException.class)
+    public ResponseEntity<ErrorResponse> handleOutsideArea(OutsideAttendanceAreaException ex) {
+        log.warn("Outside attendance area: {}", ex.getMessage());
+        return buildResponse(HttpStatus.FORBIDDEN, ex.getMessage(), "OUTSIDE_ATTENDANCE_AREA");
+    }
+
+    @ExceptionHandler(SessionUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleSessionUnavailable(SessionUnavailableException ex) {
+        String code = switch (ex.getReason()) {
+            case SESSION_CLOSED -> "SESSION_CLOSED";
+            case SESSION_EXPIRED -> "SESSION_EXPIRED";
+            default -> "SESSION_NOT_OPEN";
+        };
+        log.warn("Session unavailable ({}): {}", code, ex.getMessage());
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage(), code);
+    }
+
+    @ExceptionHandler(SessionConflictException.class)
+    public ResponseEntity<ErrorResponse> handleSessionConflict(SessionConflictException ex) {
+        log.warn("Session conflict: {}", ex.getMessage());
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage(), "SESSION_CONFLICT");
+    }
+
+    @ExceptionHandler(NotEligibleForSessionException.class)
+    public ResponseEntity<ErrorResponse> handleNotEligible(NotEligibleForSessionException ex) {
+        log.warn("Student not eligible for session: {}", ex.getMessage());
+        return buildResponse(
+                HttpStatus.FORBIDDEN,
+                ex.getMessage(),
+                "NOT_ELIGIBLE_FOR_SESSION"
+        );
+    }
+
     // ------------------------------------------------------------------
     // Validation
     // ------------------------------------------------------------------

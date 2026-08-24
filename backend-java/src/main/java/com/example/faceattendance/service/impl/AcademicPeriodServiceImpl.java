@@ -63,6 +63,7 @@ public class AcademicPeriodServiceImpl
                         .course(course)
                         .batch(batch)
                         .semester(semester)
+                        .name(trimOrNull(request.getName()))
                         .startDate(request.getStartDate())
                         .endDate(request.getEndDate())
                         .active(false)
@@ -168,6 +169,10 @@ public class AcademicPeriodServiceImpl
 
         AcademicPeriod period =
                 findOrThrow(id);
+
+        if (request.getName() != null) {
+            period.setName(trimOrNull(request.getName()));
+        }
 
         if (StringUtils.hasText(request.getCourse())) {
             period.setCourse(
@@ -308,11 +313,18 @@ public class AcademicPeriodServiceImpl
         }
     }
 
+    private String trimOrNull(String value) {
+        return (value == null || value.isBlank())
+                ? null
+                : value.trim();
+    }
+
     private AcademicPeriodResponse toResponse(
             AcademicPeriod period) {
 
         return AcademicPeriodResponse.builder()
                 .id(period.getId())
+                .name(period.getName())
                 .course(period.getCourse())
                 .batch(period.getBatch())
                 .semester(period.getSemester())

@@ -31,6 +31,10 @@ public class StudentResponse {
 
     private String year;
 
+    private Long teacherId;
+
+    private String teacherName;
+
     private Boolean faceRegistered;
 
     /*

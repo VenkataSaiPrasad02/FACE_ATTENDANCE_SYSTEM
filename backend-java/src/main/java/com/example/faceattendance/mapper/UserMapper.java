@@ -19,6 +19,7 @@ public class UserMapper {
                 .email(user.getEmail())
                 .role(user.getRole().name())
                 .enabled(user.getEnabled())
+                .mustChangePassword(Boolean.TRUE.equals(user.getMustChangePassword()))
                 .createdAt(user.getCreatedAt())
                 .profilePhotoUrl(user.getProfilePhotoUrl())
                 .build();

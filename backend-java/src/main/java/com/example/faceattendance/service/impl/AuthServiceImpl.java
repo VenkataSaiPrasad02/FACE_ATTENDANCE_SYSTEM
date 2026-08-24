@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +35,16 @@ public class AuthServiceImpl implements AuthService {
 
     // Minimum gap between resend-otp calls for login OTP.
     private static final long LOGIN_OTP_RESEND_COOLDOWN_SECONDS = 30;
+
+    /*
+     * Existence-hiding messages for the password-recovery flow. The
+     * same wording is used whether or not the username exists so the
+     * endpoint cannot be used to enumerate roll numbers.
+     */
+    private static final String GENERIC_RESET_MESSAGE =
+            "If an account exists for this roll number, an OTP has been sent to the registered email.";
+    private static final String GENERIC_RESET_RESEND_MESSAGE =
+            "If an account exists for this roll number, a new OTP has been sent to the registered email.";
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -106,6 +117,7 @@ public class AuthServiceImpl implements AuthService {
                 .username(user.getUsername())
                 .fullName(user.getFullName())
                 .role(user.getRole().name())
+                .mustChangePassword(Boolean.TRUE.equals(user.getMustChangePassword()))
                 .expiresIn(jwtService.getJwtExpiration())
                 .build();
     }
@@ -186,6 +198,7 @@ public class AuthServiceImpl implements AuthService {
                 .username(user.getUsername())
                 .fullName(user.getFullName())
                 .role(user.getRole().name())
+                .mustChangePassword(Boolean.TRUE.equals(user.getMustChangePassword()))
                 .expiresIn(jwtService.getJwtExpiration())
                 .build();
     }
@@ -242,8 +255,20 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public PasswordActionResponse requestPasswordReset(ForgotPasswordRequest request) {
         String username = normalize(request.getUsername());
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
+
+        /*
+         * Existence is never revealed: unknown usernames and blocked
+         * accounts receive the same generic response as real ones.
+         */
+        Optional<User> maybeUser = userRepository.findByUsername(username);
+        if (maybeUser.isEmpty()) {
+            log.info("Password reset requested for unknown username '{}'", username);
+            return PasswordActionResponse.builder()
+                    .message(GENERIC_RESET_MESSAGE)
+                    .build();
+        }
+
+        User user = maybeUser.get();
 
         ensurePasswordResetAllowed(user);
         checkBlocked(username);
@@ -263,7 +288,7 @@ public class AuthServiceImpl implements AuthService {
         emailService.sendPasswordResetOtp(user.getUsername(), user.getEmail(), otp);
 
         return PasswordActionResponse.builder()
-                .message("OTP sent successfully to your registered email.")
+                .message(GENERIC_RESET_MESSAGE)
                 .maskedEmail(maskEmail(user.getEmail()))
                 .build();
     }
@@ -316,7 +341,13 @@ public class AuthServiceImpl implements AuthService {
         }
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
+                .orElse(null);
+
+        if (user == null) {
+            // No account — do not reveal existence; the OTP step can
+            // never have succeeded for an unknown username anyway.
+            throw new OTPExpiredException("OTP is invalid or has expired. Please request a new one.");
+        }
 
         ensurePasswordResetAllowed(user);
 
@@ -341,8 +372,15 @@ public class AuthServiceImpl implements AuthService {
         String username = normalize(request.getUsername());
         checkBlocked(username);
 
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
+        Optional<User> maybeUser = userRepository.findByUsername(username);
+        if (maybeUser.isEmpty()) {
+            log.info("Password reset OTP resend requested for unknown username '{}'", username);
+            return PasswordActionResponse.builder()
+                    .message(GENERIC_RESET_MESSAGE)
+                    .build();
+        }
+
+        User user = maybeUser.get();
 
         ensurePasswordResetAllowed(user);
 
@@ -361,7 +399,7 @@ public class AuthServiceImpl implements AuthService {
         emailService.sendPasswordResetOtp(user.getUsername(), user.getEmail(), otp);
 
         return PasswordActionResponse.builder()
-                .message("A new OTP has been sent to your registered email.")
+                .message(GENERIC_RESET_RESEND_MESSAGE)
                 .maskedEmail(maskEmail(user.getEmail()))
                 .build();
     }
@@ -388,6 +426,16 @@ public class AuthServiceImpl implements AuthService {
         }
 
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+
+        /*
+         * First-login flow: once the initial password has been replaced,
+         * the account graduates to normal use.
+         */
+        if (Boolean.TRUE.equals(user.getMustChangePassword())) {
+            log.info("User '{}' completed mandatory initial password change", user.getUsername());
+        }
+        user.setMustChangePassword(false);
+
         userRepository.save(user);
 
         return PasswordActionResponse.builder()
@@ -433,7 +481,8 @@ public class AuthServiceImpl implements AuthService {
     private void ensurePasswordResetAllowed(User user) {
         if (user.getRole() != com.example.faceattendance.entity.Role.SUPER_ADMIN
                 && user.getRole() != com.example.faceattendance.entity.Role.ADMIN
-                && user.getRole() != com.example.faceattendance.entity.Role.TEACHER) {
+                && user.getRole() != com.example.faceattendance.entity.Role.TEACHER
+                && user.getRole() != com.example.faceattendance.entity.Role.STUDENT) {
             throw new AccessDeniedException(
                     "Password recovery is not available for this account type"
             );

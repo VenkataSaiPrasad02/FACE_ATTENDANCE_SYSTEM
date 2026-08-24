@@ -56,6 +56,9 @@ public class AttendanceMapper {
                 .attendanceTime(attendance.getAttendanceTime())
                 .status(attendance.getStatus())
                 .confidenceScore(attendance.getConfidenceScore())
+                .attendanceMethod(attendance.getAttendanceMethod())
+                .markedByUserId(attendance.getMarkedByUserId())
+                .attendanceSessionId(attendance.getAttendanceSessionId())
                 .createdAt(attendance.getCreatedAt())
                 .build();
     }

@@ -41,4 +41,7 @@ public class CreateStudentRequest {
     @NotBlank(message = "Year is required")
     @Size(max = 30, message = "Year must not exceed 30 characters")
     private String year;
+
+    @Schema(description = "Optional teacher id to assign to this student")
+    private Long teacherId;
 }

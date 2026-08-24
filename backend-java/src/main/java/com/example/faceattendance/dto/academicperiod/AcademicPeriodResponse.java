@@ -12,6 +12,8 @@ public class AcademicPeriodResponse {
 
     private Long id;
 
+    private String name;
+
     private String course;
 
     private String batch;

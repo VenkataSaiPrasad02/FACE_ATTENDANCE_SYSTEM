@@ -2,6 +2,7 @@ package com.example.faceattendance.controller;
 
 import com.example.faceattendance.dto.attendance.AttendanceResponse;
 import com.example.faceattendance.dto.attendance.AttendanceSummaryResponse;
+import com.example.faceattendance.dto.attendance.ManualAttendanceRequest;
 import com.example.faceattendance.dto.attendance.RecognizeAttendanceRequest;
 import com.example.faceattendance.entity.Attendance.AttendanceStatus;
 import com.example.faceattendance.service.AttendanceService;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -47,6 +49,29 @@ public class AttendanceController {
     @PostMapping("/recognize")
     public ResponseEntity<AttendanceResponse> recognize(@Valid @RequestBody RecognizeAttendanceRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(attendanceService.recognize(request));
+    }
+
+    /**
+     * Manual marking with full audit trail (method = MANUAL,
+     * markedByUserId = authenticated staff user). Used when a student
+     * cannot use the mobile flow (dead phone, camera/GPS issues, ...).
+     */
+    @Operation(summary = "Manually mark attendance",
+            description = "Marks a student PRESENT for a date. Records who performed the action.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Attendance marked"),
+        @ApiResponse(responseCode = "404", description = "Student or academic period not found"),
+        @ApiResponse(responseCode = "409", description = "Duplicate attendance or date outside period")
+    })
+    @PostMapping("/manual")
+    public ResponseEntity<AttendanceResponse> markManual(
+            @Valid @RequestBody ManualAttendanceRequest request,
+            Authentication authentication) {
+
+        var me = (com.example.faceattendance.security.CustomUserDetails) authentication.getPrincipal();
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(attendanceService.markManual(request, me.getUserId()));
     }
 
     @Operation(summary = "List attendance records",
