@@ -8,9 +8,9 @@ backend-java/target/
 backend-java/*.class
 
 # React / Vite
-frontend/node_modules/
-frontend/dist/
-frontend/.vite/
+frontend-UI/node_modules/
+frontend-UI/dist/
+frontend-UI/.vite/
 
 # Python
 **/__pycache__/
