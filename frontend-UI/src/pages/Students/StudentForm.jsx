@@ -17,6 +17,7 @@ import {
 
 import autoFillService from '../../services/autoFillService';
 import Button from '../../components/ui/Button';
+import { toast } from 'react-toastify';
 
 const emptyForm = {
   studentNumber: '',
@@ -36,6 +37,75 @@ const emptyForm = {
  * manually (manual override is always allowed).
  */
 const AUTO_FILL_FIELDS = ['course', 'batch', 'year', 'semester'];
+
+// ============================================================
+// ✨ AUTO FILL — sample data generator
+//
+// Pure convenience for create mode: produces ONE realistic,
+// internally consistent student record that is written straight
+// into the existing controlled form state. It never touches
+// readonly/disabled flags (there are none), never submits, and
+// every value can be edited freely before "Add Student".
+//
+// Academic fields prefer the active auto-fill configuration
+// (admin-curated, guaranteed valid); the fallback pool matches
+// values already used by this institution.
+// ============================================================
+
+const SAMPLE_FIRST_NAMES = [
+  'Rahul', 'Priya', 'Arjun', 'Sneha', 'Vikram', 'Ananya',
+  'Karthik', 'Divya', 'Rohan', 'Meera', 'Aditya', 'Kavya',
+  'Nikhil', 'Pooja', 'Sanjay', 'Harini',
+];
+
+const SAMPLE_LAST_NAMES = [
+  'Sharma', 'Reddy', 'Kumar', 'Iyer', 'Patel', 'Rao',
+  'Nair', 'Verma', 'Menon', 'Das', 'Gupta', 'Krishnan',
+];
+
+const SAMPLE_EMAIL_DOMAINS = ['gmail.com', 'outlook.com', 'yahoo.com'];
+
+const SAMPLE_ACADEMIC_FALLBACK = {
+  course: 'MCA',
+  batch: '2025-2027',
+  year: '1st Year',
+  semester: '2nd Semester',
+};
+
+const pickRandom = (list) => list[Math.floor(Math.random() * list.length)];
+
+function generateSampleStudent(academicPreset) {
+  const firstName = pickRandom(SAMPLE_FIRST_NAMES);
+  const lastName = pickRandom(SAMPLE_LAST_NAMES);
+  const fullName = `${firstName} ${lastName}`;
+
+  // rahul.kumar -> rahul.kumar@gmail.com (matches the generated name)
+  const emailSlug = fullName
+    .toLowerCase()
+    .replace(/[^a-z]+/g, '.')
+    .replace(/^\.|\.$/g, '');
+
+  const academic = {
+    course: academicPreset?.course || SAMPLE_ACADEMIC_FALLBACK.course,
+    batch: academicPreset?.batch || SAMPLE_ACADEMIC_FALLBACK.batch,
+    year: academicPreset?.year || SAMPLE_ACADEMIC_FALLBACK.year,
+    semester:
+      academicPreset?.semester != null
+        ? String(academicPreset.semester).includes('Semester')
+          ? String(academicPreset.semester)
+          : `${academicPreset.semester} Semester`
+        : SAMPLE_ACADEMIC_FALLBACK.semester,
+  };
+
+  return {
+    fullName,
+    // Login id / roll number — unique-looking per generation.
+    studentNumber: `STU${Math.floor(10000 + Math.random() * 90000)}`,
+    email: `${emailSlug}@${pickRandom(SAMPLE_EMAIL_DOMAINS)}`,
+    phone: `+91 9${Math.floor(100000000 + Math.random() * 899999999)}`,
+    ...academic,
+  };
+}
 
 export default function StudentForm({ onSubmit, initialData, onCancel, loading = false, teachers = [] }) {
   const [form, setForm] = useState(emptyForm);
@@ -144,6 +214,34 @@ export default function StudentForm({ onSubmit, initialData, onCancel, loading =
     }
   };
 
+  /*
+   * ✨ Auto Fill — writes generated sample values into the SAME form
+   * state used for manual entry. Nothing becomes readonly or disabled;
+   * the admin can edit any field (or clear it) before submitting, and
+   * only what is in the form at submit time reaches the backend.
+   */
+  const handleAutoFill = () => {
+    // Prefer the active preset so academic values stay institution-valid.
+    const preset =
+      configs.find((config) => config.active) || configs[0] || null;
+
+    const sample = generateSampleStudent(preset);
+
+    setForm((prev) => ({
+      ...prev,
+      ...sample,
+    }));
+
+    setAutoFilled({
+      course: Boolean(sample.course),
+      batch: Boolean(sample.batch),
+      year: Boolean(sample.year),
+      semester: Boolean(sample.semester),
+    });
+
+    toast.info('Sample details filled — every field stays editable.');
+  };
+
   const handleFormSubmit = async (event) => {
     event.preventDefault();
     setSubmitting(true);
@@ -218,7 +316,7 @@ export default function StudentForm({ onSubmit, initialData, onCancel, loading =
 
       {/* SECTION 1: Student Identity */}
       <div className="rounded-2xl border border-white/[0.08] bg-[#0d1430]/55 p-4 shadow-card backdrop-blur-sm sm:p-5">
-        <div className="mb-4 flex items-center justify-between border-b border-white/[0.06] pb-3">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-white/[0.06] pb-3">
           <div className="flex items-center gap-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-cyan-300/25 bg-cyan-400/10 text-cyan-300">
               <User size={15} />
@@ -232,9 +330,35 @@ export default function StudentForm({ onSubmit, initialData, onCancel, loading =
               </p>
             </div>
           </div>
-          <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-0.5 text-[10.5px] font-semibold text-slate-400">
-            Step 1
-          </span>
+
+          {!isEdit && (
+            <div className="flex flex-col items-end gap-1">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  type="button"
+                  icon={Sparkles}
+                  onClick={handleAutoFill}
+                  title="Fills the form with realistic sample values you can edit"
+                >
+                  Auto Fill
+                </Button>
+                <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-0.5 text-[10.5px] font-semibold text-slate-400">
+                  Step 1
+                </span>
+              </div>
+              <span className="text-right text-[9.5px] font-medium leading-tight text-slate-500">
+                Fills editable sample values — change anything before saving
+              </span>
+            </div>
+          )}
+
+          {isEdit && (
+            <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-0.5 text-[10.5px] font-semibold text-slate-400">
+              Step 1
+            </span>
+          )}
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

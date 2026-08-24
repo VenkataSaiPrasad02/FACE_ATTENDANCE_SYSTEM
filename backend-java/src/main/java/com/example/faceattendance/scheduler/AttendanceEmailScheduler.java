@@ -43,19 +43,26 @@ public class AttendanceEmailScheduler {
 
         LocalDate today = LocalDate.now();
 
-        log.info(
-                "Starting daily attendance email process for {}",
-                today
-        );
+        // [ATTENDANCE EMAIL] 1. Scheduler triggered
+        log.info("[ATTENDANCE EMAIL] 1. Scheduler triggered for date {}", today);
 
         // =========================================================
         // 1. Check whether today is a working day
         // =========================================================
 
-        if (!holidayService.isWorkingDay(today)) {
+        boolean workingDay = holidayService.isWorkingDay(today);
+
+        // [ATTENDANCE EMAIL] 2a. Working-day check result
+        log.info(
+                "[ATTENDANCE EMAIL] 2a. isWorkingDay({}) = {}",
+                today,
+                workingDay
+        );
+
+        if (!workingDay) {
 
             log.info(
-                    "Today {} is not a working day. " +
+                    "[ATTENDANCE EMAIL] Today {} is not a working day. " +
                             "Attendance emails skipped.",
                     today
             );
@@ -70,10 +77,15 @@ public class AttendanceEmailScheduler {
         List<Student> students =
                 studentRepository.findAll();
 
+        // [ATTENDANCE EMAIL] 2b. Attendance data retrieval — student roster
         log.info(
-                "Found {} students for attendance email.",
+                "[ATTENDANCE EMAIL] 2b. Found {} students for attendance email.",
                 students.size()
         );
+
+        int emailsSent = 0;
+        int studentsSkipped = 0;
+        int studentsFailed = 0;
 
         // =========================================================
         // 3. Process every student
@@ -84,13 +96,41 @@ public class AttendanceEmailScheduler {
             try {
 
                 // -------------------------------------------------
-                // Find student's active academic period
-                AcademicPeriodResponse academicPeriod =
-                        academicPeriodService.getActive(
+                // Find student's active academic period.
+                //
+                // findActive() deliberately returns Optional instead of
+                // throwing: students from older/other batches legitimately
+                // have no active period and must be SKIPPED with an info
+                // line — not reported as email failures. The previous
+                // getActive() call threw ResourceNotFoundException here,
+                // which surfaced as a scary per-student ERROR even though
+                // nothing was wrong with the mail pipeline.
+                // -------------------------------------------------
+                Optional<AcademicPeriodResponse> academicPeriodOpt =
+                        academicPeriodService.findActive(
                                 student.getCourse(),
                                 student.getBatch(),
                                 student.getSemester()
                         );
+
+                if (academicPeriodOpt.isEmpty()) {
+
+                    // [ATTENDANCE EMAIL] skip — no active period for this triple
+                    log.info(
+                            "[ATTENDANCE EMAIL] Skipping studentId={} ({}/{}/{}): " +
+                                    "no active academic period.",
+                            student.getId(),
+                            student.getCourse(),
+                            student.getBatch(),
+                            student.getSemester()
+                    );
+
+                    studentsSkipped++;
+                    continue;
+                }
+
+                AcademicPeriodResponse academicPeriod =
+                        academicPeriodOpt.get();
 
                 LocalDate periodStart =
                         academicPeriod.getStartDate();
@@ -102,18 +142,24 @@ public class AttendanceEmailScheduler {
                 // Make sure today is inside the period
                 // -------------------------------------------------
 
-                if (today.isBefore(periodStart)
-                        || today.isAfter(periodEnd)) {
+                boolean beforePeriod =
+                        periodStart != null && today.isBefore(periodStart);
+
+                boolean afterPeriod =
+                        periodEnd != null && today.isAfter(periodEnd);
+
+                if (beforePeriod || afterPeriod) {
 
                     log.info(
-                            "StudentId={} is outside academic period. " +
-                                    "Period={} to {}, today={}",
+                            "[ATTENDANCE EMAIL] Skipping studentId={}: today={} " +
+                                    "outside academic period {} to {}",
                             student.getId(),
+                            today,
                             periodStart,
-                            periodEnd,
-                            today
+                            periodEnd
                     );
 
+                    studentsSkipped++;
                     continue;
                 }
 
@@ -138,6 +184,16 @@ public class AttendanceEmailScheduler {
                                         student.getId(),
                                         today
                                 );
+
+                // [ATTENDANCE EMAIL] 3. Attendance data fetched for this student
+                log.info(
+                        "[ATTENDANCE EMAIL] 3. studentId={} recordsToday={} " +
+                                "(periodStart={}, workingDays={})",
+                        student.getId(),
+                        attendance.isPresent(),
+                        periodStart,
+                        workingDays
+                );
 
                 // -------------------------------------------------
                 // Count PRESENT only inside this period
@@ -171,17 +227,33 @@ public class AttendanceEmailScheduler {
                                 100.0
                         );
 
+                // -------------------------------------------------
+                // Recipient check
+                // -------------------------------------------------
+
+                if (student.getEmail() == null
+                        || student.getEmail().isBlank()) {
+
+                    // [ATTENDANCE EMAIL] 4. No recipient for this student
+                    log.warn(
+                            "[ATTENDANCE EMAIL] 4. Skipping studentId={}: no email address on file.",
+                            student.getId()
+                    );
+
+                    studentsSkipped++;
+                    continue;
+                }
+
+                // [ATTENDANCE EMAIL] 4. Recipient found
                 log.info(
-                        "StudentId={}, branch={}, batch={}, " +
-                                "semester={}, periodStart={}, " +
-                                "workingDays={}, presentDays={}, " +
+                        "[ATTENDANCE EMAIL] 4. studentId={}, branch={}, batch={}, " +
+                                "semester={}, recipient={}, presentDays={}, " +
                                 "percentage={}",
                         student.getId(),
                         student.getCourse(),
                         student.getBatch(),
                         student.getSemester(),
-                        periodStart,
-                        workingDays,
+                        student.getEmail(),
                         presentDays,
                         attendancePercentage
                 );
@@ -192,6 +264,15 @@ public class AttendanceEmailScheduler {
 
                 if (attendance.isPresent()) {
 
+                    // [ATTENDANCE EMAIL] 5. Report generated (PRESENT)
+                    log.info(
+                            "[ATTENDANCE EMAIL] 5. Building PRESENT report for studentId={} " +
+                                    "(date={}, time={})",
+                            student.getId(),
+                            attendance.get().getAttendanceDate(),
+                            attendance.get().getAttendanceTime()
+                    );
+
                     emailService.sendAttendanceEmail(
                             student,
                             attendance.get(),
@@ -199,7 +280,7 @@ public class AttendanceEmailScheduler {
                     );
 
                     log.info(
-                            "Present email sent to studentId={}",
+                            "[ATTENDANCE EMAIL] 8. Present email sent to studentId={}",
                             student.getId()
                     );
                 }
@@ -210,6 +291,13 @@ public class AttendanceEmailScheduler {
 
                 else {
 
+                    // [ATTENDANCE EMAIL] 5. Report generated (ABSENT)
+                    log.info(
+                            "[ATTENDANCE EMAIL] 5. Building ABSENT report for studentId={} (date={})",
+                            student.getId(),
+                            today
+                    );
+
                     emailService.sendAbsentEmail(
                             student,
                             today,
@@ -217,16 +305,21 @@ public class AttendanceEmailScheduler {
                     );
 
                     log.info(
-                            "Absent email sent to studentId={}",
+                            "[ATTENDANCE EMAIL] 8. Absent email sent to studentId={}",
                             student.getId()
                     );
                 }
 
+                emailsSent++;
+
             } catch (Exception exception) {
 
+                studentsFailed++;
+
+                // Full stack trace with causes — never swallowed.
                 log.error(
-                        "Failed to process attendance email " +
-                                "for studentId={}",
+                        "[ATTENDANCE EMAIL] Failed to process attendance email "
+                                + "for studentId={}",
                         student.getId(),
                         exception
                 );
@@ -234,8 +327,12 @@ public class AttendanceEmailScheduler {
         }
 
         log.info(
-                "Daily attendance email process completed for {}",
-                today
+                "[ATTENDANCE EMAIL] Daily attendance email process completed for {}: " +
+                        "emailsSent={}, skipped={}, failed={}",
+                today,
+                emailsSent,
+                studentsSkipped,
+                studentsFailed
         );
     }
 }

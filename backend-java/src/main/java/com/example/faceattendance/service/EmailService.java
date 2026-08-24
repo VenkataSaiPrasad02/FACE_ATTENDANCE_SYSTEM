@@ -1089,7 +1089,21 @@ public class EmailService {
 
             attachLogoIfAvailable(helper, recipient);
 
+            // [ATTENDANCE EMAIL] 7. Email constructed + handoff to JavaMail/SMTP
+            log.info(
+                    "[ATTENDANCE EMAIL] 6-7. Email constructed, handing off to SMTP: "
+                            + "to={}, subject={}",
+                    recipient,
+                    subject
+            );
+
             mailSender.send(message);
+
+            // [ATTENDANCE EMAIL] 8. Email send successful
+            log.info(
+                    "[ATTENDANCE EMAIL] 8. SMTP send successful: to={}",
+                    recipient
+            );
 
         } catch (MessagingException exception) {
 
@@ -1103,6 +1117,19 @@ public class EmailService {
                     "Failed to create attendance email",
                     exception
             );
+        } catch (RuntimeException exception) {
+
+            // org.springframework.mail.MailException (and anything else the
+            // sender throws) — log with the FULL cause chain here as well so
+            // a scheduled-task failure always shows the real SMTP error.
+            log.error(
+                    "[ATTENDANCE EMAIL] SMTP send FAILED for {}: {}",
+                    recipient,
+                    exception.getMessage(),
+                    exception
+            );
+
+            throw exception;
         }
     }
 
