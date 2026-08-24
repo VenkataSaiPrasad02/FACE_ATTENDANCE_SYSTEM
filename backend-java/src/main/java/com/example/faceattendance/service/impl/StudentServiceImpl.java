@@ -403,15 +403,15 @@ public class StudentServiceImpl implements StudentService {
         );
 
         // ---------------------------------------------------------
-        // 5. Refresh Java embedding cache
+        // 5. Update Java embedding cache incrementally (no full reload)
         // ---------------------------------------------------------
 
         stepStart = System.nanoTime();
 
-        embeddingCacheService.refresh();
+        embeddingCacheService.removeCandidate(id);
 
         log.info(
-                "[DELETE] Embedding cache refresh + Python sync: {} ms | cachedCandidates={}",
+                "[DELETE] Embedding cache updated + background Python sync queued: {} ms | cachedCandidates={}",
                 elapsedMs(stepStart),
                 embeddingCacheService.size()
         );

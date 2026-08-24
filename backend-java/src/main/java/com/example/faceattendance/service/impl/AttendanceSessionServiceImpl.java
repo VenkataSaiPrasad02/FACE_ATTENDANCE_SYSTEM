@@ -245,6 +245,15 @@ public class AttendanceSessionServiceImpl implements AttendanceSessionService {
                 request.getLatitude(), request.getLongitude(),
                 session.getLatitude(), session.getLongitude());
 
+        // [ATTENDANCE LOCATION DEBUG] — temporary diagnostic
+        log.info("[ATTENDANCE LOCATION DEBUG] sessionId={} studentId={} "
+                        + "studentLat={} studentLon={} sessionLat={} sessionLon={} "
+                        + "calculatedDistanceM={} allowedRadiusM={}",
+                sessionId, student.getId(),
+                request.getLatitude(), request.getLongitude(),
+                session.getLatitude(), session.getLongitude(),
+                Math.round(distance), session.getRadiusMeters());
+
         if (distance > session.getRadiusMeters()) {
             log.warn("Geofence rejected: student {} is {} m away from session {} (radius {} m)",
                     student.getId(), Math.round(distance), session.getId(), session.getRadiusMeters());

@@ -1,8 +1,21 @@
 import axios from 'axios';
 
-// Backend origin used for API calls and backend-served assets
+/*
+ * API base URL.
+ *
+ * Defaults to '' (same-origin): /api/* and /uploads/* are served by the
+ * SAME host that serves this app — the Vite dev proxy in development and
+ * server.js in production. Baking an absolute origin like
+ * "http://localhost:8080" into the bundle breaks every device except the
+ * machine running the backend: a student's phone would resolve
+ * "localhost" to ITSELF and every request would fail before any camera
+ * or face-scanning code could run.
+ *
+ * Set VITE_API_BASE_URL only when the backend genuinely lives on a
+ * different origin (e.g. deployed separately).
+ */
 export const API_ORIGIN =
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+  import.meta.env.VITE_API_BASE_URL || '';
 
 const api = axios.create({
   baseURL: API_ORIGIN,

@@ -29,10 +29,11 @@ export const attendanceSessionService = {
   close: (id) => api.post(`/api/attendance-sessions/${id}/close`),
 
   /**
-   * Student: the open session they are eligible to attend.
-   * Resolves to `{ available: boolean, session: object|null }`.
+   * Student: the open session they are eligible to attend lives in
+   * studentPortalService.getMySession() — the single source both the
+   * dashboard banner and TakeAttendancePage read. Do not add a second
+   * active-session lookup here.
    */
-  getMySession: () => api.get('/api/student-portal/me/session'),
 
   /** Student: full server-validated attendance attempt. */
   takeAttendance: (id, { latitude, longitude, imageBase64 }) =>

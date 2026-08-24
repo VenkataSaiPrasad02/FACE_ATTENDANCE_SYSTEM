@@ -97,10 +97,16 @@ public class FaceServiceImpl implements FaceService {
 
         perf.stop("Face Register - DB save (FaceData + Student)", saveSnap);
 
-        // 6. Refresh in-memory embedding cache
-        embeddingCacheService.refresh();
+        // 6. Update in-memory embedding cache incrementally (O(1) for this
+        // student) and queue a background snapshot sync to Python after
+        // commit. A full refresh() here previously reloaded + re-parsed the
+        // entire face_data table on EVERY registration (16-34 s at scale),
+        // exceeding the frontend's 30 s timeout and failing registrations
+        // even though detection/embedding had succeeded.
+        embeddingCacheService.upsert(student.getId(), embeddingJson);
 
-        log.info("Face embedding cache refreshed after registration. Cached candidates={}",
+        log.info("Embedding cache updated for studentId={} | queued background sync | cached candidates={}",
+                student.getId(),
                 embeddingCacheService.size());
 
         log.info("Face registered for studentId={}", student.getId());
@@ -124,10 +130,11 @@ public class FaceServiceImpl implements FaceService {
                     log.info("Face data deleted for studentId={}", studentId);
                 });
 
-        // Remove deleted student's embedding from memory cache
-        embeddingCacheService.refresh();
+        // Remove deleted student's embedding from memory cache and
+        // queue a background sync (no full table reload needed)
+        embeddingCacheService.removeCandidate(studentId);
 
-        log.info("Face embedding cache refreshed after deletion. Cached candidates={}",
+        log.info("Embedding cache updated after deletion. Cached candidates={}",
                 embeddingCacheService.size());
     }
 }

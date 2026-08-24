@@ -2,6 +2,7 @@ package com.example.faceattendance.repository;
 
 import com.example.faceattendance.entity.FaceData;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,4 +22,13 @@ public interface FaceDataRepository extends JpaRepository<FaceData, Long> {
      * all stored embeddings as candidates.
      */
     List<FaceData> findAll();
+
+    /**
+     * Loads only (studentId, embedding) pairs in a SINGLE query — no entity
+     * hydration and no lazy-loading N+1 (FaceData.student is LAZY, so calling
+     * getStudent().getId() per row previously fired one SELECT per record and
+     * made a full cache refresh take tens of seconds at scale).
+     */
+    @Query("select fd.student.id, fd.embedding from FaceData fd")
+    List<Object[]> findAllStudentIdEmbeddingPairs();
 }

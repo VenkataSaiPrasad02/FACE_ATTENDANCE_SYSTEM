@@ -21,10 +21,22 @@ import PolishedCameraCapture, {
   CAMERA_STATES,
 } from '../../components/PolishedCameraCapture';
 import { useAuth } from '../../hooks/useAuth';
+import studentPortalService from '../../services/studentPortalService';
 import attendanceSessionService from '../../services/attendanceSessionService';
 import { getErrorMessage } from '../../utils/errorMessages';
 
 const SESSION_POLL_INTERVAL_MS = 30_000;
+
+/*
+ * A geolocation fix whose uncertainty exceeds this cannot prove the
+ * student is inside the 50 m attendance radius. Browsers fall back to
+ * IP-based positioning when Wi‑Fi/GPS is unavailable; those fixes can be
+ * hundreds of kilometres off (e.g. the ISP gateway city) while still
+ * "succeeding". Submitting them produced confusing 403
+ * OUTSIDE_ATTENDANCE_AREA responses from across the state.
+ */
+const GEO_MAX_ACCURACY_M = 150;
+const GEO_MAX_AUTO_RETRIES = 2;
 
 /*
  * Mobile-first student flow:
@@ -40,8 +52,10 @@ export default function TakeAttendancePage() {
   const [sessionInfo, setSessionInfo] = useState(null); // {available, session}
   const [loadError, setLoadError] = useState('');
 
-  const [geoStatus, setGeoStatus] = useState('idle'); // idle | prompt | granted | denied | unsupported
+  const [geoStatus, setGeoStatus] = useState('idle'); // idle | prompt | granted | denied | unavailable | timeout | inaccurate | unsupported
   const [coords, setCoords] = useState(null);
+  const [geoAccuracy, setGeoAccuracy] = useState(null);
+  const geoRetryCountRef = useRef(0);
 
   const [cameraState, setCameraState] = useState(CAMERA_STATES.IDLE);
   const [capturedImage, setCapturedImage] = useState(null);
@@ -62,7 +76,18 @@ export default function TakeAttendancePage() {
     else setLoading(true);
 
     try {
-      const data = await attendanceSessionService.getMySession();
+      /*
+       * Single source of truth for active-session detection: the same
+       * studentPortalService.getMySession() call the dashboard banner uses
+       * (/api/student-portal/me/session -> { available, session }). The
+       * backend owns every matching rule (course/batch/year/semester,
+       * expiry); this page must not re-derive them.
+       *
+       * NOTE: unwrap the axios response with { data } — storing the raw
+       * response left `available`/`session` undefined and this page always
+       * claimed no session was open, even when the dashboard showed one.
+       */
+      const { data } = await studentPortalService.getMySession();
       setSessionInfo(data);
       setLoadError('');
 
@@ -153,16 +178,64 @@ export default function TakeAttendancePage() {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setCoords({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
+        const { latitude, longitude, accuracy } = position.coords;
+        setCoords({ latitude, longitude });
+        setGeoAccuracy(accuracy ?? null);
+
+        console.debug('[FRONTEND LOCATION DEBUG] geolocation fix', {
+          latitude,
+          longitude,
+          accuracy,
         });
+
+        /*
+         * A coarse fix (IP fallback / stale OS estimate) can be many
+         * kilometres away from the real position while still reporting
+         * success. Retry a couple of times for a precise fix before giving
+         * up — never silently submit coordinates we cannot trust.
+         */
+        if (accuracy != null && accuracy > GEO_MAX_ACCURACY_M) {
+          if (geoRetryCountRef.current < GEO_MAX_AUTO_RETRIES) {
+            geoRetryCountRef.current += 1;
+            // maximumAge: 0 below forces a genuinely fresh attempt.
+            setTimeout(requestLocation, 600);
+            return;
+          }
+          setGeoStatus('inaccurate');
+          return;
+        }
+
+        geoRetryCountRef.current = 0;
         setGeoStatus('granted');
         setCameraState(CAMERA_STATES.LIVE);
       },
-      () => setGeoStatus('denied'),
-      { enableHighAccuracy: true, timeout: 12_000, maximumAge: 15_000 }
+      /*
+       * The failure reason matters: "permission denied" means the student
+       * blocked location, while POSITION_UNAVAILABLE / TIMEOUT usually mean
+       * the DEVICE has no working location source (common on desktops with
+       * the OS location service off) or the fix took too long. Lumping
+       * every error into "permission was declined" made those devices look
+       * broken and blocked the scanner. Each case now gets an accurate
+       * message and can simply be retried.
+       */
+      (err) => {
+        if (err?.code === err?.PERMISSION_DENIED) {
+          setGeoStatus('denied');
+        } else if (err?.code === err?.POSITION_UNAVAILABLE) {
+          setGeoStatus('unavailable');
+        } else {
+          setGeoStatus('timeout');
+        }
+      },
+      // maximumAge: 0 — a cached/stale position is worthless for a 50 m check.
+      { enableHighAccuracy: true, timeout: 12_000, maximumAge: 0 }
     );
+  };
+
+  // Manual attempts always get fresh auto-retries back.
+  const handleStartLocation = () => {
+    geoRetryCountRef.current = 0;
+    requestLocation();
   };
 
   // =========================================================
@@ -205,6 +278,8 @@ export default function TakeAttendancePage() {
     setCapturedImage(null);
     setResultMessage(null);
     setCoords(null);
+    setGeoAccuracy(null);
+    geoRetryCountRef.current = 0;
     setGeoStatus('idle');
     setCameraState(CAMERA_STATES.IDLE);
     loadSession({ silent: true });
@@ -216,6 +291,13 @@ export default function TakeAttendancePage() {
 
   const handleSubmit = async () => {
     if (!capturedImage || !coords || !sessionInfo?.session) return;
+
+    console.debug('[FRONTEND LOCATION DEBUG] submitting attendance', {
+      latitude: coords.latitude,
+      longitude: coords.longitude,
+      accuracy: geoAccuracy,
+      sessionId: sessionInfo.session.id,
+    });
 
     setCameraState(CAMERA_STATES.PROCESSING);
     setSubmitting(true);
@@ -438,6 +520,41 @@ export default function TakeAttendancePage() {
                     </div>
                   )}
 
+                  {geoStatus === 'unavailable' && (
+                    <div className="mx-auto mt-4 flex max-w-sm items-start gap-2.5 rounded-xl border border-amber-300/25 bg-amber-400/10 p-3 text-left text-amber-300 animate-fade-in">
+                      <MapPin size={16} className="mt-0.5 shrink-0 text-amber-400" />
+                      <p className="text-xs font-medium leading-relaxed">
+                        This device could not determine your location. Turn on the
+                        operating system location service (and Wi‑Fi, which helps
+                        desktops and laptops locate themselves), then tap Start
+                        Attendance again.
+                      </p>
+                    </div>
+                  )}
+
+                  {geoStatus === 'timeout' && (
+                    <div className="mx-auto mt-4 flex max-w-sm items-start gap-2.5 rounded-xl border border-amber-300/25 bg-amber-400/10 p-3 text-left text-amber-300 animate-fade-in">
+                      <MapPin size={16} className="mt-0.5 shrink-0 text-amber-400" />
+                      <p className="text-xs font-medium leading-relaxed">
+                        Locating you took too long. Please make sure location services
+                        are on and try again.
+                      </p>
+                    </div>
+                  )}
+
+                  {geoStatus === 'inaccurate' && (
+                    <div className="mx-auto mt-4 flex max-w-sm items-start gap-2.5 rounded-xl border border-rose-300/25 bg-rose-500/10 p-3 text-left text-rose-300 animate-fade-in">
+                      <MapPin size={16} className="mt-0.5 shrink-0 text-rose-400" />
+                      <p className="text-xs font-medium leading-relaxed">
+                        This device’s location estimate is too imprecise (±
+                        {geoAccuracy != null ? Math.round(geoAccuracy) : '?'} m) to verify
+                        you are inside the classroom area — it may be placing you far away
+                        from your real position. Connect to the classroom Wi‑Fi, enable GPS
+                        / Windows location services, then tap Start Attendance again.
+                      </p>
+                    </div>
+                  )}
+
                   {geoStatus === 'unsupported' && (
                     <div className="mx-auto mt-4 flex max-w-sm items-start gap-2.5 rounded-xl border border-amber-300/25 bg-amber-400/10 p-3 text-left text-amber-300 animate-fade-in">
                       <MapPin size={16} className="mt-0.5 shrink-0 text-amber-400" />
@@ -452,7 +569,7 @@ export default function TakeAttendancePage() {
                     variant="primary"
                     size="lg"
                     icon={ShieldCheck}
-                    onClick={requestLocation}
+                    onClick={handleStartLocation}
                     loading={geoStatus === 'prompt'}
                     className="mt-6 min-w-56 shadow-glow-sm"
                   >
@@ -511,11 +628,13 @@ export default function TakeAttendancePage() {
                 detail={`${countdownLabel} left`}
               />
               <ChecklistItem
-                done={Boolean(coords)}
+                done={Boolean(coords) && geoStatus === 'granted'}
                 label="Location verified"
                 detail={
                   coords
-                    ? `${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`
+                    ? `${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}${
+                        geoAccuracy != null ? ` (±${Math.round(geoAccuracy)} m)` : ''
+                      }`
                     : geoStatus === 'prompt'
                     ? 'Checking…'
                     : 'Waiting'

@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "start": "node server.js",
+    "certs": "powershell -ExecutionPolicy Bypass -File generate-certs.ps1",
     "preview": "vite preview"
   },
   "dependencies": {

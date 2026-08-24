@@ -95,8 +95,17 @@ export default function PolishedCameraCapture({
 
     if (!navigator.mediaDevices?.getUserMedia) {
 
+      /*
+       * getUserMedia is missing in exactly one common situation: the page
+       * was loaded over plain http:// from a non-localhost address (e.g.
+       * http://192.168.x.x:5173). Browsers only expose camera APIs in
+       * secure contexts. Tell the user how to connect instead of claiming
+       * their browser is unsupported.
+       */
       setCameraError(
-        'Camera access is not supported by this browser.'
+        window.isSecureContext
+          ? 'Camera access is not supported by this browser.'
+          : 'Camera access requires a secure connection. Please open this page using https:// (or http://localhost) and try again.'
       );
 
       return;
