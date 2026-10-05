@@ -18,6 +18,13 @@ frontend-UI/.vite/
 face-service-python/.venv/
 face-service-python/venv/
 
+# Redis persistence files. Redis runs inside Compose with its data on the
+# named volume, so a dump.rdb in the repo root is always stray - it was
+# committed by accident from a local (non-Docker) run.
+dump.rdb
+*.rdb
+appendonly.aof
+
 # User-uploaded files
 backend-java/uploads/
 

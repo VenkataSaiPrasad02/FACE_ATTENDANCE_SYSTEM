@@ -1,0 +1,44 @@
+# ============================================================
+# Build context ignore for: backend (Spring Boot)
+# ============================================================
+# Docker ONLY reads `.dockerignore` from the ROOT OF THE BUILD CONTEXT.
+# docker-compose.yml sets `context: ./backend-java`, so this file has to
+# live here. The repo-root `.dockerignore.java` is NOT applied to this build.
+
+# ---- Maven ----
+# target/ holds a locally built jar and its dependency tree; sending it
+# would bloat the context and can shadow the jar produced in-image.
+target/
+.mvn/
+!.mvn/wrapper/maven-wrapper.jar
+
+# ---- IDE ----
+.idea/
+.vscode/
+*.iws
+*.iml
+*.ipr
+.classpath
+.project
+.settings/
+
+# ---- Runtime uploads (mounted as a volume instead) ----
+uploads/
+
+# ---- Environment / secrets ----
+.env
+.env.*
+!.env.example
+
+# ---- Logs ----
+*.log
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+
+# ---- CI / docs ----
+.github/
+*.md
+README.md
+PASSWORD_RECOVERY_IMPLEMENTATION.md

@@ -1,0 +1,56 @@
+# ============================================================
+# Build context ignore for: frontend (React + Vite)
+# ============================================================
+# Docker ONLY reads `.dockerignore` from the ROOT OF THE BUILD CONTEXT.
+# docker-compose.yml sets `context: ./frontend-UI`, so this file has to live
+# here. The repo-root `.dockerignore.frontend` is NOT applied to this build.
+#
+# node_modules/ and dist/ are the load-bearing entries: Dockerfile.frontend
+# runs `npm ci` and then `COPY . .`, so without these the host's Windows
+# node_modules (npm uses junctions, not symlinks, there) is copied over the
+# Linux one and Vite fails to start inside the container.
+
+# ---- Dependencies ----
+node_modules/
+.pnpm-store/
+
+# ---- Build output ----
+dist/
+build/
+.vite/
+
+# ---- Environment / secrets ----
+# frontend-UI/.env must never enter the image or the build context.
+.env
+.env.*
+!.env.example
+
+# ---- TLS dev certificates (generated per-machine) ----
+certs/
+*.pem
+*.crt
+*.key
+*.p12
+generate-certs.ps1
+
+# ---- Logs ----
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ---- Testing ----
+coverage/
+
+# ---- IDE ----
+.vscode/
+.idea/
+*.swp
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+
+# ---- Docs ----
+*.md
+DESIGN_SYSTEM.md

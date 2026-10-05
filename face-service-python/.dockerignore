@@ -1,0 +1,64 @@
+# ============================================================
+# Build context ignore for: python-face-service
+# ============================================================
+# Docker ONLY reads `.dockerignore` from the ROOT OF THE BUILD CONTEXT.
+# docker-compose.yml sets `context: ./face-service-python`, so this file
+# has to live here. The repo-root `.dockerignore.python` is NOT applied to
+# this build, which is why .venv/, __pycache__/ etc. must be listed again.
+
+# ---- Abandoned alternative dockerization (NOT part of the app) ----
+# These three directories each contain only a stale Dockerfile +
+# .dockerignore from an earlier attempt that was superseded by the
+# root-level Dockerfile.* files. They are not service sources.
+backend-java/
+face-service-python/
+frontend-UI/
+
+# ---- Virtual environments ----
+.venv/
+venv/
+env/
+ENV/
+
+# ---- Python cache / build output ----
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# ---- Tests & dev-only scripts (not needed at runtime) ----
+tests/
+benchmark_performance.py
+generate_perf_data.py
+cv2_test_shim.py
+working-packages.txt
+uvicorn_config.py
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# ---- IDE ----
+.vscode/
+.idea/
+*.swp
+
+# ---- Logs ----
+*.log
+
+# ---- Environment / secrets ----
+.env
+.env.*
+!.env.example
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+
+# ---- Docs ----
+*.md

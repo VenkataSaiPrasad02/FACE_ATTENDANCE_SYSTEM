@@ -1,0 +1,49 @@
+# ============================================================
+# Python Face Service .dockerignore
+# ============================================================
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.*
+
+# Test files
+tests/
+benchmark_performance.py
+generate_perf_data.py
+cv2_test_shim.py
+working-packages.txt
+
+# Documentation
+*.md

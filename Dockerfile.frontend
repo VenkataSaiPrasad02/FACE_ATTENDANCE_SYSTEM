@@ -1,0 +1,40 @@
+# ============================================================
+# React Frontend Dockerfile
+# ============================================================
+# Development mode: runs Vite dev server with HMR
+# For production, use build stage instead
+# ============================================================
+
+FROM node:20-alpine
+
+# Install curl for healthcheck
+RUN apk add --no-cache curl
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files first for better caching
+COPY package*.json ./
+
+# Install dependencies (dev deps included - the Vite dev server is what
+# runs in this image, so tailwindcss/vite/@vitejs/plugin-react are needed).
+# `npm ci` is deliberate: it installs exactly what package-lock.json pins.
+# frontend-UI/.dockerignore must keep node_modules/ and dist/ out of the
+# build context, otherwise `COPY . .` below overwrites the Linux
+# node_modules built here with the Windows one from the host and the
+# container fails to start Vite.
+RUN npm ci --no-audit --no-fund
+
+# Copy application code
+COPY . .
+
+# Expose port
+EXPOSE 5173
+
+# Health check
+HEALTHCHECK --interval=10s --timeout=5s --start-period=20s --retries=3 \
+    CMD curl -f http://localhost:5173 || exit 1
+
+# Run Vite dev server
+# Using --host 0.0.0.0 to allow external connections in Docker
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

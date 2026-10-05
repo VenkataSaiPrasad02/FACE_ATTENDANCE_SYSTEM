@@ -1,0 +1,42 @@
+# ============================================================
+# React Frontend .dockerignore
+# ============================================================
+
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+
+# Testing
+coverage/
+
+# Certificates (generated locally)
+*.pem
+*.crt
+*.key
+generate-certs.ps1
+
+# Documentation
+*.md
+DESIGN_SYSTEM.md

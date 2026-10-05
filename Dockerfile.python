@@ -1,0 +1,122 @@
+# ============================================================
+# Python Face Service Dockerfile
+# ============================================================
+# Multi-stage build for InsightFace + FastAPI service
+#
+# Notes on the two things that historically break this image:
+#
+#  1. insightface==0.7.3 has NO Linux wheel on PyPI, so pip builds it
+#     from the sdist. Its setup.py runs `cythonize()` on
+#     insightface/utils/mesh_core_cython.pyx, so Cython MUST be present
+#     in the build environment. insightface 0.7.3 predates Cython 3, and
+#     Cython 3 breaks its .pyx, hence the `cython<0.30` pin.
+#     `--no-build-isolation` is used so the build sees the pinned Cython
+#     and numpy we installed instead of pip's throwaway isolated env.
+#
+#  2. The InsightFace "buffalo_s" model pack is downloaded from GitHub on
+#     first use. That makes the first container start slow and network
+#     dependent, which in turn makes the Compose healthcheck flaky. We
+#     pre-bake it into the image below so the model is already present.
+#     The /root/.insightface named volume still layers on top (and is
+#     seeded from this baked copy on first run).
+# ============================================================
+
+# ============================================================
+# Builder stage - compile InsightFace's Cython extensions
+# ============================================================
+FROM python:3.11-slim AS builder
+
+# build-essential -> gcc/g++ for InsightFace + pycocotools C extensions
+# cmake            -> required by some InsightFace build paths
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    cmake \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Build tooling first so it stays cached while requirements.txt changes.
+# Cython is pinned <0.30 on purpose (see header note).
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
+    && pip install --no-cache-dir "cython<0.30" "numpy==1.25.2"
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir --no-build-isolation -r requirements.txt
+
+# ============================================================
+# Final stage
+# ============================================================
+FROM python:3.11-slim
+
+# Runtime shared libraries only.
+#   libglib2.0-0 -> image codecs used by Pillow / OpenCV
+#   libgomp1     -> OpenMP runtime required by onnxruntime + opencv
+#   libgfortran5 -> required by the scipy build that scikit-learn pulls in
+#   curl         -> container healthcheck
+# NOTE: no libGL* here. requirements.txt uses opencv-python-headless,
+# which is headless by design; libgl1-mesa-glx is a transitional package
+# that is gone in newer Debian and would only break the apt step.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libglib2.0-0 \
+    libgomp1 \
+    libgfortran5 \
+    libstdc++6 \
+    ca-certificates \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy installed packages from builder
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Copy application code
+COPY app/ ./app/
+
+# Create directory for InsightFace models (also bind-mounted as a volume
+# by docker-compose.yml so the downloaded pack survives container rebuilds)
+RUN mkdir -p /root/.insightface/models
+
+# ------------------------------------------------------------
+# Pre-bake the InsightFace model pack into the image.
+#
+# Set --build-arg PREBAKE_MODEL=false to skip this and let the container
+# download at runtime instead. The download is wrapped so that an offline
+# build still succeeds (the volume will fetch it on first start instead).
+# ------------------------------------------------------------
+ARG INSIGHTFACE_MODEL_NAME=buffalo_s
+ARG PREBAKE_MODEL=true
+RUN if [ "$PREBAKE_MODEL" = "true" ]; then \
+      INSIGHTFACE_MODEL_NAME="$INSIGHTFACE_MODEL_NAME" python -c "\
+import os, insightface; \
+from insightface.app import FaceAnalysis; \
+name = os.environ['INSIGHTFACE_MODEL_NAME']; \
+print('Pre-baking InsightFace model:', name); \
+app = FaceAnalysis(name=name, root='/root/.insightface', providers=['CPUExecutionProvider']); \
+app.prepare(ctx_id=-1, det_size=(640, 640)); \
+print('Model ready:', app.get_model().input_shape if hasattr(app,'get_model') else 'ok'); \
+" || echo 'WARNING: InsightFace model pre-download failed. The container will download it on first start (needs internet).'; \
+    else echo 'Skipping model pre-bake (PREBAKE_MODEL=false).'; \
+    fi
+
+# Expose port
+EXPOSE 8000
+
+# ------------------------------------------------------------
+# Health check
+#
+# The real route is GET /api/face/health - app/api/routes/health_routes.py
+# mounts the router with prefix="/api/face" and then "/health".
+# Probing bare "/health" returns 404 and, because the backend has
+# `depends_on: python-face-service: condition: service_healthy`, that 404
+# stops the backend (and therefore the frontend) from ever starting.
+# ------------------------------------------------------------
+HEALTHCHECK --interval=10s --timeout=5s --start-period=120s --retries=10 \
+    CMD curl -f http://localhost:8000/api/face/health || exit 1
+
+# Run the application
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
